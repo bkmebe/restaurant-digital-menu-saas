@@ -13,13 +13,26 @@ export function useAuth() {
 
   useEffect(() => {
     const supabase = createClient()
+    let cancelled = false
+
+    const timeout = setTimeout(() => {
+      if (!cancelled) setLoading(false)
+    }, 5000)
 
     supabase.auth.getUser().then(({ data: { user } }) => {
+      if (cancelled) return
+      clearTimeout(timeout)
       setUser(user)
       if (user) {
         supabase.from('profiles').select('*').eq('id', user.id).single()
-          .then(({ data }) => setProfile(data as Profile))
+          .then(({ data }) => {
+            if (!cancelled) setProfile(data as Profile)
+          })
       }
+      setLoading(false)
+    }).catch(() => {
+      if (cancelled) return
+      clearTimeout(timeout)
       setLoading(false)
     })
 
@@ -33,7 +46,11 @@ export function useAuth() {
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      cancelled = true
+      clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
   }, [])
 
   const login = async (email: string, password: string) => {
