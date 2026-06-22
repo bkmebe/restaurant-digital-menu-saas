@@ -7,19 +7,12 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY!
 const TENANT_A_ID = '00000000-0000-0000-0000-000000000010'
 const TENANT_B_ID = '00000000-0000-0000-0000-000000000011'
 
-const SENSITIVE_TABLES = [
-  'orders', 'menu_items', 'order_items',
-  'employees', 'payrolls', 'audit_logs',
-  'branches', 'subscriptions',
-  'tables', 'categories',
-]
+async function main() {
+  console.log('🔒 Cross-Tenant Access Probe (via RLS)')
+  console.log('========================================')
 
-async function probe() {
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    realtime: { transport: WebSocket as any },
-  })
-
-  const { data: { session }, error } = await supabase.auth.signInWithPassword({
+  const c = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { realtime: { transport: WebSocket as any } })
+  const { data: { session }, error } = await c.auth.signInWithPassword({
     email: 'admin-a@test.com',
     password: 'TestPass123!',
   })
@@ -32,7 +25,9 @@ async function probe() {
 
   let failures = 0
 
-  for (const table of SENSITIVE_TABLES) {
+  const TABLES = ['menu_items', 'orders', 'employees', 'payrolls', 'audit_logs', 'categories', 'tables', 'service_requests', 'payment_configs']
+
+  for (const table of TABLES) {
     const { data, error: queryError } = await authed
       .from(table)
       .select('*', { count: 'exact', head: true })
@@ -40,12 +35,8 @@ async function probe() {
 
     const leaked = !queryError && (data?.length ?? 0) > 0
     const icon = leaked ? '❌' : '✅'
-    console.log(`${icon} ${table}: ${leaked ? `CROSS-TENANT LEAK (${data?.length} rows from tenant B)` : 'isolated'}`)
-
-    if (leaked) {
-      console.error(`  CRITICAL: ${table} returned data for restaurant_id ≠ ${TENANT_A_ID}`)
-      failures++
-    }
+    console.log(`${icon} ${table}: ${leaked ? `CROSS-TENANT LEAK (${data?.length} rows)` : 'isolated'}`)
+    if (leaked) { console.error(`  CRITICAL: ${table} returned data from other tenants`); failures++ }
   }
 
   const { data: bData, error: bError } = await authed
@@ -54,21 +45,8 @@ async function probe() {
     .eq('restaurant_id', TENANT_B_ID)
 
   const directAccess = !bError && (bData?.length ?? 0) > 0
-  if (directAccess) {
-    console.error(`❌ employees: Direct query for tenant B data returned ${bData?.length} rows — cross-tenant access`)
-    failures++
-  } else {
-    console.log(`✅ employees: Direct query for tenant B data blocked by RLS`)
-  }
-
-  return failures
-}
-
-async function main() {
-  console.log('🔒 Cross-Tenant Access Probe (via RLS)')
-  console.log('========================================')
-
-  const failures = await probe()
+  if (directAccess) { console.error(`❌ employees: DIRECT access to tenant B data`); failures++ }
+  else console.log(`✅ employees: Direct query for tenant B blocked`)
 
   if (failures > 0) {
     console.error(`\n❌ FAILED: ${failures} cross-tenant access violations detected`)

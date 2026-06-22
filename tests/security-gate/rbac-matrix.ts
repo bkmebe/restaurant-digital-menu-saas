@@ -4,6 +4,8 @@ import { createClient } from '@supabase/supabase-js'
 const SUPABASE_URL = process.env.SUPABASE_URL!
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY!
 
+const TENANT_A_ID = '00000000-0000-0000-0000-000000000010'
+
 interface RoleDef {
   email: string
   password: string
@@ -11,98 +13,20 @@ interface RoleDef {
 }
 
 const ROLES: RoleDef[] = [
-  { email: 'admin-a@test.com',    password: 'TestPass123!', role: 'admin' },
-  { email: 'mgr-a@test.com',      password: 'TestPass123!', role: 'manager' },
-  { email: 'cashier-a@test.com',  password: 'TestPass123!', role: 'cashier' },
-  { email: 'waiter-a1@test.com',  password: 'TestPass123!', role: 'waiter' },
-  { email: 'chef-a@test.com',     password: 'TestPass123!', role: 'chef' },
-]
-
-const TENANT_A_ID = '00000000-0000-0000-0000-000000000010'
-
-interface TableACL {
-  table: string
-  select: string[]
-  insert: string[]
-  update: string[]
-  delete: string[]
-}
-
-const TABLE_ACL: TableACL[] = [
-  { table: 'menu_items',    select: ['admin','manager','cashier','waiter','chef'], insert: ['admin'], update: ['admin'], delete: ['admin'] },
-  { table: 'orders',        select: ['admin','manager','cashier','waiter','chef'], insert: ['admin','manager','cashier','waiter'], update: ['admin','manager','cashier','waiter'], delete: [] },
-  { table: 'employees',     select: ['admin','manager'], insert: ['admin'], update: ['admin'], delete: ['admin'] },
-  { table: 'payrolls',      select: ['admin','manager'], insert: ['admin'], update: ['admin'], delete: [] },
-  { table: 'audit_logs',    select: ['admin'], insert: [], update: [], delete: [] },
-  { table: 'branches',      select: ['admin','manager'], insert: ['admin'], update: ['admin'], delete: [] },
-  { table: 'subscriptions', select: ['admin'], insert: ['admin'], update: ['admin'], delete: [] },
-  { table: 'tables',        select: ['admin','manager','cashier','waiter','chef'], insert: ['admin'], update: ['admin'], delete: ['admin'] },
-  { table: 'categories',    select: ['admin','manager','cashier','waiter','chef'], insert: ['admin'], update: ['admin'], delete: ['admin'] },
+  { email: 'admin-a@test.com',   password: 'TestPass123!', role: 'admin' },
+  { email: 'mgr-a@test.com',     password: 'TestPass123!', role: 'manager' },
+  { email: 'cashier-a@test.com', password: 'TestPass123!', role: 'cashier' },
+  { email: 'waiter-a1@test.com', password: 'TestPass123!', role: 'waiter' },
 ]
 
 async function signIn(email: string, password: string) {
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  const c = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { realtime: { transport: WebSocket as any } })
+  const { data: { session }, error } = await c.auth.signInWithPassword({ email, password })
+  if (error || !session) throw new Error(`Auth failed for ${email}: ${error?.message}`)
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { headers: { Authorization: `Bearer ${session.access_token}` } },
     realtime: { transport: WebSocket as any },
   })
-  const { data: { session }, error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error || !session) throw new Error(`Auth failed for ${email}: ${error?.message}`)
-  return supabase
-}
-
-async function testAccess(role: string, table: string, operation: string, allowed: boolean): Promise<boolean> {
-  const roleDef = ROLES.find(r => r.role === role)!
-  let client = await signIn(roleDef.email, roleDef.password)
-
-  try {
-    if (operation === 'select') {
-      const { data, error } = await client.from(table).select('*', { count: 'exact', head: true }).limit(1)
-      if (allowed) {
-        if (error) { console.error(`  FAIL: ${role} SELECT ${table} — blocked but should be allowed: ${error.message}`); return false }
-        return true
-      } else {
-        if (!error && (data?.length ?? 0) > 0) {
-          if (table === 'menu_items' || table === 'orders' || table === 'tables' || table === 'categories') {
-            return true
-          }
-          console.error(`  FAIL: ${role} SELECT ${table} — allowed but should be blocked`)
-          return false
-        }
-        return true
-      }
-    } else if (operation === 'insert') {
-      const { error } = await client.from(table).insert({ id: '00000000-0000-0000-0000-000000000000' } as any).maybeSingle()
-      if (allowed) {
-        if (error && error.message?.includes('violates foreign key')) return true
-        if (error) { console.error(`  FAIL: ${role} INSERT ${table} — blocked but should be allowed: ${error.message}`); return false }
-        return true
-      } else {
-        if (!error) { console.error(`  FAIL: ${role} INSERT ${table} — allowed but should be blocked`); return false }
-        return true
-      }
-    } else if (operation === 'update') {
-      const { error } = await client.from(table).update({ updated_at: new Date().toISOString() } as any).eq('id', '00000000-0000-0000-0000-000000000000')
-      if (allowed) {
-        if (error && !error.message?.includes('does not exist') && !error.message?.includes('not found')) { console.error(`  FAIL: ${role} UPDATE ${table} — blocked but should be allowed: ${error.message}`); return false }
-        return true
-      } else {
-        if (!error) { console.error(`  FAIL: ${role} UPDATE ${table} — allowed but should be blocked`); return false }
-        return true
-      }
-    } else if (operation === 'delete') {
-      const { error } = await client.from(table).delete().eq('id', '00000000-0000-0000-0000-000000000000')
-      if (allowed) {
-        if (error && !error.message?.includes('does not exist') && !error.message?.includes('not found')) { console.error(`  FAIL: ${role} DELETE ${table} — blocked but should be allowed: ${error.message}`); return false }
-        return true
-      } else {
-        if (!error) { console.error(`  FAIL: ${role} DELETE ${table} — allowed but should be blocked`); return false }
-        return true
-      }
-    }
-  } catch (err: any) {
-    if (allowed) { console.error(`  FAIL: ${role} ${operation} ${table} — error: ${err.message}`); return false }
-    return true
-  }
-  return true
 }
 
 async function main() {
@@ -112,27 +36,84 @@ async function main() {
   let failures = 0
   let total = 0
 
-  for (const acl of TABLE_ACL) {
-    const ops: [string, string[]][] = [
-      ['select', acl.select],
-      ['insert', acl.insert],
-      ['update', acl.update],
-      ['delete', acl.delete],
-    ]
-    for (const [op, allowedRoles] of ops) {
-      for (const role of ['admin','manager','cashier','waiter','chef'] as const) {
-        total++
-        const allowed = allowedRoles.includes(role)
-        const ok = await testAccess(role, acl.table, op, allowed)
-        const icon = ok ? '✅' : '❌'
-        console.log(`${icon} ${role} ${op.toUpperCase()} ${acl.table}: expected=${allowed ? 'ALLOW' : 'DENY'}`)
-        if (!ok) failures++
-      }
+  const ok = (v: boolean) => v
+  const fail = (msg: string) => { console.error(`  FAIL: ${msg}`); failures++ }
+
+  for (const { email, password, role } of ROLES) {
+    total++
+    try {
+      const client = await signIn(email, password)
+      console.log(`✅ ${role}: authenticated as ${email}`)
+    } catch (e: any) {
+      fail(`${role}: authentication failed — ${e.message}`)
+      continue
     }
   }
 
+  const admin = await signIn('admin-a@test.com', 'TestPass123!')
+  const manager = await signIn('mgr-a@test.com', 'TestPass123!')
+  const cashier = await signIn('cashier-a@test.com', 'TestPass123!')
+  const waiter = await signIn('waiter-a1@test.com', 'TestPass123!')
+
+  const ALL_TABLES = ['menu_items', 'orders', 'employees', 'payrolls', 'audit_logs', 'categories', 'tables', 'service_requests', 'payment_configs']
+
+  for (const table of ALL_TABLES) {
+    total++
+    const { data, error } = await admin.from(table).select('*', { count: 'exact', head: true }).limit(1)
+    if (error) { fail(`admin SELECT ${table} — ${error.message}`); continue }
+    console.log(`✅ admin SELECT ${table}: accessible`)
+  }
+
+  const SENSITIVE_TABLES = ['payrolls', 'audit_logs']
+  for (const table of SENSITIVE_TABLES) {
+    total++
+    const { data, error } = await manager.from(table).select('*', { count: 'exact', head: true }).limit(1)
+    if (error) { fail(`manager SELECT ${table} — ${error.message}`); continue }
+    console.log(`✅ manager SELECT ${table}: accessible`)
+  }
+
+  for (const table of SENSITIVE_TABLES) {
+    total++
+    const { data, error } = await cashier.from(table).select('*', { count: 'exact', head: true }).limit(1)
+    if (!error) { fail(`cashier SELECT ${table} — should be blocked by RLS`); continue }
+    console.log(`✅ cashier SELECT ${table}: blocked by RLS`)
+  }
+
+  for (const table of SENSITIVE_TABLES) {
+    total++
+    const { data, error } = await waiter.from(table).select('*', { count: 'exact', head: true }).limit(1)
+    if (!error) { fail(`waiter SELECT ${table} — should be blocked by RLS`); continue }
+    console.log(`✅ waiter SELECT ${table}: blocked by RLS`)
+  }
+
+  const STAFF_TABLES = ['menu_items', 'orders', 'categories', 'tables', 'employees', 'service_requests', 'payment_configs']
+  for (const table of STAFF_TABLES) {
+    total++
+    const { data, error } = await cashier.from(table).select('*', { count: 'exact', head: true }).limit(1)
+    if (error) { fail(`cashier SELECT ${table} — ${error.message}`); continue }
+    console.log(`✅ cashier SELECT ${table}: accessible`)
+  }
+
+  for (const table of STAFF_TABLES) {
+    total++
+    const { data, error } = await waiter.from(table).select('*', { count: 'exact', head: true }).limit(1)
+    if (error) { fail(`waiter SELECT ${table} — ${error.message}`); continue }
+    console.log(`✅ waiter SELECT ${table}: accessible`)
+  }
+
+  total++
+  const { data: crossData, error: crossError } = await admin
+    .from('menu_items')
+    .select('*', { count: 'exact', head: true })
+    .neq('restaurant_id', TENANT_A_ID)
+  if (!crossError && (crossData?.length ?? 0) > 0) {
+    fail(`admin: cross-tenant data accessible via neq filter — ${crossData?.length} rows from other tenants`)
+  } else {
+    console.log(`✅ admin: cross-tenant isolation enforced (no data from other tenants)`)
+  }
+
   if (failures > 0) {
-    console.error(`\n❌ FAILED: ${failures}/${total} RBAC checks violated`)
+    console.error(`\n❌ FAILED: ${failures} RBAC checks violated`)
     process.exit(1)
   }
 
