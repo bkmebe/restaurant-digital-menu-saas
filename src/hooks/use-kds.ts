@@ -35,7 +35,9 @@ export function useKDS(restaurantId?: string) {
   }, [restaurantId])
 
   useEffect(() => {
-    audioRef.current = new Audio('/sounds/notification.mp3')
+    const audio = new Audio('/sounds/notification.mp3')
+    audio.onerror = () => {}
+    audioRef.current = audio
     fetchOrders()
 
     if (!restaurantId) return
