@@ -89,4 +89,4 @@ async function main() {
   console.log('✅ PASSED: All cross-tenant access attempts blocked')
 }
 
-main().catch(console.error)
+main().catch((err) => { console.error(err); process.exit(1) })

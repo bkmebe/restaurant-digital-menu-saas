@@ -70,4 +70,4 @@ async function main() {
   console.log(`\nPASSED: All ${PROTECTED_TABLES.length} tables enforce tenant isolation`)
 }
 
-main().catch(console.error)
+main().catch((err) => { console.error(err); process.exit(1) })

@@ -118,4 +118,4 @@ async function run() {
   console.log('✅ PASSED: All webhook attacks blocked')
 }
 
-run().catch(console.error)
+run().catch((err) => { console.error(err); process.exit(1) })
