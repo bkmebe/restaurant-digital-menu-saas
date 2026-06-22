@@ -1,5 +1,5 @@
 // Service Worker for offline support
-const CACHE_NAME = 'rdm-cache-v1'
+const CACHE_NAME = 'rdm-cache-v2'
 const STATIC_ASSETS = [
   '/',
   '/offline',
@@ -48,20 +48,6 @@ self.addEventListener('fetch', (event) => {
         caches.open(CACHE_NAME).then((cache) => cache.put(request, cloned))
         return response
       }))
-    )
-    return
-  }
-
-  // Menu pages: stale while revalidate
-  if (request.url.includes('/menu/')) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        const fetchPromise = fetch(request).then((response) => {
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone()))
-          return response
-        })
-        return cached || fetchPromise
-      })
     )
     return
   }
