@@ -2,7 +2,8 @@ export interface EmployeeFormData {
   full_name: string
   phone: string
   email: string
-  role: 'waiter' | 'cashier' | 'manager'
+  password?: string
+  role: 'waiter' | 'cashier' | 'manager' | 'kitchen_staff' | 'inventory_manager'
   national_id: string
   salary: number
   hire_date: string

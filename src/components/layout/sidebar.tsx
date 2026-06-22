@@ -35,7 +35,7 @@ interface NavItem {
 }
 
 const allNavItems: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'waiter'] },
+  { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'waiter', 'kitchen_staff', 'inventory_manager'] },
   { label: 'Menu', href: '/dashboard/admin/menu', icon: <UtensilsCrossed className="h-4 w-4" />, roles: ['admin'] },
   { label: 'Categories', href: '/dashboard/admin/categories', icon: <Tag className="h-4 w-4" />, roles: ['admin'] },
   { label: 'Employees', href: '/dashboard/admin/employees', icon: <Users className="h-4 w-4" />, roles: ['admin'] },
@@ -43,8 +43,8 @@ const allNavItems: NavItem[] = [
   { label: 'Payments', href: '/dashboard/admin/payments', icon: <Wallet className="h-4 w-4" />, roles: ['admin'] },
   { label: 'Payroll', href: '/dashboard/manager/payroll', icon: <ClipboardList className="h-4 w-4" />, roles: ['admin', 'manager'] },
   { label: 'Reports', href: '/dashboard/manager/reports', icon: <BarChart3 className="h-4 w-4" />, roles: ['admin', 'manager'] },
-  { label: 'KDS', href: '/dashboard/kitchen', icon: <ChefHat className="h-4 w-4" />, roles: ['admin', 'manager'] },
-  { label: 'Inventory', href: '/dashboard/inventory', icon: <Package className="h-4 w-4" />, roles: ['admin', 'manager'] },
+  { label: 'KDS', href: '/dashboard/kitchen', icon: <ChefHat className="h-4 w-4" />, roles: ['admin', 'manager', 'kitchen_staff'] },
+  { label: 'Inventory', href: '/dashboard/inventory', icon: <Package className="h-4 w-4" />, roles: ['admin', 'manager', 'inventory_manager'] },
   { label: 'Branches', href: '/dashboard/admin/branches', icon: <Building2 className="h-4 w-4" />, roles: ['admin'] },
   { label: 'Subscriptions', href: '/dashboard/admin/subscriptions', icon: <CreditCard className="h-4 w-4" />, roles: ['admin'] },
   { label: 'Waiter', href: '/dashboard/waiter', icon: <UserCircle className="h-4 w-4" />, roles: ['waiter'] },

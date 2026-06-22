@@ -27,7 +27,8 @@ export default function EditEmployeePage() {
   const handleSubmit = async (data: EmployeeFormData) => {
     setSaving(true)
     const supabase = createClient()
-    const { error } = await supabase.from('employees').update(data).eq('id', params.id)
+    const { password, ...updateData } = data
+    const { error } = await supabase.from('employees').update(updateData).eq('id', params.id)
     if (!error) router.push('/dashboard/admin/employees')
     else console.error(error)
     setSaving(false)
@@ -44,7 +45,7 @@ export default function EditEmployeePage() {
           full_name: employee.full_name,
           phone: employee.phone,
           email: employee.email,
-          role: employee.role as 'waiter' | 'cashier' | 'manager',
+          role: employee.role as EmployeeFormData['role'],
           national_id: employee.national_id || '',
           salary: Number(employee.salary),
           hire_date: employee.hire_date,

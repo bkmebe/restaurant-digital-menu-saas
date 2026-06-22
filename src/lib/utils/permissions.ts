@@ -2,7 +2,9 @@ import { Role } from '@/types/common'
 
 export const ROLE_HIERARCHY: Record<Role, number> = {
   waiter: 1,
+  kitchen_staff: 1,
   cashier: 2,
+  inventory_manager: 2,
   manager: 3,
   admin: 4,
 }
@@ -16,7 +18,7 @@ export function isAdmin(role: Role): boolean {
 }
 
 export function isManager(role: Role): boolean {
-  return role === 'manager' || role === 'admin'
+  return role === 'manager' || role === 'admin' || role === 'inventory_manager'
 }
 
 export function isStaff(role: Role): boolean {

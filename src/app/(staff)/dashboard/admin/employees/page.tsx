@@ -46,7 +46,7 @@ export default function AdminEmployeesPage() {
   const columns: Column[] = [
     { key: 'full_name', header: 'Name', render: (e: Record<string, unknown>) => <span className="font-medium">{e.full_name as string}</span> },
     { key: 'phone', header: 'Phone', render: (e: Record<string, unknown>) => formatPhone(e.phone as string) },
-    { key: 'role', header: 'Role', render: (e: Record<string, unknown>) => <StatusBadge status={e.role as string} mapping={{ waiter: 'info', cashier: 'warning', manager: 'default' }} /> },
+    { key: 'role', header: 'Role', render: (e: Record<string, unknown>) => <StatusBadge status={e.role as string} mapping={{ waiter: 'info', cashier: 'warning', manager: 'default', kitchen_staff: 'success', inventory_manager: 'secondary' }} /> },
     { key: 'salary', header: 'Salary', render: (e: Record<string, unknown>) => formatCurrency(Number(e.salary)) },
     { key: 'digital_employee_id', header: 'Emp ID' },
     { key: 'national_id_verified', header: 'NID', render: (e: Record<string, unknown>) => (e.national_id_verified as boolean) ? <StatusBadge status="Verified" mapping={{ Verified: 'success' }} /> : <StatusBadge status="Pending" mapping={{ Pending: 'warning' }} /> },
