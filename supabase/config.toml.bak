@@ -1,0 +1,101 @@
+[project]
+name = "restaurant-digital-menu"
+ref = ""
+
+[api]
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public"]
+
+[db]
+major_version = 15
+
+[db.migrations]
+directory = "./migrations"
+
+[db.policies]
+# All tables with RLS enabled are listed here for reference
+# RLS is enabled inline in migration files per table
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/*"]
+jwt_expiry = 3600
+enable_signup = true
+enable_confirmations = false
+enable_anonymous_sign_ins = false
+smtp_mode = "console"
+mailer_auto_confirm = true
+
+[auth.email]
+enable_confirmations = false
+enable_autoconfirm = true
+
+[auth.sessions]
+timebox = 86400
+inactivity_timeout = 43200
+
+[storage]
+enabled = true
+
+[storage.buckets.menu-images]
+public = true
+allowed_mime_types = ["image/jpeg", "image/png", "image/webp", "image/avif"]
+file_size_limit = "5MB"
+
+[storage.buckets.menu-images.policies.public_select_menu_images]
+for = ["SELECT"]
+using = "(bucket_id = 'menu-images'::text)"
+
+[storage.buckets.menu-images.policies.authenticated_insert_menu_images]
+for = ["INSERT"]
+using = "(bucket_id = 'menu-images'::text)"
+with_check = "(bucket_id = 'menu-images'::text)"
+
+[storage.buckets.menu-images.policies.admin_all_menu_images]
+for = ["ALL"]
+using = """
+  (bucket_id = 'menu-images'::text)
+  AND EXISTS (
+    SELECT 1 FROM profiles
+    WHERE id = auth.uid()
+    AND role = 'admin'
+  )
+"""
+
+[[migrations]]
+file_version = "00001"
+file_name = "00001_initial_schema.sql"
+
+[[migrations]]
+file_version = "00002"
+file_name = "00002_digital_ordering.sql"
+
+[[migrations]]
+file_version = "00003"
+file_name = "00003_kds.sql"
+
+[[migrations]]
+file_version = "00004"
+file_name = "00004_inventory.sql"
+
+[[migrations]]
+file_version = "00005"
+file_name = "00005_multi_tenant.sql"
+
+[[migrations]]
+file_version = "00006"
+file_name = "00006_payments.sql"
+
+[[migrations]]
+file_version = "00007"
+file_name = "00007_security.sql"
+
+[[migrations]]
+file_version = "00008"
+file_name = "00008_analytics.sql"
+
+[[migrations]]
+file_version = "00009"
+file_name = "00009_security_fixes.sql"

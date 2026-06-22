@@ -1,0 +1,113 @@
+import { NextResponse } from 'next/server'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { requireAuth, requireRole } from '@/lib/utils/auth-guard'
+
+export async function GET() {
+  const auth = await requireAuth()
+  if (auth instanceof NextResponse) return auth
+
+  const roleError = requireRole(auth, 'manager')
+  if (roleError) return roleError
+
+  const supabase = await createServerSupabaseClient()
+  const { data, error } = await supabase
+    .from('employees')
+    .select('*')
+    .eq('restaurant_id', auth.profile.restaurant_id)
+    .order('full_name')
+
+  if (error) {
+    return NextResponse.json({ error: { code: 'DB_ERROR', message: error.message } }, { status: 500 })
+  }
+  return NextResponse.json({ data })
+}
+
+export async function POST(request: Request) {
+  const auth = await requireAuth()
+  if (auth instanceof NextResponse) return auth
+
+  const roleError = requireRole(auth, 'admin')
+  if (roleError) return roleError
+
+  const supabase = await createServerSupabaseClient()
+  const body = await request.json()
+
+  const restaurantCode = body.restaurant_id?.slice(0, 4).toUpperCase() || 'XXXX'
+  const digitalEmployeeId = `RMD-${restaurantCode}-${new Date().getFullYear()}-${Date.now().toString(36).toUpperCase()}`
+
+  const { data, error } = await supabase.from('employees').insert({
+    ...body,
+    digital_employee_id: digitalEmployeeId,
+  }).select().single()
+
+  if (error) return NextResponse.json({ error: { code: 'CREATE_ERROR', message: error.message } }, { status: 400 })
+  return NextResponse.json({ data, message: 'Employee created' }, { status: 201 })
+}
+
+export async function PUT(request: Request) {
+  const auth = await requireAuth()
+  if (auth instanceof NextResponse) return auth
+
+  const roleError = requireRole(auth, 'admin')
+  if (roleError) return roleError
+
+  const { searchParams } = new URL(request.url)
+  let id = searchParams.get('id')
+
+  if (!id) {
+    try {
+      const body = await request.json()
+      id = body.id
+    } catch {}
+  }
+
+  if (!id) {
+    return NextResponse.json({ message: 'No id provided' })
+  }
+
+  const supabase = await createServerSupabaseClient()
+  const body = await request.json().catch(() => ({}))
+  const { ['id']: _, ...updateData } = body
+
+  const { data, error } = await supabase
+    .from('employees')
+    .update(updateData)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) {
+    return NextResponse.json({ error: { code: 'UPDATE_ERROR', message: error.message } }, { status: 400 })
+  }
+  return NextResponse.json({ data, message: 'Employee updated' })
+}
+
+export async function DELETE(request: Request) {
+  const auth = await requireAuth()
+  if (auth instanceof NextResponse) return auth
+
+  const roleError = requireRole(auth, 'admin')
+  if (roleError) return roleError
+
+  const { searchParams } = new URL(request.url)
+  let id = searchParams.get('id')
+
+  if (!id) {
+    try {
+      const body = await request.json()
+      id = body.id
+    } catch {}
+  }
+
+  if (!id) {
+    return NextResponse.json({ message: 'No id provided' })
+  }
+
+  const supabase = await createServerSupabaseClient()
+  const { error } = await supabase.from('employees').delete().eq('id', id)
+
+  if (error) {
+    return NextResponse.json({ error: { code: 'DELETE_ERROR', message: error.message } }, { status: 400 })
+  }
+  return NextResponse.json({ message: 'Employee deleted' })
+}
