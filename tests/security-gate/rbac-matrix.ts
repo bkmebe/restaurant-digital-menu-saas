@@ -4,6 +4,7 @@
 // Exit code 0 = pass, 1 = fail (blocks deployment)
 // ============================================================
 
+import WebSocket from 'ws'
 import { createClient } from '@supabase/supabase-js'
 
 const SUPABASE_URL = process.env.SUPABASE_URL!
@@ -89,7 +90,9 @@ async function testRBACPair(
   const isAllowed = allowedRoles.includes(roleDef.role)
   const expected = isAllowed ? 'allow' : 'deny'
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    realtime: { transport: WebSocket as any },
+  })
   const { data: { session } } = await supabase.auth.signInWithPassword({
     email: roleDef.email,
     password: roleDef.password,
