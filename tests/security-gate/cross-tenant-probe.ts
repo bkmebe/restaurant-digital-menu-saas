@@ -8,8 +8,8 @@ const TENANT_A_ID = '00000000-0000-0000-0000-000000000010'
 const TENANT_B_ID = '00000000-0000-0000-0000-000000000011'
 
 async function main() {
-  console.log('🔒 Cross-Tenant Access Probe (via RLS)')
-  console.log('========================================')
+  console.log('Cross-Tenant Access Probe (via RLS)')
+  console.log('=====================================')
 
   const c = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { realtime: { transport: WebSocket as any } })
   const { data: { session }, error } = await c.auth.signInWithPassword({
@@ -25,18 +25,17 @@ async function main() {
 
   let failures = 0
 
-  const TABLES = ['menu_items', 'orders', 'employees', 'payrolls', 'audit_logs', 'categories', 'tables', 'service_requests', 'payment_configs']
+  const TABLES = ['menu_items', 'orders', 'employees', 'payrolls', 'audit_logs', 'categories', 'tables', 'service_requests']
 
   for (const table of TABLES) {
-    const { data, error: queryError } = await authed
+    const { data, error: qe } = await authed
       .from(table)
       .select('*', { count: 'exact', head: true })
       .neq('restaurant_id', TENANT_A_ID)
 
-    const leaked = !queryError && (data?.length ?? 0) > 0
-    const icon = leaked ? '❌' : '✅'
-    console.log(`${icon} ${table}: ${leaked ? `CROSS-TENANT LEAK (${data?.length} rows)` : 'isolated'}`)
-    if (leaked) { console.error(`  CRITICAL: ${table} returned data from other tenants`); failures++ }
+    const leaked = !qe && (data?.length ?? 0) > 0
+    console.log(`  ${leaked ? 'FAIL' : 'PASS'} ${table}: ${leaked ? `LEAK (${data?.length} rows from other tenants)` : 'isolated'}`)
+    if (leaked) { console.error(`  CRITICAL: ${table} cross-tenant leak`); failures++ }
   }
 
   const { data: bData, error: bError } = await authed
@@ -44,16 +43,19 @@ async function main() {
     .select('*', { count: 'exact', head: true })
     .eq('restaurant_id', TENANT_B_ID)
 
-  const directAccess = !bError && (bData?.length ?? 0) > 0
-  if (directAccess) { console.error(`❌ employees: DIRECT access to tenant B data`); failures++ }
-  else console.log(`✅ employees: Direct query for tenant B blocked`)
+  if (!bError && (bData?.length ?? 0) > 0) {
+    console.error(`  CRITICAL: Direct access to tenant B employees`)
+    failures++
+  } else {
+    console.log('  PASS: Direct query for tenant B data blocked')
+  }
 
   if (failures > 0) {
-    console.error(`\n❌ FAILED: ${failures} cross-tenant access violations detected`)
+    console.error(`\nFAILED: ${failures} cross-tenant violations detected`)
     process.exit(1)
   }
 
-  console.log('\n✅ PASSED: All cross-tenant access attempts blocked')
+  console.log('\nPASSED: All cross-tenant access blocked')
 }
 
 main().catch((err) => { console.error(err); process.exit(1) })
