@@ -9,7 +9,7 @@ export function useIngredients(restaurantId?: string) {
   const [loading, setLoading] = useState(true)
 
   const fetch = useCallback(async () => {
-    if (!restaurantId) return
+    if (!restaurantId) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase.from('ingredients').select('*, unit:units_of_measure(*)').eq('restaurant_id', restaurantId).eq('is_active', true).order('name')
     if (data) setIngredients(data as unknown as Ingredient[])
@@ -25,7 +25,7 @@ export function useStockItems(restaurantId?: string) {
   const [loading, setLoading] = useState(true)
 
   const fetch = useCallback(async () => {
-    if (!restaurantId) return
+    if (!restaurantId) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase.from('stock_items').select('*, ingredient:ingredients(*)').eq('restaurant_id', restaurantId).order('ingredient_id')
     if (data) setStock(data as unknown as StockItem[])
@@ -41,7 +41,7 @@ export function useStockMovements(restaurantId?: string, ingredientId?: string) 
   const [loading, setLoading] = useState(true)
 
   const fetch = useCallback(async () => {
-    if (!restaurantId) return
+    if (!restaurantId) { setLoading(false); return }
     const supabase = createClient()
     let query = supabase.from('stock_movements').select('*, ingredient:ingredients(*)').eq('restaurant_id', restaurantId).order('created_at', { ascending: false }).limit(100)
     if (ingredientId) query = query.eq('ingredient_id', ingredientId)
@@ -59,7 +59,7 @@ export function useSuppliers(restaurantId?: string) {
   const [loading, setLoading] = useState(true)
 
   const fetch = useCallback(async () => {
-    if (!restaurantId) return
+    if (!restaurantId) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase.from('suppliers').select('*').eq('restaurant_id', restaurantId).eq('is_active', true).order('name')
     if (data) setSuppliers(data as Supplier[])
@@ -75,7 +75,7 @@ export function usePurchaseOrders(restaurantId?: string) {
   const [loading, setLoading] = useState(true)
 
   const fetch = useCallback(async () => {
-    if (!restaurantId) return
+    if (!restaurantId) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase.from('purchase_orders').select('*, supplier:suppliers(*), items:purchase_order_items(*, ingredient:ingredients(*))').eq('restaurant_id', restaurantId).order('created_at', { ascending: false })
     if (data) setOrders(data as unknown as PurchaseOrder[])
@@ -91,7 +91,7 @@ export function useLowStockAlerts(restaurantId?: string) {
   const [loading, setLoading] = useState(true)
 
   const fetch = useCallback(async () => {
-    if (!restaurantId) return
+    if (!restaurantId) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase.from('low_stock_alerts').select('*, ingredient:ingredients(*)').eq('restaurant_id', restaurantId).eq('is_resolved', false).order('created_at', { ascending: false })
     if (data) setAlerts(data as unknown as LowStockAlert[])

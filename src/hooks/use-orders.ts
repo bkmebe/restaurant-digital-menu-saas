@@ -10,7 +10,7 @@ export function useOrders(restaurantId?: string, tableId?: string) {
   const [loading, setLoading] = useState(true)
 
   const fetchOrders = async () => {
-    if (!restaurantId) return
+    if (!restaurantId) { setLoading(false); return }
     const supabase = createClient()
     let query = supabase
       .from('orders')

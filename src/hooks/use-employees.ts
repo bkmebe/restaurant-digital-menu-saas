@@ -9,7 +9,7 @@ export function useEmployees(restaurantId?: string) {
   const [loading, setLoading] = useState(true)
 
   const fetchEmployees = async () => {
-    if (!restaurantId) return
+    if (!restaurantId) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase
       .from('employees')
