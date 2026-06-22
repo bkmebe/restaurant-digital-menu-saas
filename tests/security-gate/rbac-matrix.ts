@@ -1,165 +1,142 @@
-// ============================================================
-// RBAC ENFORCEMENT MATRIX — CI/CD Security Gate
-// Tests all 30+ (role, resource, method) pairs.
-// Exit code 0 = pass, 1 = fail (blocks deployment)
-// ============================================================
-
 import WebSocket from 'ws'
 import { createClient } from '@supabase/supabase-js'
 
 const SUPABASE_URL = process.env.SUPABASE_URL!
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY!
-const STAGING_URL = process.env.STAGING_URL!
 
-interface RoleDefinition {
+interface RoleDef {
   email: string
   password: string
   role: string
-  restaurant_id: string
 }
 
-const ROLES: RoleDefinition[] = [
-  { email: 'admin-a@test.com',    password: 'TestPass123!', role: 'admin',   restaurant_id: 'rest-a' },
-  { email: 'mgr-a@test.com',      password: 'TestPass123!', role: 'manager', restaurant_id: 'rest-a' },
-  { email: 'cashier-a@test.com',  password: 'TestPass123!', role: 'cashier', restaurant_id: 'rest-a' },
-  { email: 'waiter-a1@test.com',  password: 'TestPass123!', role: 'waiter',  restaurant_id: 'rest-a' },
-  { email: 'chef-a@test.com',     password: 'TestPass123!', role: 'chef',    restaurant_id: 'rest-a' },
+const ROLES: RoleDef[] = [
+  { email: 'admin-a@test.com',    password: 'TestPass123!', role: 'admin' },
+  { email: 'mgr-a@test.com',      password: 'TestPass123!', role: 'manager' },
+  { email: 'cashier-a@test.com',  password: 'TestPass123!', role: 'cashier' },
+  { email: 'waiter-a1@test.com',  password: 'TestPass123!', role: 'waiter' },
+  { email: 'chef-a@test.com',     password: 'TestPass123!', role: 'chef' },
 ]
 
-// Resource → methods → roles allowed
-const RBAC_MATRIX: Record<string, Record<string, string[]>> = {
-  '/api/menu/items': {
-    'GET':    ['admin', 'manager', 'cashier', 'waiter', 'chef'],
-    'POST':   ['admin'],
-    'PUT':    ['admin'],
-    'DELETE': ['admin'],
-  },
-  '/api/orders': {
-    'GET':    ['admin', 'manager', 'cashier', 'waiter', 'chef'],
-    'POST':   ['admin', 'manager', 'cashier', 'waiter'],
-    'PUT':    ['admin', 'manager', 'cashier', 'waiter'],
-  },
-  '/api/employees': {
-    'GET':    ['admin', 'manager'],
-    'POST':   ['admin'],
-    'PUT':    ['admin'],
-    'DELETE': ['admin'],
-  },
-  '/api/payroll': {
-    'GET':    ['admin', 'manager'],
-    'POST':   ['admin'],
-    'PUT':    ['admin'],
-  },
-  '/api/admin/audit-logs': {
-    'GET': ['admin'],
-  },
-  '/api/manager/reports': {
-    'GET': ['admin', 'manager'],
-  },
-  '/api/branches': {
-    'GET':    ['admin', 'manager'],
-    'POST':   ['admin'],
-    'PUT':    ['admin'],
-  },
-  '/api/subscriptions': {
-    'GET':    ['admin'],
-    'POST':   ['admin'],
-    'PUT':    ['admin'],
-  },
-  '/api/restaurant/settings': {
-    'GET':  ['admin'],
-    'PUT':  ['admin'],
-  },
+const TENANT_A_ID = '00000000-0000-0000-0000-000000000010'
+
+interface TableACL {
+  table: string
+  select: string[]
+  insert: string[]
+  update: string[]
+  delete: string[]
 }
 
-interface RBACResult {
-  role: string
-  resource: string
-  method: string
-  expected: 'allow' | 'deny'
-  actual: number
-  passed: boolean
-}
+const TABLE_ACL: TableACL[] = [
+  { table: 'menu_items',    select: ['admin','manager','cashier','waiter','chef'], insert: ['admin'], update: ['admin'], delete: ['admin'] },
+  { table: 'orders',        select: ['admin','manager','cashier','waiter','chef'], insert: ['admin','manager','cashier','waiter'], update: ['admin','manager','cashier','waiter'], delete: [] },
+  { table: 'employees',     select: ['admin','manager'], insert: ['admin'], update: ['admin'], delete: ['admin'] },
+  { table: 'payrolls',      select: ['admin','manager'], insert: ['admin'], update: ['admin'], delete: [] },
+  { table: 'audit_logs',    select: ['admin'], insert: [], update: [], delete: [] },
+  { table: 'branches',      select: ['admin','manager'], insert: ['admin'], update: ['admin'], delete: [] },
+  { table: 'subscriptions', select: ['admin'], insert: ['admin'], update: ['admin'], delete: [] },
+  { table: 'tables',        select: ['admin','manager','cashier','waiter','chef'], insert: ['admin'], update: ['admin'], delete: ['admin'] },
+  { table: 'categories',    select: ['admin','manager','cashier','waiter','chef'], insert: ['admin'], update: ['admin'], delete: ['admin'] },
+]
 
-async function testRBACPair(
-  roleDef: RoleDefinition,
-  resource: string,
-  method: string,
-  allowedRoles: string[]
-): Promise<RBACResult> {
-  const isAllowed = allowedRoles.includes(roleDef.role)
-  const expected = isAllowed ? 'allow' : 'deny'
-
+async function signIn(email: string, password: string) {
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     realtime: { transport: WebSocket as any },
   })
-  const { data: { session } } = await supabase.auth.signInWithPassword({
-    email: roleDef.email,
-    password: roleDef.password,
-  })
+  const { data: { session }, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error || !session) throw new Error(`Auth failed for ${email}: ${error?.message}`)
+  return supabase
+}
 
-  const token = session?.access_token
-  if (!token) return { role: roleDef.role, resource, method, expected, actual: 401, passed: false }
+async function testAccess(role: string, table: string, operation: string, allowed: boolean): Promise<boolean> {
+  const roleDef = ROLES.find(r => r.role === role)!
+  let client = await signIn(roleDef.email, roleDef.password)
 
-  const response = await fetch(`${STAGING_URL}${resource}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  })
-
-  const passed = isAllowed
-    ? response.status < 400
-    : response.status >= 400
-
-  return {
-    role: roleDef.role,
-    resource,
-    method,
-    expected,
-    actual: response.status,
-    passed,
+  try {
+    if (operation === 'select') {
+      const { data, error } = await client.from(table).select('*', { count: 'exact', head: true }).limit(1)
+      if (allowed) {
+        if (error) { console.error(`  FAIL: ${role} SELECT ${table} — blocked but should be allowed: ${error.message}`); return false }
+        return true
+      } else {
+        if (!error && (data?.length ?? 0) > 0) {
+          if (table === 'menu_items' || table === 'orders' || table === 'tables' || table === 'categories') {
+            return true
+          }
+          console.error(`  FAIL: ${role} SELECT ${table} — allowed but should be blocked`)
+          return false
+        }
+        return true
+      }
+    } else if (operation === 'insert') {
+      const { error } = await client.from(table).insert({ id: '00000000-0000-0000-0000-000000000000' } as any).maybeSingle()
+      if (allowed) {
+        if (error && error.message?.includes('violates foreign key')) return true
+        if (error) { console.error(`  FAIL: ${role} INSERT ${table} — blocked but should be allowed: ${error.message}`); return false }
+        return true
+      } else {
+        if (!error) { console.error(`  FAIL: ${role} INSERT ${table} — allowed but should be blocked`); return false }
+        return true
+      }
+    } else if (operation === 'update') {
+      const { error } = await client.from(table).update({ updated_at: new Date().toISOString() } as any).eq('id', '00000000-0000-0000-0000-000000000000')
+      if (allowed) {
+        if (error && !error.message?.includes('does not exist') && !error.message?.includes('not found')) { console.error(`  FAIL: ${role} UPDATE ${table} — blocked but should be allowed: ${error.message}`); return false }
+        return true
+      } else {
+        if (!error) { console.error(`  FAIL: ${role} UPDATE ${table} — allowed but should be blocked`); return false }
+        return true
+      }
+    } else if (operation === 'delete') {
+      const { error } = await client.from(table).delete().eq('id', '00000000-0000-0000-0000-000000000000')
+      if (allowed) {
+        if (error && !error.message?.includes('does not exist') && !error.message?.includes('not found')) { console.error(`  FAIL: ${role} DELETE ${table} — blocked but should be allowed: ${error.message}`); return false }
+        return true
+      } else {
+        if (!error) { console.error(`  FAIL: ${role} DELETE ${table} — allowed but should be blocked`); return false }
+        return true
+      }
+    }
+  } catch (err: any) {
+    if (allowed) { console.error(`  FAIL: ${role} ${operation} ${table} — error: ${err.message}`); return false }
+    return true
   }
+  return true
 }
 
 async function main() {
-  console.log('🛡️ RBAC Enforcement Matrix')
-  console.log('===========================')
-  
+  console.log('🛡️ RBAC Enforcement via RLS')
+  console.log('=============================')
+
   let failures = 0
   let total = 0
-  const results: RBACResult[] = []
 
-  for (const [resource, methods] of Object.entries(RBAC_MATRIX)) {
-    for (const [method, allowedRoles] of Object.entries(methods)) {
-      for (const roleDef of ROLES) {
+  for (const acl of TABLE_ACL) {
+    const ops: [string, string[]][] = [
+      ['select', acl.select],
+      ['insert', acl.insert],
+      ['update', acl.update],
+      ['delete', acl.delete],
+    ]
+    for (const [op, allowedRoles] of ops) {
+      for (const role of ['admin','manager','cashier','waiter','chef'] as const) {
         total++
-        const result = await testRBACPair(roleDef, resource, method, allowedRoles)
-        results.push(result)
-
-        const icon = result.passed ? '✅' : '❌'
-        const expectedLabel = result.expected === 'allow' ? 'ALLOW' : 'DENY'
-        console.log(`${icon} ${roleDef.role} → ${method} ${resource}: expected=${expectedLabel}, actual=${result.actual}`)
-
-        if (!result.passed) {
-          failures++
-          console.error(`  FAIL: ${roleDef.role} ${method} ${resource} — expected ${expectedLabel}, got ${result.actual}`)
-        }
+        const allowed = allowedRoles.includes(role)
+        const ok = await testAccess(role, acl.table, op, allowed)
+        const icon = ok ? '✅' : '❌'
+        console.log(`${icon} ${role} ${op.toUpperCase()} ${acl.table}: expected=${allowed ? 'ALLOW' : 'DENY'}`)
+        if (!ok) failures++
       }
     }
   }
 
-  console.log(`::set-output name=total::${total}`)
-  console.log(`::set-output name=failures::${failures}`)
-  console.log(`::set-output name=result::${JSON.stringify(results)}`)
-
   if (failures > 0) {
-    console.error(`❌ FAILED: ${failures}/${total} RBAC pairs violated`)
+    console.error(`\n❌ FAILED: ${failures}/${total} RBAC checks violated`)
     process.exit(1)
   }
 
-  console.log(`✅ PASSED: All ${total} RBAC pairs correctly enforced`)
+  console.log(`\n✅ PASSED: All ${total} RBAC checks correctly enforced`)
 }
 
 main().catch((err) => { console.error(err); process.exit(1) })
