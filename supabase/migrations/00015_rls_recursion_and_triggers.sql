@@ -47,3 +47,17 @@ CREATE POLICY "orders_anon_select" ON orders
   FOR SELECT
   TO anon
   USING (true);
+
+-- ========== Round 5: Allow anonymous users to INSERT and SELECT order_items ==========
+-- The API route inserts items after the parent order, so anon users need both
+-- INSERT and SELECT permissions on order_items or the transaction fails.
+ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "order_items_anon_insert" ON order_items;
+DROP POLICY IF EXISTS "order_items_anon_select" ON order_items;
+
+CREATE POLICY "order_items_anon_insert" ON order_items
+  FOR INSERT TO anon WITH CHECK (true);
+
+CREATE POLICY "order_items_anon_select" ON order_items
+  FOR SELECT TO anon USING (true);
