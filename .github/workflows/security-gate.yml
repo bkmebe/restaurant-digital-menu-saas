@@ -70,7 +70,8 @@ jobs:
       - run: npm ci
       - run: npx tsx tests/security-gate/jwt-forgery.ts
         env:
-          STAGING_URL: ${{ secrets.STAGING_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           ADMIN_JWT: ${{ secrets.ADMIN_JWT }}
 
   cross-tenant-probe:
