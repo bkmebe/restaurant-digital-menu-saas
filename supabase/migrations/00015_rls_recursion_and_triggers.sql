@@ -38,3 +38,12 @@ CREATE TRIGGER set_orders_created_by
   BEFORE INSERT ON orders
   FOR EACH ROW
   EXECUTE FUNCTION orders_on_insert();
+
+-- ========== ISSUE D (Round 4): Allow anonymous users to SELECT orders ==========
+-- The API route chains .insert().select().single(), so anon users need SELECT
+-- permission on orders or the transaction fails with RLS violation.
+DROP POLICY IF EXISTS "orders_anon_select" ON orders;
+CREATE POLICY "orders_anon_select" ON orders
+  FOR SELECT
+  TO anon
+  USING (true);
