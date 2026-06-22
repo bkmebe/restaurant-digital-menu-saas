@@ -23,12 +23,23 @@ export default function AdminTablesPage() {
   const { employees: waiters } = useEmployees(profile?.restaurant_id)
   const [showForm, setShowForm] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [formError, setFormError] = useState('')
 
   const activeWaiters = waiters.filter(w => w.role === 'waiter' && w.is_active)
 
   const handleCreate = async (data: TableFormData) => {
-    await createTable({ ...data, restaurant_id: profile?.restaurant_id } as Partial<TableType>)
-    setShowForm(false)
+    setFormError('')
+    try {
+      await createTable({ ...data, restaurant_id: profile?.restaurant_id } as Partial<TableType>)
+      setShowForm(false)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.includes('23505') || msg.includes('unique') || msg.includes('duplicate')) {
+        setFormError(`Table number ${data.table_number} already exists. Please use a different number.`)
+      } else {
+        setFormError(msg || 'Failed to create table')
+      }
+    }
   }
 
   const handleGenerateQR = async (table: TableType) => {
@@ -74,7 +85,7 @@ export default function AdminTablesPage() {
         <Card>
           <CardContent className="p-4">
             <h2 className="font-semibold mb-4">New Table</h2>
-            <TableForm waiters={activeWaiters} onSubmit={handleCreate} />
+            <TableForm waiters={activeWaiters} onSubmit={handleCreate} error={formError} />
           </CardContent>
         </Card>
       )}

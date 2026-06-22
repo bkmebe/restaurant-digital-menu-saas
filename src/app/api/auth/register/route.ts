@@ -16,9 +16,9 @@ export async function POST(request: Request) {
       )
     }
 
-    if (password.length < 6) {
+    if (password.length < 10 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || !/[@$!%*?&]/.test(password)) {
       return NextResponse.json(
-        { error: { code: 'VALIDATION_ERROR', message: 'Password must be at least 6 characters' } },
+        { error: { code: 'VALIDATION_ERROR', message: 'Password must be at least 10 characters and include uppercase, lowercase, number, and special character (@$!%*?&)' } },
         { status: 400 }
       )
     }
