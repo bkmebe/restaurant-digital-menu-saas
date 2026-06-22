@@ -7,7 +7,7 @@ import { KDSOrder, KDSOrderItem } from '@/types/kitchen'
 export function useKDS(restaurantId?: string) {
   const [orders, setOrders] = useState<KDSOrder[]>([])
   const [loading, setLoading] = useState(true)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audioRef = useRef<{ play: () => Promise<void> } | null>(null)
   const prevCountRef = useRef(0)
 
   const fetchOrders = useCallback(async () => {
@@ -35,9 +35,22 @@ export function useKDS(restaurantId?: string) {
   }, [restaurantId])
 
   useEffect(() => {
-    const audio = new Audio('/sounds/notification.mp3')
-    audio.onerror = () => {}
-    audioRef.current = audio
+    const audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
+    audioRef.current = {
+      play: () => {
+        const osc = audioCtx.createOscillator()
+        const gain = audioCtx.createGain()
+        osc.connect(gain)
+        gain.connect(audioCtx.destination)
+        osc.frequency.value = 880
+        osc.type = 'sine'
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3)
+        osc.start()
+        osc.stop(audioCtx.currentTime + 0.3)
+        return Promise.resolve()
+      },
+    } as HTMLAudioElement
     fetchOrders()
 
     if (!restaurantId) return
