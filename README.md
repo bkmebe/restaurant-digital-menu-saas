@@ -6,7 +6,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ![Test Suite](https://github.com/bkmebe/restaurant-digital-menu-saas/actions/workflows/test.yml/badge.svg)
 ![Build Status](https://github.com/bkmebe/restaurant-digital-menu-saas/actions/workflows/test.yml/badge.svg)
 
-Every pull request must pass tenant isolation, RBAC, webhook, JWT, and cross-tenant security checks before deployment.
+Security regression tests run on every pull request. They verify that tenant isolation, RBAC, webhook, JWT, and cross-tenant controls remain intact. A failing check blocks deployment.
 
 ## Getting Started
 
