@@ -1,12 +1,18 @@
+import path from 'path'
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  turbopack: {},
 
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals = [...(config.externals || []), 'lightningcss', '@tailwindcss/oxide']
+    }
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      reselect: path.resolve('node_modules/reselect/dist/cjs/reselect.cjs'),
+      redux: path.resolve('node_modules/redux/dist/cjs/redux.cjs'),
+      'redux-thunk': path.resolve('node_modules/redux-thunk/dist/cjs/redux-thunk.cjs'),
     }
     return config
   },

@@ -9,7 +9,7 @@ export function useTables(restaurantId?: string) {
   const [loading, setLoading] = useState(true)
 
   const fetchTables = async () => {
-    if (!restaurantId) return
+    if (!restaurantId) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase
       .from('tables')

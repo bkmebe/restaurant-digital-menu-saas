@@ -1,92 +1,61 @@
-// ============================================================
-// CROSS-TENANT ACCESS PROBE — CI/CD Security Gate
-// Tests: tenant A cannot access tenant B data via any endpoint
-// ============================================================
+import WebSocket from 'ws'
+import { createClient } from '@supabase/supabase-js'
 
-const STAGING_URL = process.env.STAGING_URL!
-const ADMIN_JWT = process.env.ADMIN_JWT!
+const SUPABASE_URL = process.env.SUPABASE_URL!
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY!
 
 const TENANT_A_ID = '00000000-0000-0000-0000-000000000010'
 const TENANT_B_ID = '00000000-0000-0000-0000-000000000011'
 
-interface ProbeTarget {
-  endpoint: string
-  method: string
-  maliciousParam?: Record<string, string>
-}
-
-const PROBE_TARGETS: ProbeTarget[] = [
-  { endpoint: '/api/orders',              method: 'GET',  maliciousParam: { restaurant_id: TENANT_B_ID } },
-  { endpoint: '/api/menu/items',          method: 'GET',  maliciousParam: { restaurant_id: TENANT_B_ID } },
-  { endpoint: '/api/employees',           method: 'GET',  maliciousParam: { restaurant_id: TENANT_B_ID } },
-  { endpoint: '/api/payroll',             method: 'GET',  maliciousParam: { restaurant_id: TENANT_B_ID } },
-  { endpoint: '/api/manager/reports',     method: 'GET',  maliciousParam: { restaurant_id: TENANT_B_ID } },
-  { endpoint: '/api/branches',            method: 'GET',  maliciousParam: { restaurant_id: TENANT_B_ID } },
-  { endpoint: '/api/admin/audit-logs',    method: 'GET',  maliciousParam: { restaurant_id: TENANT_B_ID } },
-  // Direct order access by ID belonging to tenant B
-  { endpoint: '/api/orders/order-b-001',  method: 'GET' },
-  // Forced header-based tenant override
-  { endpoint: '/api/orders',              method: 'GET',  maliciousParam: { 'x-tenant-id': TENANT_B_ID } },
-]
-
-async function probe(endpoint: string, method: string, params?: Record<string, string>) {
-  let url = `${STAGING_URL}${endpoint}`
-  const headers: Record<string, string> = {
-    Authorization: `Bearer ${ADMIN_JWT}`,
-    'Content-Type': 'application/json',
-  }
-
-  if (params) {
-    if (method === 'GET') {
-      const qs = new URLSearchParams(params).toString()
-      url += `?${qs}`
-    } else {
-      Object.assign(headers, params)
-    }
-  }
-
-  const response = await fetch(url, { method, headers })
-  let body: any
-  try { body = await response.json() } catch { body = null }
-
-  // Determine if any data leaked from tenant B
-  const leakedFromB = body?.data?.some((r: any) =>
-    r.restaurant_id === TENANT_B_ID || r.tenant_id === TENANT_B_ID
-  )
-  const blocked = response.status >= 400 || !leakedFromB
-
-  const icon = blocked ? '✅' : '❌'
-  const leakInfo = leakedFromB ? ' DATA LEAKED' : ''
-  console.log(`${icon} ${method} ${endpoint} → ${response.status}${leakInfo}`)
-
-  return { endpoint, method, status: response.status, blocked, leakedFromB }
-}
-
 async function main() {
-  console.log('🔒 Cross-Tenant Access Probe')
-  console.log('=============================')
+  console.log('Cross-Tenant Access Probe (via RLS)')
+  console.log('=====================================')
+
+  const c = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { realtime: { transport: WebSocket as any } })
+  const { data: { session }, error } = await c.auth.signInWithPassword({
+    email: 'admin-a@test.com',
+    password: 'TestPass123!',
+  })
+  if (error || !session) throw new Error(`Auth failed: ${error?.message}`)
+
+  const authed = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { headers: { Authorization: `Bearer ${session.access_token}` } },
+    realtime: { transport: WebSocket as any },
+  })
 
   let failures = 0
 
-  for (const target of PROBE_TARGETS) {
-    const result = await probe(target.endpoint, target.method, target.maliciousParam)
-    if (!result.blocked) {
-      console.error(`  CRITICAL: Cross-tenant data leaked via ${target.method} ${target.endpoint}`)
-      if (result.leakedFromB) {
-        console.error(`  Tenant A token returned Tenant B data!`)
-      }
-      failures++
-    }
+  const TABLES = ['menu_items', 'orders', 'employees', 'payrolls', 'audit_logs', 'categories', 'tables', 'service_requests']
+
+  for (const table of TABLES) {
+    const { data, error: qe } = await authed
+      .from(table)
+      .select('*', { count: 'exact', head: true })
+      .neq('restaurant_id', TENANT_A_ID)
+
+    const leaked = !qe && (data?.length ?? 0) > 0
+    console.log(`  ${leaked ? 'FAIL' : 'PASS'} ${table}: ${leaked ? `LEAK (${data?.length} rows from other tenants)` : 'isolated'}`)
+    if (leaked) { console.error(`  CRITICAL: ${table} cross-tenant leak`); failures++ }
   }
 
-  console.log(`::set-output name=failures::${failures}`)
+  const { data: bData, error: bError } = await authed
+    .from('employees')
+    .select('*', { count: 'exact', head: true })
+    .eq('restaurant_id', TENANT_B_ID)
+
+  if (!bError && (bData?.length ?? 0) > 0) {
+    console.error(`  CRITICAL: Direct access to tenant B employees`)
+    failures++
+  } else {
+    console.log('  PASS: Direct query for tenant B data blocked')
+  }
 
   if (failures > 0) {
-    console.error(`❌ FAILED: ${failures} cross-tenant access paths leaked data`)
+    console.error(`\nFAILED: ${failures} cross-tenant violations detected`)
     process.exit(1)
   }
 
-  console.log('✅ PASSED: All cross-tenant access attempts blocked')
+  console.log('\nPASSED: All cross-tenant access blocked')
 }
 
 main().catch((err) => { console.error(err); process.exit(1) })

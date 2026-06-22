@@ -34,17 +34,20 @@ function CustomerMenuContent() {
   const [restaurantName, setRestaurantName] = useState('')
   const [cartOpen, setCartOpen] = useState(false)
 
+  const [error, setError] = useState<string | null>(null)
+
   useEffect(() => {
     async function loadData() {
       const supabase = createClient()
 
-      const { data: table } = await supabase
+      const { data: table, error: tableErr } = await supabase
         .from('tables')
         .select('*, restaurant:restaurants(*)')
         .eq('id', tableId)
         .single()
 
-      if (!table) {
+      if (tableErr || !table) {
+        setError('Table not found')
         setLoading(false)
         return
       }
@@ -66,6 +69,20 @@ function CustomerMenuContent() {
     }
     loadData()
   }, [tableId])
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="text-center space-y-4 max-w-sm">
+          <div className="text-6xl">🪑</div>
+          <h1 className="text-2xl font-bold">Table Not Found</h1>
+          <p className="text-muted-foreground">
+            This QR code is no longer valid. Please ask your waiter for assistance.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   const filteredItems = items.filter((item) => {
     if (selectedCategory && item.category_id !== selectedCategory) return false

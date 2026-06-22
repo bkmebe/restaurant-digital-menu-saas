@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
 import { cn } from '@/lib/utils/cn'
 import { Role } from '@/types/common'
 import {
@@ -34,7 +35,7 @@ interface NavItem {
 }
 
 const allNavItems: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'waiter'] },
+  { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'waiter', 'kitchen_staff', 'inventory_manager'] },
   { label: 'Menu', href: '/dashboard/admin/menu', icon: <UtensilsCrossed className="h-4 w-4" />, roles: ['admin'] },
   { label: 'Categories', href: '/dashboard/admin/categories', icon: <Tag className="h-4 w-4" />, roles: ['admin'] },
   { label: 'Employees', href: '/dashboard/admin/employees', icon: <Users className="h-4 w-4" />, roles: ['admin'] },
@@ -42,8 +43,8 @@ const allNavItems: NavItem[] = [
   { label: 'Payments', href: '/dashboard/admin/payments', icon: <Wallet className="h-4 w-4" />, roles: ['admin'] },
   { label: 'Payroll', href: '/dashboard/manager/payroll', icon: <ClipboardList className="h-4 w-4" />, roles: ['admin', 'manager'] },
   { label: 'Reports', href: '/dashboard/manager/reports', icon: <BarChart3 className="h-4 w-4" />, roles: ['admin', 'manager'] },
-  { label: 'KDS', href: '/dashboard/kitchen', icon: <ChefHat className="h-4 w-4" />, roles: ['admin', 'manager'] },
-  { label: 'Inventory', href: '/dashboard/inventory', icon: <Package className="h-4 w-4" />, roles: ['admin', 'manager'] },
+  { label: 'KDS', href: '/dashboard/kitchen', icon: <ChefHat className="h-4 w-4" />, roles: ['admin', 'manager', 'kitchen_staff'] },
+  { label: 'Inventory', href: '/dashboard/inventory', icon: <Package className="h-4 w-4" />, roles: ['admin', 'manager', 'inventory_manager'] },
   { label: 'Branches', href: '/dashboard/admin/branches', icon: <Building2 className="h-4 w-4" />, roles: ['admin'] },
   { label: 'Subscriptions', href: '/dashboard/admin/subscriptions', icon: <CreditCard className="h-4 w-4" />, roles: ['admin'] },
   { label: 'Waiter', href: '/dashboard/waiter', icon: <UserCircle className="h-4 w-4" />, roles: ['waiter'] },
@@ -57,6 +58,8 @@ interface SidebarProps {
 
 export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { logout } = useAuth()
   const [open, setOpen] = useState(false)
 
   const items = allNavItems.filter((item) => item.roles.includes(role))
@@ -125,15 +128,18 @@ export function Sidebar({ role }: SidebarProps) {
         </div>
 
         <div className="border-t border-border/70 p-3">
-          <Link
-            href="/api/auth/logout"
-            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
+          <button
+            onClick={async () => {
+              await logout()
+              router.push('/login')
+            }}
+            className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/70">
               <LogOut className="h-4 w-4" />
             </span>
             Logout
-          </Link>
+          </button>
         </div>
       </aside>
 

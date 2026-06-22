@@ -11,7 +11,7 @@ export function useMenu(restaurantId?: string) {
   const [error, setError] = useState<string | null>(null)
 
   const fetchMenu = async () => {
-    if (!restaurantId) return
+    if (!restaurantId) { setLoading(false); return }
     setLoading(true)
     const supabase = createClient()
 

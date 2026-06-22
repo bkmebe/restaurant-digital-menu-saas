@@ -24,7 +24,7 @@ export default function CategoriesPage() {
   const [saving, setSaving] = useState(false)
 
   const fetchCategories = async () => {
-    if (!profile?.restaurant_id) return
+    if (!profile?.restaurant_id) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase.from('categories').select('*').eq('restaurant_id', profile.restaurant_id).order('sort_order')
     if (data) setCategories(data as Category[])

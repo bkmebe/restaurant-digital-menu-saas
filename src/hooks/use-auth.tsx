@@ -1,25 +1,46 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, createContext, useContext } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types/database'
 import { Role } from '@/types/common'
 import type { User } from '@supabase/supabase-js'
 
-export function useAuth() {
+interface AuthState {
+  user: User | null
+  profile: Profile | null
+  loading: boolean
+}
+
+const AuthContext = createContext<AuthState | null>(null)
+
+function useAuthState(): AuthState {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const supabase = createClient()
+    let cancelled = false
+
+    const timeout = setTimeout(() => {
+      if (!cancelled) setLoading(false)
+    }, 15000)
 
     supabase.auth.getUser().then(({ data: { user } }) => {
+      if (cancelled) return
+      clearTimeout(timeout)
       setUser(user)
       if (user) {
         supabase.from('profiles').select('*').eq('id', user.id).single()
-          .then(({ data }) => setProfile(data as Profile))
+          .then(({ data }) => {
+            if (!cancelled) setProfile(data as Profile)
+          })
       }
+      setLoading(false)
+    }).catch(() => {
+      if (cancelled) return
+      clearTimeout(timeout)
       setLoading(false)
     })
 
@@ -33,8 +54,24 @@ export function useAuth() {
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      cancelled = true
+      clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
   }, [])
+
+  return { user, profile, loading }
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const state = useAuthState()
+  return <AuthContext.Provider value={state}>{children}</AuthContext.Provider>
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext)
+  if (!ctx) throw new Error('useAuth must be used within an AuthProvider')
 
   const login = async (email: string, password: string) => {
     const supabase = createClient()
@@ -53,7 +90,7 @@ export function useAuth() {
     await supabase.auth.signOut()
   }
 
-  return { user, profile, loading, login, loginWithPhone, logout }
+  return { ...ctx, login, loginWithPhone, logout }
 }
 
 export function useRole() {

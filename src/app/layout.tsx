@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { LanguageProvider } from '@/hooks/use-language'
+import { AuthProvider } from '@/hooks/use-auth'
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/constants'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -22,7 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <link rel="apple-touch-icon" href="/icons/icon-192.png" />
           <meta name="theme-color" content="#000000" />
         <LanguageProvider>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </LanguageProvider>
       </body>
     </html>

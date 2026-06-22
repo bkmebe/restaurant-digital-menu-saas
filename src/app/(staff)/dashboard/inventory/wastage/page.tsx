@@ -27,7 +27,7 @@ export default function WastagePage() {
   const [saving, setSaving] = useState(false)
 
   const fetchRecords = async () => {
-    if (!profile?.restaurant_id) return
+    if (!profile?.restaurant_id) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase.from('wastage_records').select('*, ingredient:ingredients(*)').eq('restaurant_id', profile.restaurant_id).order('created_at', { ascending: false })
     if (data) setRecords(data as unknown as WastageRecord[])

@@ -7,11 +7,14 @@ import { KDSOrder, KDSOrderItem } from '@/types/kitchen'
 export function useKDS(restaurantId?: string) {
   const [orders, setOrders] = useState<KDSOrder[]>([])
   const [loading, setLoading] = useState(true)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audioRef = useRef<{ play: () => Promise<void> } | null>(null)
   const prevCountRef = useRef(0)
 
   const fetchOrders = useCallback(async () => {
-    if (!restaurantId) return
+    if (!restaurantId) {
+      setLoading(false)
+      return
+    }
     const supabase = createClient()
     const { data } = await supabase
       .from('orders')
@@ -22,7 +25,6 @@ export function useKDS(restaurantId?: string) {
 
     if (data) {
       const kdsOrders = data as unknown as KDSOrder[]
-      // Play notification sound for new orders
       if (prevCountRef.current > 0 && kdsOrders.length > prevCountRef.current) {
         audioRef.current?.play().catch(() => {})
       }
@@ -33,7 +35,22 @@ export function useKDS(restaurantId?: string) {
   }, [restaurantId])
 
   useEffect(() => {
-    audioRef.current = new Audio('/sounds/notification.mp3')
+    const audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
+    audioRef.current = {
+      play: () => {
+        const osc = audioCtx.createOscillator()
+        const gain = audioCtx.createGain()
+        osc.connect(gain)
+        gain.connect(audioCtx.destination)
+        osc.frequency.value = 880
+        osc.type = 'sine'
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3)
+        osc.start()
+        osc.stop(audioCtx.currentTime + 0.3)
+        return Promise.resolve()
+      },
+    } as HTMLAudioElement
     fetchOrders()
 
     if (!restaurantId) return
@@ -60,7 +77,6 @@ export function useKDS(restaurantId?: string) {
 
     await supabase.from('order_items').update(updateData).eq('id', itemId)
 
-    // Check if all items are ready → update order status
     if (status === 'ready') {
       const { data: items } = await supabase.from('order_items').select('prep_status').eq('order_id', orderId)
       const allReady = items?.every(i => i.prep_status === 'ready' || i.prep_status === 'delivered')

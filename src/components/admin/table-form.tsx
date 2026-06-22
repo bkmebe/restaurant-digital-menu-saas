@@ -15,9 +15,10 @@ interface TableFormProps {
   onSubmit: (data: TableFormData) => Promise<void>
   defaultValues?: Partial<TableFormData>
   loading?: boolean
+  error?: string
 }
 
-export function TableForm({ waiters = [], onSubmit, defaultValues, loading }: TableFormProps) {
+export function TableForm({ waiters = [], onSubmit, defaultValues, loading, error }: TableFormProps) {
   const { register, handleSubmit, formState: { errors } } = useForm<TableFormData>({
     resolver: zodResolver(tableSchema),
     defaultValues: { table_number: 0, capacity: 4, ...defaultValues },
@@ -46,6 +47,7 @@ export function TableForm({ waiters = [], onSubmit, defaultValues, loading }: Ta
           />
         </div>
       </div>
+      {error && <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</p>}
       <Button type="submit" disabled={loading}>
         {loading ? 'Saving...' : 'Save Table'}
       </Button>

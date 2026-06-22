@@ -3,6 +3,7 @@
 // Uses Supabase client with real user tokens (not service key).
 // Exit code 0 = pass, 1 = fail (blocks deployment)
 
+import WebSocket from 'ws'
 import { createClient } from '@supabase/supabase-js'
 
 const SUPABASE_URL = process.env.SUPABASE_URL!
@@ -24,7 +25,9 @@ async function main() {
   console.log()
 
   // Sign in as a real tenant user (not service role — that bypasses RLS)
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    realtime: { transport: WebSocket as any },
+  })
   const { data: { session }, error: authError } = await supabase.auth.signInWithPassword({
     email: ADMIN_EMAIL,
     password: ADMIN_PASSWORD,
@@ -38,6 +41,7 @@ async function main() {
   // Create an authed client for tenant A
   const authedClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     global: { headers: { Authorization: `Bearer ${session.access_token}` } },
+    realtime: { transport: WebSocket as any },
   })
 
   let failures = 0

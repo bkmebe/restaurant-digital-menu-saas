@@ -10,20 +10,33 @@ export default function DashboardRedirect() {
   const { role, loading } = useRole()
 
   useEffect(() => {
-    if (!loading && role) {
+    if (loading) return
+    if (role) {
       const paths: Record<string, string> = {
         admin: '/dashboard/admin',
         manager: '/dashboard/manager',
         cashier: '/dashboard/cashier',
         waiter: '/dashboard/waiter',
+        kitchen_staff: '/dashboard/kitchen',
+        inventory_manager: '/dashboard/inventory',
       }
       router.push(paths[role] || '/dashboard/waiter')
+    } else {
+      router.push('/login')
     }
   }, [role, loading, router])
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <LoadingSpinner size="lg" />
+      </div>
+    )
+  }
+
   return (
     <div className="flex items-center justify-center h-64">
-      <LoadingSpinner size="lg" />
+      <p className="text-muted-foreground">Redirecting...</p>
     </div>
   )
 }

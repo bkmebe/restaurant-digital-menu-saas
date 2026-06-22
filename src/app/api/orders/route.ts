@@ -1,24 +1,33 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireAuth } from '@/lib/utils/auth-guard'
 
 export async function POST(request: Request) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  let body: Record<string, unknown>
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: { code: 'VALIDATION', message: 'Invalid JSON body' } }, { status: 400 })
+  }
 
-  const supabase = await createServerSupabaseClient()
-  const body = await request.json()
-
-  const { table_id, customer_name, special_instructions, items } = body
+  const { table_id, customer_name, special_instructions, items } = body as {
+    table_id?: string
+    customer_name?: string
+    special_instructions?: string
+    items?: Array<{ menu_item_id: string; quantity: number; special_requests?: string }>
+  }
 
   if (!table_id || !items || items.length === 0) {
     return NextResponse.json({ error: { code: 'VALIDATION', message: 'table_id and items are required' } }, { status: 400 })
   }
 
+  const supabase = await createServerSupabaseClient()
+
   const { data: table } = await supabase.from('tables').select('restaurant_id').eq('id', table_id).single()
   if (!table) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Table not found' } }, { status: 404 })
   }
+
+  const { data: { user } } = await supabase.auth.getUser()
 
   const { data: order, error: orderError } = await supabase.from('orders').insert({
     restaurant_id: table.restaurant_id,
@@ -27,6 +36,7 @@ export async function POST(request: Request) {
     status: 'pending',
     total_amount: 0,
     special_instructions,
+    created_by: user?.id || null,
   }).select().single()
 
   if (orderError) {

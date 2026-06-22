@@ -10,7 +10,7 @@ export function useServiceRequests(restaurantId?: string) {
   const [loading, setLoading] = useState(true)
 
   const fetchRequests = async () => {
-    if (!restaurantId) return
+    if (!restaurantId) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase
       .from('service_requests')

@@ -133,10 +133,11 @@ export default function RegisterPage() {
                 type="password"
                 value={formData.password}
                 onChange={handleChange('password')}
-                placeholder="Min. 6 characters"
-                minLength={6}
+                placeholder="Min. 10 chars, upper+lower+number+special"
+                minLength={10}
                 required
               />
+              <p className="text-xs text-muted-foreground">At least 10 characters with uppercase, lowercase, number, and special character</p>
             </div>
 
             {error && (

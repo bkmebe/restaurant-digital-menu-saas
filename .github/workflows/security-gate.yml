@@ -1,0 +1,91 @@
+# Security Gate â€” runs on every PR and push to main/production
+# Fails immediately on any critical security issue.
+# No weighted scoring, no AI, no orchestration.
+
+name: Security Gate
+on:
+  pull_request:
+    branches: [main, staging, production]
+  push:
+    branches: [main, staging, production]
+
+jobs:
+  rls-isolation:
+    name: RLS Isolation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx tsx tests/security-gate/rls-verify.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+
+  rbac-enforcement:
+    name: RBAC Matrix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx tsx tests/security-gate/rbac-matrix.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          STAGING_URL: ${{ secrets.STAGING_URL }}
+
+  webhook-security:
+    name: Webhook Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx tsx tests/security-gate/webhook-security.ts
+        env:
+          STAGING_URL: ${{ secrets.STAGING_URL }}
+          CHAPA_WEBHOOK_SECRET: ${{ secrets.CHAPA_WEBHOOK_SECRET }}
+
+  jwt-forgery:
+    name: JWT Forgery
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx tsx tests/security-gate/jwt-forgery.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          ADMIN_JWT: ${{ secrets.ADMIN_JWT }}
+
+  cross-tenant-probe:
+    name: Cross-Tenant Probe
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx tsx tests/security-gate/cross-tenant-probe.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          ADMIN_JWT: ${{ secrets.ADMIN_JWT }}

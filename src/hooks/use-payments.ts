@@ -9,7 +9,7 @@ export function usePaymentConfigs(restaurantId?: string) {
   const [loading, setLoading] = useState(true)
 
   const fetchConfigs = async () => {
-    if (!restaurantId) return
+    if (!restaurantId) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase
       .from('payment_configs')
