@@ -19,7 +19,7 @@ export default function EditMenuItemPage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    if (!profile?.restaurant_id) return
+    if (!profile?.restaurant_id) { setLoading(false); return }
     const supabase = createClient()
     Promise.all([
       supabase.from('menu_items').select('*').eq('id', params.id).single(),

@@ -27,7 +27,7 @@ export default function SubscriptionsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!profile?.organization_id) return
+    if (!profile?.organization_id) { setLoading(false); return }
     loadData()
   }, [profile])
 

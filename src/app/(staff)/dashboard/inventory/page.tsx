@@ -22,7 +22,7 @@ export default function InventoryDashboardPage() {
   const [loadingWastage, setLoadingWastage] = useState(true)
 
   useEffect(() => {
-    if (!profile?.restaurant_id) return
+    if (!profile?.restaurant_id) { setLoadingWastage(false); return }
     const supabase = createClient()
     supabase.from('wastage_records')
       .select('*, ingredient:ingredients(name)')

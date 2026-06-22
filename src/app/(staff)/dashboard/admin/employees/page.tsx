@@ -21,7 +21,7 @@ export default function AdminEmployeesPage() {
   const [deactivateId, setDeactivateId] = useState<string | null>(null)
 
   const fetchEmployees = async () => {
-    if (!profile?.restaurant_id) return
+    if (!profile?.restaurant_id) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase
       .from('employees')

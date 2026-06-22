@@ -64,7 +64,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true)
 
   const loadData = useCallback(async () => {
-    if (!profile?.restaurant_id) return
+    if (!profile?.restaurant_id) { setLoading(false); return }
     const supabase = createClient()
     const rid = profile.restaurant_id
 

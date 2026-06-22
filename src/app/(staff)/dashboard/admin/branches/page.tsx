@@ -31,7 +31,7 @@ export default function BranchesPage() {
   const [formData, setFormData] = useState({ name: '', address: '', phone: '', email: '' })
 
   useEffect(() => {
-    if (!profile?.organization_id) return
+    if (!profile?.organization_id) { setLoading(false); return }
     loadBranches()
   }, [profile])
 

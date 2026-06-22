@@ -25,7 +25,7 @@ export default function AdminPaymentsPage() {
   const [showNumbers, setShowNumbers] = useState<Set<string>>(new Set())
 
   const fetchConfigs = async () => {
-    if (!profile?.restaurant_id) return
+    if (!profile?.restaurant_id) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase.from('payment_configs').select('*').eq('restaurant_id', profile.restaurant_id).order('sort_order')
     if (data) setConfigs(data as PaymentConfig[])

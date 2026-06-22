@@ -22,7 +22,7 @@ export default function AdminMenuPage() {
   const [deleting, setDeleting] = useState(false)
 
   const fetchItems = async () => {
-    if (!profile?.restaurant_id) return
+    if (!profile?.restaurant_id) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase
       .from('menu_items')

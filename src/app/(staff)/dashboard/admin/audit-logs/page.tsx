@@ -13,7 +13,7 @@ export default function AuditLogsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!profile?.restaurant_id) return
+    if (!profile?.restaurant_id) { setLoading(false); return }
     const supabase = createClient()
     supabase.from('audit_logs')
       .select('*')

@@ -18,7 +18,7 @@ export default function CashierDashboardPage() {
   const [loading, setLoading] = useState(true)
 
   const fetchOrders = async () => {
-    if (!profile?.restaurant_id) return
+    if (!profile?.restaurant_id) { setLoading(false); return }
     const supabase = createClient()
     const { data } = await supabase
       .from('orders')
