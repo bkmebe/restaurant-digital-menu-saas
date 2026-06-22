@@ -137,7 +137,7 @@ export default function RegisterPage() {
                 minLength={10}
                 required
               />
-              <p className="text-xs text-muted-foreground">At least 10 characters with uppercase, lowercase, number, and special character (@$!%*?&)</p>
+              <p className="text-xs text-muted-foreground">At least 10 characters with uppercase, lowercase, number, and special character</p>
             </div>
 
             {error && (

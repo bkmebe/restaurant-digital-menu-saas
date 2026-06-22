@@ -6,23 +6,47 @@ export async function POST(request: Request) {
   const rateLimitError = await checkRateLimit(getRateLimitIdentifier(request), '/api/auth/register', 5, 60)
   if (rateLimitError) return rateLimitError
 
+  let body: Record<string, string>
+
   try {
-    const { email, password, fullName, phone, restaurantName } = await request.json()
+    body = await request.json()
+  } catch {
+    return NextResponse.json(
+      { error: { code: 'VALIDATION_ERROR', message: 'Invalid JSON body' } },
+      { status: 400 }
+    )
+  }
 
-    if (!email || !password || !fullName || !restaurantName) {
-      return NextResponse.json(
-        { error: { code: 'VALIDATION_ERROR', message: 'Missing required fields' } },
-        { status: 400 }
-      )
-    }
+  const { restaurantName, fullName, email, phone, password } = body
 
-    if (password.length < 10 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || !/[@$!%*?&]/.test(password)) {
-      return NextResponse.json(
-        { error: { code: 'VALIDATION_ERROR', message: 'Password must be at least 10 characters and include uppercase, lowercase, number, and special character (@$!%*?&)' } },
-        { status: 400 }
-      )
-    }
+  if (!restaurantName || !fullName || !email || !password) {
+    return NextResponse.json(
+      { error: { code: 'VALIDATION_ERROR', message: 'restaurantName, fullName, email and password are required' } },
+      { status: 400 }
+    )
+  }
 
+  const hasMinLength = password.length >= 10
+  const hasUppercase = /[A-Z]/.test(password)
+  const hasLowercase = /[a-z]/.test(password)
+  const hasDigit = /[0-9]/.test(password)
+  const hasSpecial = /[^A-Za-z0-9]/.test(password)
+
+  if (!hasMinLength || !hasUppercase || !hasLowercase || !hasDigit || !hasSpecial) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'VALIDATION_ERROR',
+          message:
+            'Password must be at least 10 characters and include an uppercase letter, ' +
+            'a lowercase letter, a number, and a special character.',
+        },
+      },
+      { status: 400 }
+    )
+  }
+
+  try {
     const adminClient = createAdminSupabaseClient()
 
     const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
@@ -66,8 +90,9 @@ export async function POST(request: Request) {
       },
     })
   } catch (err) {
+    const message = err instanceof Error ? err.message : 'Registration failed'
     return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Registration failed' } },
+      { error: { code: 'INTERNAL_ERROR', message } },
       { status: 500 }
     )
   }

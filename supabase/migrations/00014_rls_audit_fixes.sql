@@ -10,6 +10,17 @@ DROP POLICY IF EXISTS "admins_all_categories" ON categories;
 DROP POLICY IF EXISTS "cashiers_update_orders" ON orders;
 DROP POLICY IF EXISTS "public_read_tables" ON tables;
 
+-- Helper: get the current user's restaurant_id (bypasses RLS via SECURITY DEFINER)
+CREATE OR REPLACE FUNCTION public.get_my_restaurant_id()
+RETURNS uuid
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT restaurant_id FROM profiles WHERE id = auth.uid() LIMIT 1;
+$$;
+
 -- ========== FIX-01: employees ==========
 CREATE POLICY "employees_insert" ON employees
   FOR INSERT WITH CHECK (
