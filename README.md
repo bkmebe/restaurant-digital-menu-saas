@@ -1,5 +1,13 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Security Status
+
+![Security Gate](https://github.com/bkmebe/restaurant-digital-menu-saas/actions/workflows/security-gate.yml/badge.svg)
+![Test Suite](https://github.com/bkmebe/restaurant-digital-menu-saas/actions/workflows/test.yml/badge.svg)
+![Build Status](https://github.com/bkmebe/restaurant-digital-menu-saas/actions/workflows/test.yml/badge.svg)
+
+Every pull request must pass tenant isolation, RBAC, webhook, JWT, and cross-tenant security checks before deployment.
+
 ## Getting Started
 
 First, run the development server:
