@@ -17,7 +17,7 @@ export function useAuth() {
 
     const timeout = setTimeout(() => {
       if (!cancelled) setLoading(false)
-    }, 5000)
+    }, 15000)
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (cancelled) return
