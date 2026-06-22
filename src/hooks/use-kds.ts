@@ -11,7 +11,10 @@ export function useKDS(restaurantId?: string) {
   const prevCountRef = useRef(0)
 
   const fetchOrders = useCallback(async () => {
-    if (!restaurantId) return
+    if (!restaurantId) {
+      setLoading(false)
+      return
+    }
     const supabase = createClient()
     const { data } = await supabase
       .from('orders')
@@ -22,7 +25,6 @@ export function useKDS(restaurantId?: string) {
 
     if (data) {
       const kdsOrders = data as unknown as KDSOrder[]
-      // Play notification sound for new orders
       if (prevCountRef.current > 0 && kdsOrders.length > prevCountRef.current) {
         audioRef.current?.play().catch(() => {})
       }
@@ -60,7 +62,6 @@ export function useKDS(restaurantId?: string) {
 
     await supabase.from('order_items').update(updateData).eq('id', itemId)
 
-    // Check if all items are ready → update order status
     if (status === 'ready') {
       const { data: items } = await supabase.from('order_items').select('prep_status').eq('order_id', orderId)
       const allReady = items?.every(i => i.prep_status === 'ready' || i.prep_status === 'delivered')
