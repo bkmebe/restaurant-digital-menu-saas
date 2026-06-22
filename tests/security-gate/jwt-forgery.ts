@@ -21,7 +21,7 @@ function forgeJWT(original: string, claimsOverride: Record<string, any>): string
   const payload = JSON.parse(decodeBase64(parts[1]!))
   Object.assign(payload, claimsOverride)
   const forgedPayload = encodeBase64(JSON.stringify(payload))
-  const forgedSignature = encodeBase64(Buffer.from('forged'))
+  const forgedSignature = encodeBase64('forged')
   return `${header}.${forgedPayload}.${forgedSignature}`
 }
 

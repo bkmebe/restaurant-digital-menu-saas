@@ -93,7 +93,7 @@ async function run() {
         headers: {
           'Content-Type': 'application/json',
           ...attack.headers,
-        },
+        } as Record<string, string>,
         body: attack.body || VALID_PAYLOAD,
       })
 

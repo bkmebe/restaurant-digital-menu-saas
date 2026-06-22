@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "next build --webpack",
   "installCommand": "npm ci",
   "outputDirectory": ".next",
   "framework": "nextjs",
