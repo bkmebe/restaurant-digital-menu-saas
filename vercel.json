@@ -4,9 +4,7 @@
   "installCommand": "npm ci",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "nodeVersion": "22.x",
   "regions": ["iad1"],
-  "public": false,
   "cleanUrls": true,
   "trailingSlash": false,
   "github": {
@@ -24,7 +22,7 @@
     },
     {
       "path": "/api/crons/health-check",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 6 * * *"
     }
   ],
   "rewrites": [
