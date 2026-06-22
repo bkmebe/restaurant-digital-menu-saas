@@ -45,10 +45,12 @@ DROP POLICY IF EXISTS "users_update_own_profile" ON profiles;
 CREATE POLICY "profiles_update" ON profiles
   FOR UPDATE USING (id = auth.uid());
 
--- Replace admins_all_profiles with organization-scoped read
-CREATE POLICY "profiles_select_org" ON profiles
+-- Replace admins_all_profiles with restaurant-scoped read
+-- Uses SECURITY DEFINER helper to avoid RLS recursion
+CREATE POLICY "profiles_select" ON profiles
   FOR SELECT USING (
-    organization_id = (SELECT organization_id FROM profiles WHERE id = auth.uid())
+    id = auth.uid()
+    OR restaurant_id = get_my_restaurant_id()
   );
 
 -- ========== FIX-03: restaurants ==========
