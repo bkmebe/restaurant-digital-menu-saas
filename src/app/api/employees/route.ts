@@ -32,11 +32,13 @@ export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient()
   const body = await request.json()
 
-  const restaurantCode = body.restaurant_id?.slice(0, 4).toUpperCase() || 'XXXX'
+  const restaurantId = auth.profile.restaurant_id
+  const restaurantCode = restaurantId?.slice(0, 4).toUpperCase() || 'XXXX'
   const digitalEmployeeId = `RMD-${restaurantCode}-${new Date().getFullYear()}-${Date.now().toString(36).toUpperCase()}`
 
   const { data, error } = await supabase.from('employees').insert({
     ...body,
+    restaurant_id: restaurantId,
     digital_employee_id: digitalEmployeeId,
   }).select().single()
 
