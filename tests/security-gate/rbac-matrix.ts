@@ -159,4 +159,4 @@ async function main() {
   console.log(`✅ PASSED: All ${total} RBAC pairs correctly enforced`)
 }
 
-main().catch(console.error)
+main().catch((err) => { console.error(err); process.exit(1) })

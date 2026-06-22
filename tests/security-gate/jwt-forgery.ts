@@ -106,4 +106,4 @@ async function main() {
   console.log('✅ PASSED: All JWT forgery attacks blocked')
 }
 
-main().catch(console.error)
+main().catch((err) => { console.error(err); process.exit(1) })
