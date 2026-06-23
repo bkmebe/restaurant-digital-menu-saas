@@ -3,13 +3,14 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
+import { useTheme } from '@/hooks/use-theme'
 import { cn } from '@/lib/utils/cn'
 import { Role } from '@/types/common'
 import {
   LayoutDashboard, UtensilsCrossed, Users, Table2, Wallet,
   ClipboardList, BarChart3, UserCircle, LogOut, Menu, X,
   Receipt, ChefHat, Package, Building2, CreditCard, Tag,
-  ChevronRight,
+  ChevronRight, Moon, Sun,
 } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -40,6 +41,21 @@ const allNavItems: NavItem[] = [
 ]
 
 interface SidebarProps { role: Role }
+
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme()
+  return (
+    <button
+      onClick={toggleTheme}
+      className="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+    >
+      <span className="flex h-7 w-7 items-center justify-center rounded-md bg-transparent text-muted-foreground/70 group-hover:text-foreground">
+        {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      </span>
+      <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+    </button>
+  )
+}
 
 export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname()
@@ -124,8 +140,12 @@ export function Sidebar({ role }: SidebarProps) {
           </div>
         </div>
 
-        {/* Logout */}
-        <div className="border-t border-border/50 p-3">
+        {/* Bottom actions */}
+        <div className="border-t border-border/50 p-3 space-y-1">
+          {/* Dark mode toggle */}
+          <ThemeToggle />
+
+          {/* Logout */}
           <button
             onClick={async () => { await logout(); router.push('/login') }}
             className="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"

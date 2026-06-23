@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react'
 import { getDictionary, LanguageCode } from '@/lib/i18n/config'
 
 interface LanguageContextType {
@@ -15,9 +15,23 @@ const LanguageContext = createContext<LanguageContextType>({
   t: (key: string) => key,
 })
 
+const STORAGE_KEY = 'restaurantos-locale'
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<LanguageCode>('en')
+  const [locale, setLocaleState] = useState<LanguageCode>('en')
   const dictionary = getDictionary(locale)
+
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored === 'am' || stored === 'om' || stored === 'en') {
+      setLocaleState(stored)
+    }
+  }, [])
+
+  const setLocale = useCallback((l: LanguageCode) => {
+    setLocaleState(l)
+    localStorage.setItem(STORAGE_KEY, l)
+  }, [])
 
   const t = useCallback((key: string, params?: Record<string, string | number>) => {
     let value = dictionary[key] || key
