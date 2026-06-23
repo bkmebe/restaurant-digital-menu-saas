@@ -34,7 +34,7 @@ export function PaymentMethodsDisplay({ configs, loading }: PaymentMethodsDispla
   }
 
   if (configs.length === 0) {
-    return <EmptyState icon={<Wallet className="h-8 w-8" />} title={t('payment.title')} description="No payment methods configured" />
+    return <EmptyState icon={<Wallet className="h-8 w-8" />} title={t('payment.title')} description={t('payment.noMethods')} />
   }
 
   return (
@@ -55,7 +55,7 @@ export function PaymentMethodsDisplay({ configs, loading }: PaymentMethodsDispla
                   size="icon"
                   onClick={() => copyToClipboard(config.account_number, config.id)}
                 >
-                  {copiedId === config.id ? <span className="text-xs">Copied!</span> : <Copy className="h-4 w-4" />}
+                  {copiedId === config.id ? <span className="text-xs">{t('payment.copied')}</span> : <Copy className="h-4 w-4" />}
                 </Button>
                 {config.payment_link && (
                   <Button variant="ghost" size="icon" asChild>

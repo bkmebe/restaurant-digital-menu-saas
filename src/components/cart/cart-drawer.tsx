@@ -27,7 +27,7 @@ export function CartDrawer({ open, onClose, onCheckout }: CartDrawerProps) {
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
-            <h2 className="font-semibold">Cart ({itemCount})</h2>
+            <h2 className="font-semibold">{t('cart.titleWithCount', { count: itemCount })}</h2>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
@@ -38,7 +38,7 @@ export function CartDrawer({ open, onClose, onCheckout }: CartDrawerProps) {
           {items.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <ShoppingCart className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>Your cart is empty</p>
+              <p>{t('cart.empty')}</p>
             </div>
           ) : (
             items.map((item) => (
@@ -72,11 +72,11 @@ export function CartDrawer({ open, onClose, onCheckout }: CartDrawerProps) {
         {items.length > 0 && (
           <div className="border-t p-4 space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-muted-foreground">{t('cart.subtotal')}</span>
               <span className="font-semibold">{formatCurrency(subtotal)}</span>
             </div>
             <Button className="w-full" size="lg" onClick={onCheckout}>
-              Place Order — {formatCurrency(subtotal)}
+              {t('cart.placeOrder', { total: formatCurrency(subtotal) })}
             </Button>
           </div>
         )}

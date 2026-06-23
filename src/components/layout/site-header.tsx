@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils/cn'
 
 export function SiteHeader() {
   const { theme, toggleTheme } = useTheme()
-  const { locale, setLocale } = useLanguage()
+  const { locale, setLocale, t } = useLanguage()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl">
@@ -47,7 +47,7 @@ export function SiteHeader() {
             size="icon-sm"
             onClick={toggleTheme}
             className="rounded-lg"
-            aria-label={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            aria-label={t(theme === 'dark' ? 'header.lightMode' : 'header.darkMode')}
           >
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>

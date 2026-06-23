@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react'
-import { getDictionary, LanguageCode } from '@/lib/i18n/config'
+import { getDictionary, getEnglishDictionary, LanguageCode } from '@/lib/i18n/config'
 
 interface LanguageContextType {
   locale: LanguageCode
@@ -20,6 +20,7 @@ const STORAGE_KEY = 'restaurantos-locale'
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<LanguageCode>('en')
   const dictionary = getDictionary(locale)
+  const englishDict = getEnglishDictionary()
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY)
@@ -34,14 +35,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const t = useCallback((key: string, params?: Record<string, string | number>) => {
-    let value = dictionary[key] || key
+    let value = dictionary[key] || englishDict[key] || key
     if (params) {
       for (const [k, v] of Object.entries(params)) {
         value = value.replace(`{${k}}`, String(v))
       }
     }
     return value
-  }, [dictionary])
+  }, [dictionary, englishDict])
 
   return (
     <LanguageContext.Provider value={{ locale, setLocale, t }}>

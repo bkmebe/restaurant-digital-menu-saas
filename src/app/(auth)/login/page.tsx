@@ -56,7 +56,7 @@ export default function LoginPage() {
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">{t('auth.password')}</Label>
                 <Link href="/forgot-password" className="text-xs text-muted-foreground hover:text-primary">
-                  Forgot password?
+                  {t('auth.forgotPassword')}
                 </Link>
               </div>
               <Input
@@ -73,9 +73,9 @@ export default function LoginPage() {
             </Button>
           </form>
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{' '}
+            {t('auth.dontHaveAccount')}{' '}
             <Link href="/register" className="font-medium text-primary hover:underline">
-              Create Restaurant
+              {t('auth.createRestaurant')}
             </Link>
           </p>
         </CardContent>

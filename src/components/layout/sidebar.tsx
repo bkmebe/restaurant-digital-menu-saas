@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
+import { useLanguage } from '@/hooks/use-language'
 import { cn } from '@/lib/utils/cn'
 import { Role } from '@/types/common'
 import {
@@ -15,28 +16,28 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 
 interface NavItem {
-  label: string
+  key: string
   href: string
   icon: React.ReactNode
   roles: Role[]
 }
 
 const allNavItems: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'waiter', 'kitchen_staff', 'inventory_manager'] },
-  { label: 'Menu', href: '/dashboard/admin/menu', icon: <UtensilsCrossed className="h-4 w-4" />, roles: ['admin'] },
-  { label: 'Categories', href: '/dashboard/admin/categories', icon: <Tag className="h-4 w-4" />, roles: ['admin'] },
-  { label: 'Employees', href: '/dashboard/admin/employees', icon: <Users className="h-4 w-4" />, roles: ['admin'] },
-  { label: 'Tables', href: '/dashboard/admin/tables', icon: <Table2 className="h-4 w-4" />, roles: ['admin'] },
-  { label: 'Payments', href: '/dashboard/admin/payments', icon: <Wallet className="h-4 w-4" />, roles: ['admin'] },
-  { label: 'Payroll', href: '/dashboard/manager/payroll', icon: <ClipboardList className="h-4 w-4" />, roles: ['admin', 'manager'] },
-  { label: 'Reports', href: '/dashboard/manager/reports', icon: <BarChart3 className="h-4 w-4" />, roles: ['admin', 'manager'] },
-  { label: 'KDS', href: '/dashboard/kitchen', icon: <ChefHat className="h-4 w-4" />, roles: ['admin', 'manager', 'kitchen_staff'] },
-  { label: 'Inventory', href: '/dashboard/inventory', icon: <Package className="h-4 w-4" />, roles: ['admin', 'manager', 'inventory_manager'] },
-  { label: 'Branches', href: '/dashboard/admin/branches', icon: <Building2 className="h-4 w-4" />, roles: ['admin'] },
-  { label: 'Subscriptions', href: '/dashboard/admin/subscriptions', icon: <CreditCard className="h-4 w-4" />, roles: ['admin'] },
-  { label: 'Waiter', href: '/dashboard/waiter', icon: <UserCircle className="h-4 w-4" />, roles: ['waiter'] },
-  { label: 'Cashier', href: '/dashboard/cashier', icon: <Receipt className="h-4 w-4" />, roles: ['cashier'] },
-  { label: 'Audit Logs', href: '/dashboard/admin/audit-logs', icon: <ClipboardList className="h-4 w-4" />, roles: ['admin'] },
+  { key: 'sidebar.dashboard', href: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'waiter', 'kitchen_staff', 'inventory_manager'] },
+  { key: 'sidebar.menu', href: '/dashboard/admin/menu', icon: <UtensilsCrossed className="h-4 w-4" />, roles: ['admin'] },
+  { key: 'sidebar.categories', href: '/dashboard/admin/categories', icon: <Tag className="h-4 w-4" />, roles: ['admin'] },
+  { key: 'sidebar.employees', href: '/dashboard/admin/employees', icon: <Users className="h-4 w-4" />, roles: ['admin'] },
+  { key: 'sidebar.tables', href: '/dashboard/admin/tables', icon: <Table2 className="h-4 w-4" />, roles: ['admin'] },
+  { key: 'sidebar.payments', href: '/dashboard/admin/payments', icon: <Wallet className="h-4 w-4" />, roles: ['admin'] },
+  { key: 'sidebar.payroll', href: '/dashboard/manager/payroll', icon: <ClipboardList className="h-4 w-4" />, roles: ['admin', 'manager'] },
+  { key: 'sidebar.reports', href: '/dashboard/manager/reports', icon: <BarChart3 className="h-4 w-4" />, roles: ['admin', 'manager'] },
+  { key: 'sidebar.kds', href: '/dashboard/kitchen', icon: <ChefHat className="h-4 w-4" />, roles: ['admin', 'manager', 'kitchen_staff'] },
+  { key: 'sidebar.inventory', href: '/dashboard/inventory', icon: <Package className="h-4 w-4" />, roles: ['admin', 'manager', 'inventory_manager'] },
+  { key: 'sidebar.branches', href: '/dashboard/admin/branches', icon: <Building2 className="h-4 w-4" />, roles: ['admin'] },
+  { key: 'sidebar.subscriptions', href: '/dashboard/admin/subscriptions', icon: <CreditCard className="h-4 w-4" />, roles: ['admin'] },
+  { key: 'sidebar.waiter', href: '/dashboard/waiter', icon: <UserCircle className="h-4 w-4" />, roles: ['waiter'] },
+  { key: 'sidebar.cashier', href: '/dashboard/cashier', icon: <Receipt className="h-4 w-4" />, roles: ['cashier'] },
+  { key: 'sidebar.auditLogs', href: '/dashboard/admin/audit-logs', icon: <ClipboardList className="h-4 w-4" />, roles: ['admin'] },
 ]
 
 interface SidebarProps { role: Role }
@@ -46,6 +47,7 @@ export function Sidebar({ role }: SidebarProps) {
   const router = useRouter()
   const { logout } = useAuth()
   const [open, setOpen] = useState(false)
+  const { t } = useLanguage()
 
   const items = allNavItems.filter((item) => item.roles.includes(role))
 
@@ -57,7 +59,7 @@ export function Sidebar({ role }: SidebarProps) {
         size="icon-sm"
         className="fixed left-4 top-4 z-50 rounded-xl border border-border/60 bg-background/90 shadow-sm backdrop-blur-md lg:hidden"
         onClick={() => setOpen(true)}
-        aria-label="Open navigation menu"
+        aria-label={t('sidebar.openMenu')}
       >
         <Menu className="h-5 w-5" />
       </Button>
@@ -77,11 +79,11 @@ export function Sidebar({ role }: SidebarProps) {
               R
             </span>
             <div className="leading-tight">
-              <span className="block text-sm font-semibold tracking-tight">RestaurantOS</span>
-              <span className="block text-[11px] text-muted-foreground/70 font-medium">Management Console</span>
+              <span className="block text-sm font-semibold tracking-tight">{t('sidebar.brand')}</span>
+              <span className="block text-[11px] text-muted-foreground/70 font-medium">{t('sidebar.subtitle')}</span>
             </div>
           </Link>
-          <Button variant="ghost" size="icon-sm" className="rounded-lg lg:hidden" onClick={() => setOpen(false)} aria-label="Close navigation menu">
+          <Button variant="ghost" size="icon-sm" className="rounded-lg lg:hidden" onClick={() => setOpen(false)} aria-label={t('sidebar.closeMenu')}>
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -114,7 +116,7 @@ export function Sidebar({ role }: SidebarProps) {
                   )}>
                     {item.icon}
                   </span>
-                  <span className="truncate">{item.label}</span>
+                  <span className="truncate">{t(item.key)}</span>
                   {isActive && (
                     <ChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 text-primary/60" />
                   )}
@@ -133,7 +135,7 @@ export function Sidebar({ role }: SidebarProps) {
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-transparent text-muted-foreground/70 group-hover:text-foreground">
               <LogOut className="h-4 w-4" />
             </span>
-            <span>Logout</span>
+            <span>{t('sidebar.logout')}</span>
           </button>
         </div>
       </aside>

@@ -15,6 +15,10 @@ export function getDictionary(locale: LanguageCode): Record<string, string> {
   return dictionaries[locale] || dictionaries.en
 }
 
+export function getEnglishDictionary(): Record<string, string> {
+  return dictionaries.en
+}
+
 export function t(key: string, locale: LanguageCode = 'en', params?: Record<string, string | number>): string {
   let value = getDictionary(locale)[key] || dictionaries.en[key] || key
   if (params) {

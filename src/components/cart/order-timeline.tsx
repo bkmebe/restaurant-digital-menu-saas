@@ -11,19 +11,19 @@ interface OrderTimelineProps {
   status: string
 }
 
-const steps = [
-  { key: 'pending', label: 'Order Placed', icon: Clock },
-  { key: 'accepted', label: 'Accepted', icon: Check },
-  { key: 'preparing', label: 'Preparing', icon: CookingPot },
-  { key: 'ready', label: 'Ready', icon: Package },
-  { key: 'delivered', label: 'Delivered', icon: Truck },
-  { key: 'completed', label: 'Completed', icon: Check },
-]
-
 const statusOrder = ['pending', 'accepted', 'preparing', 'ready', 'delivered', 'completed', 'cancelled']
 
 export function OrderTimelineView({ timeline, status }: OrderTimelineProps) {
   const { t } = useLanguage()
+
+  const steps = [
+    { key: 'pending', label: t('order.timeline.placed'), icon: Clock },
+    { key: 'accepted', label: t('order.timeline.accepted'), icon: Check },
+    { key: 'preparing', label: t('order.timeline.preparing'), icon: CookingPot },
+    { key: 'ready', label: t('order.timeline.ready'), icon: Package },
+    { key: 'delivered', label: t('order.timeline.delivered'), icon: Truck },
+    { key: 'completed', label: t('order.timeline.completed'), icon: Check },
+  ]
   const currentIndex = statusOrder.indexOf(status)
 
   if (status === 'cancelled') {
@@ -31,7 +31,7 @@ export function OrderTimelineView({ timeline, status }: OrderTimelineProps) {
       <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg border border-red-200">
         <Ban className="h-5 w-5 text-red-500" />
         <div>
-          <p className="font-medium text-red-700">Order Cancelled</p>
+          <p className="font-medium text-red-700">{t('order.timeline.cancelled')}</p>
           {timeline.cancelled_at && <p className="text-sm text-red-500">{formatDateTime(timeline.cancelled_at)}</p>}
         </div>
       </div>
@@ -64,7 +64,7 @@ export function OrderTimelineView({ timeline, status }: OrderTimelineProps) {
               <p className="text-xs text-muted-foreground">
                 {timeline[`${step.key}_at` as keyof OrderTimeline]
                   ? formatDateTime(timeline[`${step.key}_at` as keyof OrderTimeline]!)
-                  : isCurrent ? 'In progress...' : ''}
+                  : isCurrent ? t('order.timeline.inProgress') : ''}
               </p>
             </div>
           </div>

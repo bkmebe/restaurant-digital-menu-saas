@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils/cn'
+import { useLanguage } from '@/hooks/use-language'
 
 interface Column {
   key: string
@@ -18,6 +19,7 @@ interface DataTableProps {
 }
 
 export function DataTable({ columns, data, loading, onRowClick }: DataTableProps) {
+  const { t } = useLanguage()
   if (loading) {
     return (
       <div className="rounded-lg border overflow-hidden">
@@ -37,7 +39,7 @@ export function DataTable({ columns, data, loading, onRowClick }: DataTableProps
   if (data.length === 0) {
     return (
       <div className="rounded-lg border border-dashed p-12 text-center">
-        <p className="text-sm text-muted-foreground">No data available</p>
+        <p className="text-sm text-muted-foreground">{t('table.empty')}</p>
       </div>
     )
   }

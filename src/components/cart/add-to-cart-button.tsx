@@ -44,7 +44,7 @@ export function AddToCartButton({ item }: AddToCartButtonProps) {
   if (added) {
     return (
       <Button className="w-full gap-2" variant="outline" disabled>
-        <Check className="h-4 w-4" /> Added
+        <Check className="h-4 w-4" /> {t('cart.added')}
       </Button>
     )
   }
@@ -59,7 +59,7 @@ export function AddToCartButton({ item }: AddToCartButtonProps) {
       {showForm && (
         <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
           <div className="flex items-center gap-3">
-            <Label className="text-xs">Qty</Label>
+            <Label className="text-xs">{t('cart.qty')}</Label>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</Button>
               <span className="w-6 text-center text-sm font-medium">{quantity}</span>
@@ -67,16 +67,16 @@ export function AddToCartButton({ item }: AddToCartButtonProps) {
             </div>
           </div>
           <div>
-            <Label className="text-xs">Special requests</Label>
+            <Label className="text-xs">{t('cart.specialRequests')}</Label>
             <Input
-              placeholder="e.g., no onions, extra sauce..."
+              placeholder={t('cart.specialRequestsPlaceholder')}
               value={requests}
               onChange={(e) => setRequests(e.target.value)}
               className="text-sm mt-1"
             />
           </div>
           <Button size="sm" className="w-full" onClick={handleAdd}>
-            Add {quantity} to Cart
+            {t('cart.addQuantity', { quantity })}
           </Button>
         </div>
       )}

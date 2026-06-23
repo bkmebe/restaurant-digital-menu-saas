@@ -1,6 +1,7 @@
 'use client'
 
 import { useCart } from '@/hooks/use-cart'
+import { useLanguage } from '@/hooks/use-language'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ShoppingCart } from 'lucide-react'
@@ -12,6 +13,7 @@ interface CartFABProps {
 
 export function CartFAB({ onClick }: CartFABProps) {
   const { itemCount, subtotal } = useCart()
+  const { t } = useLanguage()
 
   if (itemCount === 0) return null
 
@@ -22,7 +24,7 @@ export function CartFAB({ onClick }: CartFABProps) {
       onClick={onClick}
     >
       <ShoppingCart className="h-5 w-5" />
-      <span className="font-semibold">View Cart ({itemCount})</span>
+      <span className="font-semibold">{t('cart.viewCart', { count: itemCount })}</span>
       <Badge variant="secondary" className="ml-1">{formatCurrency(subtotal)}</Badge>
     </Button>
   )

@@ -38,7 +38,7 @@ export function MenuGrid({ items, loading }: MenuGridProps) {
         <EmptyState
           icon={<SearchX className="h-12 w-12" />}
           title={t('menu.noItems')}
-          description="Try adjusting your search or filter."
+          description={t('menu.adjustSearch')}
         />
       </div>
     )
