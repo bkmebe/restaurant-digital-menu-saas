@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
+import { useLanguage } from '@/hooks/use-language'
 import { Category } from '@/types/database'
 import { MenuItemForm } from '@/components/admin/menu-item-form'
 import { MenuItemFormData } from '@/types/menu'
 
 export default function NewMenuItemPage() {
+  const { t } = useLanguage()
   const router = useRouter()
   const { profile } = useAuth()
   const [categories, setCategories] = useState<Category[]>([])
@@ -32,7 +34,7 @@ export default function NewMenuItemPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6">Add Menu Item</h1>
+      <h1 className="text-2xl font-bold mb-6">{t('admin.menu.addTitle')}</h1>
       <MenuItemForm categories={categories} onSubmit={handleSubmit} loading={loading} />
     </div>
   )

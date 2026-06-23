@@ -93,10 +93,10 @@ export default function KitchenDashboardPage() {
   const readyOrders = orders.filter(o => o.status === 'ready')
 
   const stats = [
-    { label: 'New', value: newOrders.length, icon: Clock, color: 'bg-yellow-500' },
-    { label: 'In Progress', value: activeOrders.length, icon: Timer, color: 'bg-blue-500' },
-    { label: 'Ready', value: readyOrders.length, icon: CheckCircle, color: 'bg-green-500' },
-    { label: 'Total', value: orders.length, icon: ChefHat, color: 'bg-purple-500' },
+    { label: t('kitchen.new'), value: newOrders.length, icon: Clock, color: 'bg-yellow-500' },
+    { label: t('kitchen.inProgress'), value: activeOrders.length, icon: Timer, color: 'bg-blue-500' },
+    { label: t('kitchen.ready'), value: readyOrders.length, icon: CheckCircle, color: 'bg-green-500' },
+    { label: t('kitchen.total'), value: orders.length, icon: ChefHat, color: 'bg-purple-500' },
   ]
 
   if (loading) return <LoadingSpinner size="lg" />
@@ -104,9 +104,9 @@ export default function KitchenDashboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Kitchen Display</h1>
+        <h1 className="text-2xl font-bold">{t('kitchen.title')}</h1>
         <Badge variant={soundEnabled ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setSoundEnabled(!soundEnabled)}>
-          {soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF'}
+          {soundEnabled ? t('kitchen.soundOn') : t('kitchen.soundOff')}
         </Badge>
       </div>
 
@@ -141,16 +141,16 @@ export default function KitchenDashboardPage() {
                     <span className="text-sm font-medium">{station.name}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Pending</span>
+                    <span className="text-muted-foreground">{t('kitchen.pending')}</span>
                     <span className="font-medium">{station.pendingItems}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Active</span>
+                    <span className="text-muted-foreground">{t('kitchen.active')}</span>
                     <span className="font-medium">{station.activeItems}</span>
                   </div>
                   {station.avgPrepTime !== null && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Avg prep</span>
+                      <span className="text-muted-foreground">{t('kitchen.avgPrep')}</span>
                       <span className="font-medium">{station.avgPrepTime} min</span>
                     </div>
                   )}
@@ -163,15 +163,15 @@ export default function KitchenDashboardPage() {
 
       <Tabs defaultValue="new">
         <TabsList>
-          <TabsTrigger value="new">New ({newOrders.length})</TabsTrigger>
-          <TabsTrigger value="active">Preparing ({activeOrders.length})</TabsTrigger>
-          <TabsTrigger value="ready">Ready ({readyOrders.length})</TabsTrigger>
-          <TabsTrigger value="all">All ({orders.length})</TabsTrigger>
+          <TabsTrigger value="new">{t('kitchen.new')} ({newOrders.length})</TabsTrigger>
+          <TabsTrigger value="active">{t('kitchen.preparing')} ({activeOrders.length})</TabsTrigger>
+          <TabsTrigger value="ready">{t('kitchen.ready')} ({readyOrders.length})</TabsTrigger>
+          <TabsTrigger value="all">{t('kitchen.all')} ({orders.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="new" className="mt-4">
           {newOrders.length === 0 ? (
-            <EmptyState icon={<ChefHat className="h-12 w-12" />} title="No new orders" description="Waiting for customer orders..." />
+            <EmptyState icon={<ChefHat className="h-12 w-12" />} title={t('kitchen.noNewOrders')} description={t('kitchen.waiting')} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {newOrders.map(order => (
@@ -183,7 +183,7 @@ export default function KitchenDashboardPage() {
 
         <TabsContent value="active" className="mt-4">
           {activeOrders.length === 0 ? (
-            <EmptyState icon={<Timer className="h-12 w-12" />} title="No active orders" />
+            <EmptyState icon={<Timer className="h-12 w-12" />} title={t('kitchen.noActiveOrders')} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {activeOrders.map(order => (
@@ -195,7 +195,7 @@ export default function KitchenDashboardPage() {
 
         <TabsContent value="ready" className="mt-4">
           {readyOrders.length === 0 ? (
-            <EmptyState icon={<CheckCircle className="h-12 w-12" />} title="No ready orders" />
+            <EmptyState icon={<CheckCircle className="h-12 w-12" />} title={t('kitchen.noReadyOrders')} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {readyOrders.map(order => (

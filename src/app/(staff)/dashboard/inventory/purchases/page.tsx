@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
+import { useLanguage } from '@/hooks/use-language'
 import { usePurchaseOrders, useSuppliers, useIngredients } from '@/hooks/use-inventory'
 import { DataTable, Column } from '@/components/ui/data-table'
 import { Button } from '@/components/ui/button'
@@ -15,6 +16,7 @@ import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { Plus, Minus } from 'lucide-react'
 
 export default function PurchasesPage() {
+  const { t } = useLanguage()
   const { profile } = useAuth()
   const { orders, refetch } = usePurchaseOrders(profile?.restaurant_id)
   const { suppliers } = useSuppliers(profile?.restaurant_id)
@@ -79,49 +81,49 @@ export default function PurchasesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Purchase Orders</h1>
-        <Button onClick={() => setShowForm(true)}><Plus className="h-4 w-4 mr-2" />New Order</Button>
+        <h1 className="text-2xl font-bold">{t('inventory.purchaseOrders')}</h1>
+        <Button onClick={() => setShowForm(true)}><Plus className="h-4 w-4 mr-2" />{t('inventory.newOrder')}</Button>
       </div>
 
       {showForm && (
         <Card>
           <CardContent className="p-4 space-y-4">
             <div className="space-y-2">
-              <Label>Supplier</Label>
-              <Select value={supplierId} onChange={e => setSupplierId(e.target.value)} options={suppliers.map(s => ({ value: s.id, label: s.name }))} placeholder="Select supplier" />
+              <Label>{t('inventory.supplier')}</Label>
+              <Select value={supplierId} onChange={e => setSupplierId(e.target.value)} options={suppliers.map(s => ({ value: s.id, label: s.name }))} placeholder={t('inventory.selectSupplier')} />
             </div>
             <div className="space-y-3">
               {items.map((item, idx) => (
                 <div key={idx} className="flex gap-2 items-end">
                   <div className="flex-1">
-                    <Label className="text-xs">Ingredient</Label>
-                    <Select value={item.ingredient_id} onChange={e => updateItem(idx, 'ingredient_id', e.target.value)} options={ingredients.map(i => ({ value: i.id, label: i.name }))} placeholder="Select" />
+                    <Label className="text-xs">{t('inventory.ingredient')}</Label>
+                    <Select value={item.ingredient_id} onChange={e => updateItem(idx, 'ingredient_id', e.target.value)} options={ingredients.map(i => ({ value: i.id, label: i.name }))} placeholder={t('inventory.select')} />
                   </div>
                   <div className="w-20">
-                    <Label className="text-xs">Qty</Label>
+                    <Label className="text-xs">{t('inventory.qty')}</Label>
                     <Input type="number" value={item.quantity || ''} onChange={e => updateItem(idx, 'quantity', Number(e.target.value))} />
                   </div>
                   <div className="w-24">
-                    <Label className="text-xs">Unit Cost</Label>
+                    <Label className="text-xs">{t('inventory.unitCost')}</Label>
                     <Input type="number" value={item.unit_cost || ''} onChange={e => updateItem(idx, 'unit_cost', Number(e.target.value))} />
                   </div>
                   <Button variant="ghost" size="icon" onClick={() => removeItem(idx)}><Minus className="h-4 w-4" /></Button>
                 </div>
               ))}
-              <Button variant="outline" size="sm" onClick={addItem}>+ Add Item</Button>
+              <Button variant="outline" size="sm" onClick={addItem}>{t('inventory.addItem')}</Button>
             </div>
-            <Button onClick={handleCreate} disabled={saving || items.length === 0}>Create Purchase Order</Button>
+            <Button onClick={handleCreate} disabled={saving || items.length === 0}>{t('inventory.createPO')}</Button>
           </CardContent>
         </Card>
       )}
 
       <DataTable columns={[
-        { key: 'order_number', header: 'Order #' },
-        { key: 'supplier', header: 'Supplier', render: (item) => (item.supplier as { name: string })?.name || '-' },
-        { key: 'status', header: 'Status', render: (item) => <StatusBadge status={item.status as string} mapping={{ draft: 'warning', ordered: 'info', received: 'success', cancelled: 'destructive' }} /> },
-        { key: 'total_amount', header: 'Total', render: (item) => formatCurrency(Number(item.total_amount)) },
-        { key: 'order_date', header: 'Date', render: (item) => formatDate(item.order_date as string) },
-        { key: 'actions', header: '', render: (item) => item.status === 'draft' ? <Button size="sm" variant="outline" onClick={() => receiveOrder(item.id as string)}>Receive</Button> : null },
+        { key: 'order_number', header: t('inventory.orderNumber') },
+        { key: 'supplier', header: t('inventory.supplier'), render: (item: Record<string, unknown>) => (item.supplier as { name: string })?.name || '-' },
+        { key: 'status', header: t('common.status'), render: (item: Record<string, unknown>) => <StatusBadge status={item.status as string} mapping={{ draft: 'warning', ordered: 'info', received: 'success', cancelled: 'destructive' }} /> },
+        { key: 'total_amount', header: t('inventory.total'), render: (item: Record<string, unknown>) => formatCurrency(Number(item.total_amount)) },
+        { key: 'order_date', header: t('inventory.date'), render: (item: Record<string, unknown>) => formatDate(item.order_date as string) },
+        { key: 'actions', header: '', render: (item: Record<string, unknown>) => item.status === 'draft' ? <Button size="sm" variant="outline" onClick={() => receiveOrder(item.id as string)}>{t('inventory.receive')}</Button> : null },
       ]} data={orders as unknown as Record<string, unknown>[]} loading={false} />
     </div>
   )

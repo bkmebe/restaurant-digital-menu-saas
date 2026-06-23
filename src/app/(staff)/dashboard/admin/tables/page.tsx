@@ -35,9 +35,9 @@ export default function AdminTablesPage() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : ''
       if (msg.includes('23505') || msg.includes('unique') || msg.includes('duplicate')) {
-        setFormError(`Table number ${data.table_number} already exists. Please use a different number.`)
+        setFormError(t('admin.table.exists', { number: data.table_number }))
       } else {
-        setFormError(msg || 'Failed to create table')
+        setFormError(msg || t('admin.table.failedCreate'))
       }
     }
   }
@@ -53,22 +53,22 @@ export default function AdminTablesPage() {
   }
 
   const columns: Column[] = [
-    { key: 'table_number', header: 'Table #', render: (t: Record<string, unknown>) => <span className="font-medium">Table {t.table_number as number}</span> },
-    { key: 'capacity', header: 'Capacity' },
-    { key: 'status', header: 'Status', render: (t: Record<string, unknown>) => <StatusBadge status={t.status as string} mapping={{ available: 'success', occupied: 'destructive', cleaning: 'warning' }} /> },
-    { key: 'assigned_waiter', header: 'Waiter', render: (t: Record<string, unknown>) => {
-      const waiter = waiters.find(w => w.id === (t.assigned_waiter_id as string))
+    { key: 'table_number', header: t('admin.table.number'), render: (tbl: Record<string, unknown>) => <span className="font-medium">{t('table.number', { number: tbl.table_number as number })}</span> },
+    { key: 'capacity', header: t('admin.table.capacity') },
+    { key: 'status', header: t('common.status'), render: (tbl: Record<string, unknown>) => <StatusBadge status={tbl.status as string} mapping={{ available: 'success', occupied: 'destructive', cleaning: 'warning' }} /> },
+    { key: 'assigned_waiter', header: t('admin.table.waiter'), render: (tbl: Record<string, unknown>) => {
+      const waiter = waiters.find(w => w.id === (tbl.assigned_waiter_id as string))
       return waiter?.full_name || '-'
     }},
-    { key: 'qr', header: 'QR', render: (t: Record<string, unknown>) => (t.qr_code_url as string) ? (
-      <a href={(t.qr_code_data as string) || '#'} target="_blank" rel="noopener noreferrer">
+    { key: 'qr', header: t('admin.table.qr'), render: (tbl: Record<string, unknown>) => (tbl.qr_code_url as string) ? (
+      <a href={(tbl.qr_code_data as string) || '#'} target="_blank" rel="noopener noreferrer">
         <Button variant="ghost" size="sm"><QrCode className="h-4 w-4" /></Button>
       </a>
     ) : (
-      <Button variant="outline" size="sm" onClick={() => handleGenerateQR(t as unknown as TableType)}>Generate</Button>
+      <Button variant="outline" size="sm" onClick={() => handleGenerateQR(tbl as unknown as TableType)}>{t('admin.table.generate')}</Button>
     )},
-    { key: 'actions', header: 'Actions', render: (t: Record<string, unknown>) => (
-      <Button variant="ghost" size="icon" onClick={() => setDeleteId(t.id as string)}>
+    { key: 'actions', header: t('common.actions'), render: (tbl: Record<string, unknown>) => (
+      <Button variant="ghost" size="icon" onClick={() => setDeleteId(tbl.id as string)}>
         <Trash2 className="h-4 w-4 text-destructive" />
       </Button>
     )},
@@ -84,7 +84,7 @@ export default function AdminTablesPage() {
       {showForm && (
         <Card>
           <CardContent className="p-4">
-            <h2 className="font-semibold mb-4">New Table</h2>
+            <h2 className="font-semibold mb-4">{t('admin.table.newTitle')}</h2>
             <TableForm waiters={activeWaiters} onSubmit={handleCreate} error={formError} />
           </CardContent>
         </Card>
@@ -94,8 +94,8 @@ export default function AdminTablesPage() {
 
       <ConfirmDialog
         open={!!deleteId}
-        title="Delete Table"
-        message="Are you sure you want to delete this table?"
+        title={t('admin.deleteTableTitle')}
+        message={t('admin.table.deleteConfirm')}
         variant="destructive"
         onConfirm={async () => { if (deleteId) { await deleteTable(deleteId); setDeleteId(null) } }}
         onCancel={() => setDeleteId(null)}

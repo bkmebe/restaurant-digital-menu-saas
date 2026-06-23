@@ -129,8 +129,8 @@ export default function ManagerDashboardPage() {
   const revenueCards = [
     { title: t('dashboard.today') + ' Revenue', value: formatCurrency(stats.todayRevenue), icon: DollarSign, color: 'bg-green-500' },
     { title: t('dashboard.thisMonth') + ' Revenue', value: formatCurrency(stats.monthRevenue), icon: TrendingUp, color: 'bg-blue-500' },
-    { title: 'Total Orders', value: String(stats.totalOrders), icon: Clock, color: 'bg-purple-500' },
-    { title: 'Avg Order Value', value: stats.totalOrders > 0 ? formatCurrency(stats.monthRevenue / stats.totalOrders) : 'ETB 0', icon: Wallet, color: 'bg-amber-500' },
+    { title: t('manager.totalOrders'), value: String(stats.totalOrders), icon: Clock, color: 'bg-purple-500' },
+    { title: t('manager.avgOrderValue'), value: stats.totalOrders > 0 ? formatCurrency(stats.monthRevenue / stats.totalOrders) : 'ETB 0', icon: Wallet, color: 'bg-amber-500' },
   ]
 
   return (
@@ -161,7 +161,7 @@ export default function ManagerDashboardPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-blue-500" />
-              7-Day Order Trends
+              {t('manager.sevenDayTrends')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -172,7 +172,7 @@ export default function ManagerDashboardPage() {
                     {new Date(day.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                   </span>
                   <div className="flex items-center gap-4">
-                    <span className="text-sm">{day.count} orders</span>
+                    <span className="text-sm">{t('manager.ordersCount', { count: day.count })}</span>
                     <span className="text-sm font-medium w-24 text-right">{formatCurrency(day.revenue)}</span>
                   </div>
                 </div>
@@ -190,7 +190,7 @@ export default function ManagerDashboardPage() {
           </CardHeader>
           <CardContent>
             {stats.popularItems.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8">No data yet</p>
+              <p className="text-muted-foreground text-center py-8">{t('manager.noData')}</p>
             ) : (
               <div className="space-y-2">
                 {stats.popularItems.slice(0, 10).map((item, i) => (
@@ -200,7 +200,7 @@ export default function ManagerDashboardPage() {
                       <span className="text-sm font-medium">{item.name}</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <span>{item.count} sold</span>
+                      <span>{t('manager.sold', { count: item.count })}</span>
                       <span className="font-medium text-foreground">{formatCurrency(item.revenue)}</span>
                     </div>
                   </div>
@@ -222,30 +222,30 @@ export default function ManagerDashboardPage() {
           <CardContent>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
               <div className="text-center p-3 rounded-lg bg-muted/50">
-                <p className="text-xs text-muted-foreground">Employees</p>
+                <p className="text-xs text-muted-foreground">{t('manager.employees')}</p>
                 <p className="text-lg font-bold">{payroll.employeeCount}</p>
               </div>
               <div className="text-center p-3 rounded-lg bg-muted/50">
-                <p className="text-xs text-muted-foreground">Total Salary</p>
+                <p className="text-xs text-muted-foreground">{t('manager.totalSalary')}</p>
                 <p className="text-lg font-bold">{formatCurrency(payroll.totalSalary)}</p>
               </div>
               <div className="text-center p-3 rounded-lg bg-muted/50">
-                <p className="text-xs text-muted-foreground">Bonuses</p>
+                <p className="text-xs text-muted-foreground">{t('manager.bonuses')}</p>
                 <p className="text-lg font-bold text-green-600">{formatCurrency(payroll.totalBonuses)}</p>
               </div>
               <div className="text-center p-3 rounded-lg bg-muted/50">
-                <p className="text-xs text-muted-foreground">Deductions</p>
+                <p className="text-xs text-muted-foreground">{t('manager.deductions')}</p>
                 <p className="text-lg font-bold text-red-600">{formatCurrency(payroll.totalDeductions)}</p>
               </div>
               <div className="text-center p-3 rounded-lg bg-muted/50">
-                <p className="text-xs text-muted-foreground">Net Pay</p>
+                <p className="text-xs text-muted-foreground">{t('manager.netPay')}</p>
                 <p className="text-lg font-bold">{formatCurrency(payroll.netPay)}</p>
               </div>
             </div>
             {payroll.pendingCount > 0 && (
               <div className="mt-4 flex items-center gap-2 text-sm text-amber-600">
                 <Clock className="h-4 w-4" />
-                {payroll.pendingCount} payroll{payroll.pendingCount !== 1 ? 's' : ''} pending payment
+                {t('manager.pendingPayroll', { count: payroll.pendingCount })}
               </div>
             )}
           </CardContent>
@@ -257,7 +257,7 @@ export default function ManagerDashboardPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building2 className="h-5 w-5 text-indigo-500" />
-              Branch Performance
+              {t('manager.branchPerformance')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -269,7 +269,7 @@ export default function ManagerDashboardPage() {
                     <span className="font-medium text-sm">{branch.name}</span>
                   </div>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>{branch.orderCount} orders</span>
+                    <span>{t('manager.ordersCount', { count: branch.orderCount })}</span>
                     <span className="font-medium text-foreground w-28 text-right">{formatCurrency(branch.revenue)}</span>
                   </div>
                 </div>

@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
+import { useLanguage } from '@/hooks/use-language'
 import { AuditLog } from '@/types/database'
 import { DataTable, Column } from '@/components/ui/data-table'
 import { formatDateTime } from '@/lib/utils/format'
 
 export default function AuditLogsPage() {
+  const { t } = useLanguage()
   const { profile } = useAuth()
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [loading, setLoading] = useState(true)
@@ -27,15 +29,15 @@ export default function AuditLogsPage() {
   }, [profile?.restaurant_id])
 
   const columns: Column[] = [
-    { key: 'created_at', header: 'Date', render: (l: Record<string, unknown>) => formatDateTime(l.created_at as string) },
-    { key: 'action', header: 'Action' },
-    { key: 'table_name', header: 'Table' },
-    { key: 'actor_id', header: 'Actor', render: (l: Record<string, unknown>) => (l.actor_id as string)?.slice(0, 8) || 'System' },
+    { key: 'created_at', header: t('audit.date'), render: (l: Record<string, unknown>) => formatDateTime(l.created_at as string) },
+    { key: 'action', header: t('audit.action') },
+    { key: 'table_name', header: t('audit.table') },
+    { key: 'actor_id', header: t('audit.actor'), render: (l: Record<string, unknown>) => (l.actor_id as string)?.slice(0, 8) || 'System' },
   ]
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Audit Logs</h1>
+      <h1 className="text-2xl font-bold">{t('audit.title')}</h1>
       <DataTable columns={columns} data={logs as unknown as Record<string, unknown>[]} loading={loading} />
     </div>
   )

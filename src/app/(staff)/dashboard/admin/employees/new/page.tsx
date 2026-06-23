@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useLanguage } from '@/hooks/use-language'
 import { EmployeeForm } from '@/components/admin/employee-form'
 import { EmployeeFormData } from '@/types/employee'
 
 export default function NewEmployeePage() {
+  const { t } = useLanguage()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -27,7 +29,7 @@ export default function NewEmployeePage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6">Add Employee</h1>
+      <h1 className="text-2xl font-bold mb-6">{t('admin.employee.addTitle')}</h1>
       <EmployeeForm onSubmit={handleSubmit} loading={loading} />
     </div>
   )

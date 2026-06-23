@@ -35,7 +35,7 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
         </div>
       ) : (
         <div className="aspect-[4/3] bg-gradient-to-br from-muted/50 to-muted flex items-center justify-center">
-          <span className="text-4xl text-muted-foreground/30">🍽</span>
+          <span className="text-4xl text-muted-foreground/30">&nbsp;</span>
         </div>
       )}
       <CardContent className="p-4">

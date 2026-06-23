@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
+import { useLanguage } from '@/hooks/use-language'
 import { MenuItem, Category } from '@/types/database'
 import { MenuItemForm } from '@/components/admin/menu-item-form'
 import { MenuItemFormData } from '@/types/menu'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 
 export default function EditMenuItemPage() {
+  const { t } = useLanguage()
   const router = useRouter()
   const params = useParams()
   const { profile } = useAuth()
@@ -44,7 +46,7 @@ export default function EditMenuItemPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6">Edit Menu Item</h1>
+      <h1 className="text-2xl font-bold mb-6">{t('admin.menu.editTitle')}</h1>
       <MenuItemForm
         categories={categories}
         onSubmit={handleSubmit}

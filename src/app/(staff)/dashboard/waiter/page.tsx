@@ -60,7 +60,7 @@ export default function WaiterDashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">{t('nav.waiter')} {t('dashboard.title')}</h1>
-        <p className="text-muted-foreground">{employee?.full_name || 'Welcome'}</p>
+        <p className="text-muted-foreground">{employee?.full_name || t('waiter.welcome')}</p>
       </div>
 
       <Tabs defaultValue="tables">
@@ -69,7 +69,7 @@ export default function WaiterDashboardPage() {
             <Table2 className="h-4 w-4" />{t('waiter.assignedTables')} ({tables.length})
           </TabsTrigger>
           <TabsTrigger value="orders" className="gap-2">
-            <ShoppingBag className="h-4 w-4" />Current Orders ({orders.length})
+            <ShoppingBag className="h-4 w-4" />{t('waiter.currentOrders')} ({orders.length})
           </TabsTrigger>
           <TabsTrigger value="requests" className="gap-2">
             <Bell className="h-4 w-4" />{t('waiter.activeRequests')} ({pendingRequests.length})
@@ -78,7 +78,7 @@ export default function WaiterDashboardPage() {
 
         <TabsContent value="tables" className="mt-4">
           {tables.length === 0 ? (
-            <EmptyState icon={<Table2 className="h-8 w-8" />} title="No assigned tables" />
+            <EmptyState icon={<Table2 className="h-8 w-8" />} title={t('waiter.noAssignedTables')} />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {tables.map((table) => (
@@ -90,7 +90,7 @@ export default function WaiterDashboardPage() {
 
         <TabsContent value="orders" className="mt-4">
           {orders.length === 0 ? (
-            <EmptyState icon={<ShoppingBag className="h-8 w-8" />} title="No current orders" description="Orders from your tables will appear here" />
+            <EmptyState icon={<ShoppingBag className="h-8 w-8" />} title={t('waiter.noCurrentOrders')} description={t('waiter.ordersWillAppear')} />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {orders.map((order) => (
@@ -98,7 +98,7 @@ export default function WaiterDashboardPage() {
                   <CardContent className="p-4 space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">Table {order.table?.table_number}</span>
+                        <span className="font-medium">{t('waiter.table')}{order.table?.table_number}</span>
                         <Badge variant={order.status === 'pending' ? 'default' : order.status === 'preparing' ? 'secondary' : 'outline'}>
                           {order.status}
                         </Badge>
@@ -121,7 +121,7 @@ export default function WaiterDashboardPage() {
 
         <TabsContent value="requests" className="mt-4 space-y-3">
           {pendingRequests.length === 0 ? (
-            <EmptyState icon={<Bell className="h-8 w-8" />} title="No active requests" description="All clear!" />
+            <EmptyState icon={<Bell className="h-8 w-8" />} title={t('waiter.noActiveRequests')} description={t('waiter.allClear')} />
           ) : (
             pendingRequests.map((req) => (
               <ServiceRequestCard

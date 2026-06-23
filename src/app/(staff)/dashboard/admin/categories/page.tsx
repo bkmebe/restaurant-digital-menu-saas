@@ -73,7 +73,7 @@ export default function CategoriesPage() {
       {(showForm || editId) && (
         <Card>
           <CardContent className="p-4">
-            <h2 className="font-semibold mb-4">{editId ? 'Edit Category' : 'New Category'}</h2>
+            <h2 className="font-semibold mb-4">{editId ? t('admin.editCategory') : t('admin.newCategory')}</h2>
             <CategoryForm
               onSubmit={editId ? handleUpdate : handleCreate}
               defaultValues={editCategory ? {
@@ -116,8 +116,8 @@ export default function CategoriesPage() {
 
       <ConfirmDialog
         open={!!deleteId}
-        title="Delete Category"
-        message="Are you sure? Items in this category may become orphaned."
+        title={t('admin.deleteCategoryTitle')}
+        message={t('admin.deleteCategoryDesc')}
         variant="destructive"
         onConfirm={handleDelete}
         onCancel={() => setDeleteId(null)}

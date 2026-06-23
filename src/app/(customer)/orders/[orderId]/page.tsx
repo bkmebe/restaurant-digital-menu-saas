@@ -73,7 +73,7 @@ export default function OrderTrackingPage() {
   if (!order) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Order not found</p>
+        <p>{t('order.notFound')}</p>
       </div>
     )
   }
@@ -96,21 +96,21 @@ export default function OrderTrackingPage() {
             <Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button>
           </Link>
           <div>
-            <h1 className="text-xl font-bold">Order #{order.id.slice(0, 8)}</h1>
+            <h1 className="text-xl font-bold">{t('order.orderNumber', { id: order.id.slice(0, 8) })}</h1>
             <p className="text-sm text-muted-foreground">{formatDateTime(order.created_at)}</p>
           </div>
           <Badge className={`${statusColors[order.status] || ''} ml-auto`}>{order.status}</Badge>
         </div>
 
         <Card>
-          <CardHeader><CardTitle>Order Status</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t('order.orderStatus')}</CardTitle></CardHeader>
           <CardContent>
             <OrderTimelineView timeline={timeline} status={order.status} />
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>Items ({order.items?.length || 0})</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t('order.items', { count: order.items?.length || 0 })}</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             {(order.items as OrderItem[])?.map((item) => (
               <div key={item.id} className="flex items-center justify-between py-2 border-b last:border-0">
@@ -125,11 +125,11 @@ export default function OrderTrackingPage() {
             ))}
             {order.special_instructions && (
               <div className="pt-2 text-sm text-muted-foreground">
-                <span className="font-medium">Notes: </span>{order.special_instructions}
+                <span className="font-medium">{t('order.notes')}</span>{order.special_instructions}
               </div>
             )}
             <div className="flex items-center justify-between pt-2 border-t font-bold">
-              <span>Total</span>
+              <span>{t('order.total')}</span>
               <span>{formatCurrency(Number(order.total_amount))}</span>
             </div>
           </CardContent>
@@ -137,7 +137,7 @@ export default function OrderTrackingPage() {
 
         {order.status === 'delivered' && (
           <Button className="w-full gap-2" onClick={handleComplete}>
-            <Check className="h-4 w-4" /> Mark as Completed
+            <Check className="h-4 w-4" /> {t('order.markCompleted')}
           </Button>
         )}
       </div>

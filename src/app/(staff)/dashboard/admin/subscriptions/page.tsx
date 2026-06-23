@@ -62,7 +62,7 @@ export default function SubscriptionsPage() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">{t('subscriptions')}</h1>
-        <p className="text-muted-foreground">Manage your subscription plan</p>
+        <p className="text-muted-foreground">{t('subscription.manage')}</p>
       </div>
 
       {/* Active Subscription */}
@@ -71,7 +71,7 @@ export default function SubscriptionsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-green-500" />
-              Active Subscription
+              {t('subscription.active')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -94,7 +94,7 @@ export default function SubscriptionsPage() {
       )}
 
       {/* Available Plans */}
-      <h2 className="text-xl font-semibold">Available Plans</h2>
+      <h2 className="text-xl font-semibold">{t('subscription.availablePlans')}</h2>
       <div className="grid gap-4 md:grid-cols-3">
         {plans.map((plan) => (
           <Card key={plan.id}>
@@ -107,7 +107,7 @@ export default function SubscriptionsPage() {
             <CardContent className="space-y-4">
               <p className="text-3xl font-bold">ETB {plan.price}<span className="text-sm font-normal text-muted-foreground">/{plan.interval}</span></p>
               {plan.description && <p className="text-sm text-muted-foreground">{plan.description}</p>}
-              <Button className="w-full" onClick={() => handleSubscribe(plan.id)}>Subscribe</Button>
+              <Button className="w-full" onClick={() => handleSubscribe(plan.id)}>{t('subscription.subscribe')}</Button>
             </CardContent>
           </Card>
         ))}
@@ -116,7 +116,7 @@ export default function SubscriptionsPage() {
       {/* Subscription History */}
       {subscriptions.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold mb-4">History</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('subscription.history')}</h2>
           <div className="space-y-2">
             {subscriptions.map((sub) => (
               <Card key={sub.id}>

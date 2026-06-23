@@ -29,7 +29,7 @@ export async function POST(request: Request) {
           name: cat.name,
           name_am: cat.nameAm || cat.name,
           name_om: cat.nameOm || cat.name,
-          icon: cat.icon || '📋',
+          icon: cat.icon || '',
           sort_order: cat.sortOrder || 0,
           is_active: true,
         })

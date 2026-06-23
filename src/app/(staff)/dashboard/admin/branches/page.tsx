@@ -69,23 +69,23 @@ export default function BranchesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t('branches')}</h1>
-          <p className="text-muted-foreground">Manage your restaurant branches</p>
+          <p className="text-muted-foreground">{t('branch.manage')}</p>
         </div>
         <Button onClick={() => setShowForm(!showForm)}>
-          <Plus className="mr-2 h-4 w-4" /> Add Branch
+          <Plus className="mr-2 h-4 w-4" /> {t('branch.addBranch')}
         </Button>
       </div>
 
       {showForm && (
         <Card>
           <CardContent className="pt-6 space-y-4">
-            <Input placeholder="Branch name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-            <Input placeholder="Address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
-            <Input placeholder="Phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-            <Input placeholder="Email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+            <Input placeholder={t('branch.name')} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+            <Input placeholder={t('branch.address')} value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
+            <Input placeholder={t('branch.phone')} value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+            <Input placeholder={t('branch.email')} value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
             <div className="flex gap-2">
-              <Button onClick={handleCreate}>Create</Button>
-              <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
+              <Button onClick={handleCreate}>{t('admin.branch.create')}</Button>
+              <Button variant="outline" onClick={() => setShowForm(false)}>{t('common.cancel')}</Button>
             </div>
           </CardContent>
         </Card>
@@ -104,7 +104,7 @@ export default function BranchesPage() {
               {branch.address && <p className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {branch.address}</p>}
               {branch.phone && <p className="flex items-center gap-2"><Phone className="h-4 w-4" /> {branch.phone}</p>}
               <p className="text-xs text-muted-foreground">
-                {branch.is_active ? 'Active' : 'Inactive'} · Created {new Date(branch.created_at).toLocaleDateString()}
+                {branch.is_active ? t('branch.active') : t('admin.branch.inactive')} · {t('branch.created', { date: new Date(branch.created_at).toLocaleDateString() })}
               </p>
             </CardContent>
           </Card>

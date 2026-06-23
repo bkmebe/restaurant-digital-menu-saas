@@ -117,49 +117,49 @@ export default function AdminDashboardPage() {
 
   const statCards = [
     {
-      label: "Today's Revenue",
+      label: t('admin.dash.todayRevenue'),
       value: formatCurrency(stats?.todayRevenue ?? 0),
-      trend: `${stats?.todayOrders ?? 0} orders`,
+      trend: t('admin.dash.ordersToday', { count: stats?.todayOrders ?? 0 }),
       icon: DollarSign,
       accent: 'from-emerald-500/20 to-emerald-500/5',
       iconBg: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
     },
     {
-      label: 'Pending Payments',
+      label: t('admin.dash.pendingPayments'),
       value: String(stats?.pendingPayments ?? 0),
-      trend: 'awaiting settlement',
+      trend: t('admin.dash.awaitingSettlement'),
       icon: Wallet,
       accent: 'from-amber-500/20 to-amber-500/5',
       iconBg: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
     },
     {
-      label: 'Active Staff',
+      label: t('admin.dash.activeStaff'),
       value: String(stats?.employeeCount ?? 0),
-      trend: `${stats?.menuItemCount ?? 0} menu items`,
+      trend: t('admin.dash.menuItems', { count: stats?.menuItemCount ?? 0 }),
       icon: Users,
       accent: 'from-blue-500/20 to-blue-500/5',
       iconBg: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
     },
     {
-      label: 'Tables',
+      label: t('admin.dash.tables'),
       value: `${(stats?.totalTables ?? 0) - (stats?.activeTables ?? 0)}/${stats?.totalTables ?? 0}`,
-      trend: `${stats?.activeTables ?? 0} occupied`,
+      trend: t('admin.dash.occupied', { count: stats?.activeTables ?? 0 }),
       icon: Table2,
       accent: 'from-violet-500/20 to-violet-500/5',
       iconBg: 'bg-violet-500/15 text-violet-600 dark:text-violet-400',
     },
     {
-      label: 'Low Stock Alerts',
+      label: t('admin.dash.lowStock'),
       value: String(stats?.lowStockCount ?? 0),
-      trend: stats?.lowStockCount ? 'Needs attention' : 'All good',
+      trend: stats?.lowStockCount ? t('admin.dash.needsAttention') : t('admin.dash.allGood'),
       icon: AlertTriangle,
       accent: stats?.lowStockCount ? 'from-red-500/20 to-red-500/5' : 'from-green-500/20 to-green-500/5',
       iconBg: stats?.lowStockCount ? 'bg-red-500/15 text-red-600 dark:text-red-400' : 'bg-green-500/15 text-green-600 dark:text-green-400',
     },
     {
-      label: 'Avg Order Value',
+      label: t('admin.dash.avgOrderValue'),
       value: formatCurrency(avgOrderValue),
-      trend: 'per order today',
+      trend: t('admin.dash.perOrderToday'),
       icon: TrendingUp,
       accent: 'from-sky-500/20 to-sky-500/5',
       iconBg: 'bg-sky-500/15 text-sky-600 dark:text-sky-400',
@@ -171,7 +171,7 @@ export default function AdminDashboardPage() {
       title: t('admin.menuManagement'),
       href: '/dashboard/admin/menu',
       icon: UtensilsCrossed,
-      description: 'Curate categories, pricing, and availability for a polished guest experience.',
+      description: t('admin.dash.menuDesc'),
       tone: 'from-indigo-500/15 to-blue-500/10',
       iconTone: 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300',
     },
@@ -179,7 +179,7 @@ export default function AdminDashboardPage() {
       title: t('admin.employeeManagement'),
       href: '/dashboard/admin/employees',
       icon: Users,
-      description: 'Maintain role coverage and staffing quality across every shift.',
+      description: t('admin.dash.employeeDesc'),
       tone: 'from-emerald-500/15 to-teal-500/10',
       iconTone: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300',
     },
@@ -187,7 +187,7 @@ export default function AdminDashboardPage() {
       title: t('admin.tableManagement'),
       href: '/dashboard/admin/tables',
       icon: Table2,
-      description: 'Organize floor readiness and seating configuration with confidence.',
+      description: t('admin.dash.tablesDesc'),
       tone: 'from-violet-500/15 to-fuchsia-500/10',
       iconTone: 'bg-violet-500/15 text-violet-600 dark:text-violet-300',
     },
@@ -195,7 +195,7 @@ export default function AdminDashboardPage() {
       title: t('admin.paymentSettings'),
       href: '/dashboard/admin/payments',
       icon: CreditCard,
-      description: 'Control providers and settlement setup in one secure workspace.',
+      description: t('admin.dash.paymentDesc'),
       tone: 'from-amber-500/20 to-orange-500/10',
       iconTone: 'bg-amber-500/20 text-amber-700 dark:text-amber-300',
     },
@@ -209,13 +209,13 @@ export default function AdminDashboardPage() {
           <div className="max-w-2xl space-y-3">
             <p className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/70 px-3 py-1 text-xs font-medium text-muted-foreground">
               <ChefHat className="h-3.5 w-3.5" />
-              Premium Operations Console
+              {t('admin.dash.premiumBadge')}
             </p>
             <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
               {t('nav.admin')} {t('dashboard.title')}
             </h1>
             <p className="text-sm text-muted-foreground sm:text-base">
-              Real-time overview of your restaurant operations.
+              {t('admin.dash.subtitle')}
             </p>
           </div>
         </div>
@@ -245,8 +245,8 @@ export default function AdminDashboardPage() {
       <section className="space-y-4">
         <div className="flex items-end justify-between">
           <div>
-            <h2 className="text-xl font-semibold tracking-tight">Management Workspace</h2>
-            <p className="text-sm text-muted-foreground">Choose an area to maintain daily operations.</p>
+            <h2 className="text-xl font-semibold tracking-tight">{t('admin.dash.workspace')}</h2>
+            <p className="text-sm text-muted-foreground">{t('admin.dash.workspaceDesc')}</p>
           </div>
         </div>
 
@@ -267,7 +267,7 @@ export default function AdminDashboardPage() {
                   </CardHeader>
                   <CardContent className="pt-2">
                     <div className="flex items-center justify-between rounded-xl border border-border/60 bg-gradient-to-r p-3 text-sm font-medium group-hover:border-primary/30">
-                      <span>Open module</span>
+                      <span>{t('admin.dash.openModule')}</span>
                       <ArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                     </div>
                   </CardContent>
@@ -284,12 +284,12 @@ export default function AdminDashboardPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Star className="h-5 w-5 text-amber-500" />
-              Popular Items
+              {t('admin.dash.popularItems')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {popularItems.length === 0 ? (
-              <EmptyState icon={<Star className="h-8 w-8" />} title="No orders yet" />
+              <EmptyState icon={<Star className="h-8 w-8" />} title={t('admin.dash.noOrders')} />
             ) : (
               <div className="space-y-1">
                 {popularItems.slice(0, 8).map((item, i) => (
@@ -301,7 +301,7 @@ export default function AdminDashboardPage() {
                       <span className="font-medium text-sm">{item.name}</span>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{item.total_quantity} sold</span>
+                      <span>{t('admin.dash.sold', { count: item.total_quantity })}</span>
                       <span className="font-medium text-foreground">{formatCurrency(item.total_revenue)}</span>
                     </div>
                   </div>
@@ -315,12 +315,12 @@ export default function AdminDashboardPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Activity className="h-5 w-5 text-blue-500" />
-              Recent Activity
+              {t('admin.dash.recentActivity')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {activities.length === 0 ? (
-              <EmptyState icon={<Activity className="h-8 w-8" />} title="No recent activity" />
+              <EmptyState icon={<Activity className="h-8 w-8" />} title={t('admin.dash.noActivity')} />
             ) : (
               <div className="max-h-[400px] space-y-1 overflow-y-auto">
                 {activities.map((activity) => (

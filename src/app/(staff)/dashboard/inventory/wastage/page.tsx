@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
+import { useLanguage } from '@/hooks/use-language'
 import { useIngredients } from '@/hooks/use-inventory'
 import { DataTable, Column } from '@/components/ui/data-table'
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,7 @@ import { useEffect } from 'react'
 import { WastageRecord } from '@/types/inventory'
 
 export default function WastagePage() {
+  const { t } = useLanguage()
   const { profile } = useAuth()
   const { ingredients } = useIngredients(profile?.restaurant_id)
   const [records, setRecords] = useState<WastageRecord[]>([])
@@ -74,8 +76,8 @@ export default function WastagePage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Wastage Tracking</h1>
-        <Button onClick={() => setShowForm(true)}><Plus className="h-4 w-4 mr-2" />Record Wastage</Button>
+        <h1 className="text-2xl font-bold">{t('inventory.wastageTracking')}</h1>
+        <Button onClick={() => setShowForm(true)}><Plus className="h-4 w-4 mr-2" />{t('inventory.recordWastage')}</Button>
       </div>
 
       {showForm && (
@@ -83,34 +85,34 @@ export default function WastagePage() {
           <CardContent className="p-4 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Ingredient</Label>
-                <Select value={ingredientId} onChange={e => setIngredientId(e.target.value)} options={ingredients.map(i => ({ value: i.id, label: i.name }))} placeholder="Select" />
+                <Label>{t('inventory.ingredient')}</Label>
+                <Select value={ingredientId} onChange={e => setIngredientId(e.target.value)} options={ingredients.map(i => ({ value: i.id, label: i.name }))} placeholder={t('inventory.select')} />
               </div>
               <div className="space-y-2">
-                <Label>Quantity</Label>
+                <Label>{t('inventory.quantity')}</Label>
                 <Input type="number" value={quantity || ''} onChange={e => setQuantity(Number(e.target.value))} />
               </div>
               <div className="space-y-2 col-span-2">
-                <Label>Reason</Label>
+                <Label>{t('inventory.reason')}</Label>
                 <Select value={reason} onChange={e => setReason(e.target.value)} options={[
-                  { value: 'spoilage', label: 'Spoilage' },
-                  { value: 'overproduction', label: 'Overproduction' },
-                  { value: 'theft', label: 'Theft' },
-                  { value: 'expired', label: 'Expired' },
-                  { value: 'other', label: 'Other' },
-                ]} placeholder="Select reason" />
+                  { value: 'spoilage', label: t('inventory.spoilage') },
+                  { value: 'overproduction', label: t('inventory.overproduction') },
+                  { value: 'theft', label: t('inventory.theft') },
+                  { value: 'expired', label: t('inventory.expired') },
+                  { value: 'other', label: t('inventory.other') },
+                ]} placeholder={t('inventory.selectReason')} />
               </div>
             </div>
-            <Button onClick={handleCreate} disabled={saving || !ingredientId || quantity <= 0}>Record Wastage</Button>
+            <Button onClick={handleCreate} disabled={saving || !ingredientId || quantity <= 0}>{t('inventory.record')}</Button>
           </CardContent>
         </Card>
       )}
 
       <DataTable columns={[
-        { key: 'created_at', header: 'Date', render: (item) => formatDateTime(item.created_at as string) },
-        { key: 'ingredient', header: 'Ingredient', render: (item) => (item.ingredient as { name: string })?.name || '-' },
-        { key: 'quantity', header: 'Qty' },
-        { key: 'reason', header: 'Reason' },
+        { key: 'created_at', header: t('inventory.date'), render: (item: Record<string, unknown>) => formatDateTime(item.created_at as string) },
+        { key: 'ingredient', header: t('inventory.ingredient'), render: (item: Record<string, unknown>) => (item.ingredient as { name: string })?.name || '-' },
+        { key: 'quantity', header: t('inventory.qty') },
+        { key: 'reason', header: t('inventory.reason') },
       ]} data={records as unknown as Record<string, unknown>[]} loading={loading} />
     </div>
   )

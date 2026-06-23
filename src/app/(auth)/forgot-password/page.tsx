@@ -33,7 +33,6 @@ export default function ForgotPasswordPage() {
       <div className="min-h-screen flex items-center justify-center bg-muted p-4">
         <Card className="w-full max-w-sm">
           <CardContent className="pt-6 text-center space-y-4">
-            <div className="text-4xl">✉️</div>
             <h2 className="text-xl font-semibold">Check your email</h2>
             <p className="text-muted-foreground">
               We sent a password reset link to <strong>{email}</strong>

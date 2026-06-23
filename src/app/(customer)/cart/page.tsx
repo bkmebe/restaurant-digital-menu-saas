@@ -68,7 +68,7 @@ function CartPageContent() {
       setSuccess(true)
       clearCart()
     } catch (err) {
-      setError('Failed to place order. Please try again.')
+      setError(t('order.placeFailed'))
     }
     setSubmitting(false)
   }
@@ -81,15 +81,15 @@ function CartPageContent() {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
               <ShoppingBag className="h-8 w-8 text-green-600" />
             </div>
-            <h2 className="text-xl font-bold">Order Placed!</h2>
-            <p className="text-muted-foreground">Your order has been sent to the kitchen.</p>
-            <Badge variant="secondary" className="text-sm">Order #{orderId.slice(0, 8)}</Badge>
+            <h2 className="text-xl font-bold">{t('cart.orderPlacedSuccess')}</h2>
+            <p className="text-muted-foreground">{t('cart.sentToKitchen')}</p>
+            <Badge variant="secondary" className="text-sm">{t('cart.orderNumber')}{orderId.slice(0, 8)}</Badge>
             <div className="flex flex-col gap-3 pt-4">
               <Button onClick={() => router.push(`/orders/${orderId}`)}>
-                Track Order
+                {t('cart.trackOrder')}
               </Button>
               <Button variant="outline" onClick={() => router.push(`/menu/${tableId}`)}>
-                Back to Menu
+                {t('cart.backToMenu')}
               </Button>
             </div>
           </CardContent>
@@ -105,23 +105,23 @@ function CartPageContent() {
           <Link href={`/menu/${tableId}`}>
             <Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button>
           </Link>
-          <h1 className="text-xl font-bold">Your Order</h1>
+          <h1 className="text-xl font-bold">{t('cart.yourOrder')}</h1>
         </div>
 
         {items.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center space-y-4">
               <ShoppingBag className="h-12 w-12 mx-auto text-muted-foreground" />
-              <p className="text-muted-foreground">Your cart is empty</p>
+              <p className="text-muted-foreground">{t('cart.yourCartEmpty')}</p>
               <Link href={`/menu/${tableId}`}>
-                <Button>Browse Menu</Button>
+                <Button>{t('cart.browseMenu')}</Button>
               </Link>
             </CardContent>
           </Card>
         ) : (
           <>
             <Card>
-              <CardHeader><CardTitle>Items ({items.length})</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{t('cart.itemsCount', { count: items.length })}</CardTitle></CardHeader>
               <CardContent className="space-y-3">
                 {items.map((item) => (
                   <div key={item.menu_item_id} className="flex gap-3 p-2 rounded-lg border">
@@ -155,28 +155,28 @@ function CartPageContent() {
             </Card>
 
             <Card>
-              <CardHeader><CardTitle>Order Details</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{t('cart.orderDetails')}</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Your Name (optional)</Label>
-                  <Input id="name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Name for the order" />
+                  <Label htmlFor="name">{t('cart.yourName')}</Label>
+                  <Input id="name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder={t('cart.nameForOrder')} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="instructions">Special Instructions</Label>
-                  <Input id="instructions" value={specialInstructions} onChange={(e) => setSpecialInstructions(e.target.value)} placeholder="Any special requests for the kitchen?" />
+                  <Label htmlFor="instructions">{t('cart.specialInstructions')}</Label>
+                  <Input id="instructions" value={specialInstructions} onChange={(e) => setSpecialInstructions(e.target.value)} placeholder={t('cart.specialRequestsKitchen')} />
                 </div>
               </CardContent>
             </Card>
 
             <div className="flex items-center justify-between text-lg font-bold">
-              <span>Total</span>
+              <span>{t('common.total')}</span>
               <span>{formatCurrency(subtotal)}</span>
             </div>
 
             {error && <p className="text-sm text-destructive">{error}</p>}
 
             <Button className="w-full" size="lg" onClick={handleSubmit} disabled={submitting}>
-              {submitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Placing Order...</> : `Place Order — ${formatCurrency(subtotal)}`}
+              {submitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('cart.placingOrder')}</> : t('cart.placeOrderButton', { amount: formatCurrency(subtotal) })}
             </Button>
           </>
         )}

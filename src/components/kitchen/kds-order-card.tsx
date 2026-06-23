@@ -128,7 +128,7 @@ export function KDSOrderCard({ order, onAccept, onUpdateStatus }: KDSOrderCardPr
         )}
 
         {order.special_instructions && (
-          <p className="text-xs text-muted-foreground italic border-t pt-2">📝 {order.special_instructions}</p>
+          <p className="text-xs text-muted-foreground italic border-t pt-2">{order.special_instructions}</p>
         )}
 
         {order.status === 'pending' && (

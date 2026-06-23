@@ -46,18 +46,18 @@ export default function AdminMenuPage() {
   }
 
   const columns: Column[] = [
-    { key: 'name', header: 'Name', render: (item: Record<string, unknown>) => (
+    { key: 'name', header: t('common.name'), render: (item: Record<string, unknown>) => (
       <div className="flex items-center gap-3">
         {(item.image_url as string) && <img src={item.image_url as string} alt="" className="w-10 h-10 rounded object-cover" />}
         <span className="font-medium">{item.name as string}</span>
       </div>
     )},
-    { key: 'category', header: 'Category', render: (item: Record<string, unknown>) => ((item.category as { name: string })?.name) || '-' },
-    { key: 'price', header: 'Price', render: (item: Record<string, unknown>) => formatCurrency(Number(item.price)) },
-    { key: 'is_available', header: 'Status', render: (item: Record<string, unknown>) => (
+    { key: 'category', header: t('common.type'), render: (item: Record<string, unknown>) => ((item.category as { name: string })?.name) || '-' },
+    { key: 'price', header: t('menu.price'), render: (item: Record<string, unknown>) => formatCurrency(Number(item.price)) },
+    { key: 'is_available', header: t('common.status'), render: (item: Record<string, unknown>) => (
       <StatusBadge status={(item.is_available as boolean) ? 'Available' : 'Unavailable'} mapping={{ Available: 'success', Unavailable: 'destructive' }} />
     )},
-    { key: 'actions', header: 'Actions', render: (item: Record<string, unknown>) => (
+    { key: 'actions', header: t('common.actions'), render: (item: Record<string, unknown>) => (
       <div className="flex gap-2">
         <Link href={`/dashboard/admin/menu/${item.id as string}/edit`}>
           <Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button>
@@ -82,8 +82,8 @@ export default function AdminMenuPage() {
 
       <ConfirmDialog
         open={!!deleteId}
-        title="Delete Menu Item"
-        message="Are you sure you want to delete this item? This action cannot be undone."
+        title={t('admin.menu.deleteTitle')}
+        message={t('admin.menu.deleteConfirm')}
         variant="destructive"
         onConfirm={handleDelete}
         onCancel={() => setDeleteId(null)}

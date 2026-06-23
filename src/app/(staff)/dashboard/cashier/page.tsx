@@ -39,12 +39,12 @@ export default function CashierDashboardPage() {
   }
 
   const columns: Column[] = [
-    { key: 'created_at', header: 'Time', render: (o: Record<string, unknown>) => formatDateTime(o.created_at as string) },
-    { key: 'table', header: 'Table', render: (o: Record<string, unknown>) => `Table ${((o.table as { table_number: number })?.table_number) || '-'}` },
-    { key: 'customer_name', header: 'Customer', render: (o: Record<string, unknown>) => (o.customer_name as string) || 'Guest' },
-    { key: 'items', header: 'Items', render: (o: Record<string, unknown>) => (o.items as Array<{ quantity: number; menu_item: { name: string } }>)?.map(i => `${i.quantity}x ${i.menu_item?.name}`).join(', ') || '-' },
-    { key: 'total_amount', header: 'Total', render: (o: Record<string, unknown>) => <span className="font-bold">{formatCurrency(Number(o.total_amount))}</span> },
-    { key: 'status', header: 'Status', render: (o: Record<string, unknown>) => <StatusBadge status={o.status as string} mapping={{ open: 'info', preparing: 'warning', served: 'success', paid: 'default' }} /> },
+    { key: 'created_at', header: t('cashier.time'), render: (o: Record<string, unknown>) => formatDateTime(o.created_at as string) },
+    { key: 'table', header: t('cashier.table'), render: (o: Record<string, unknown>) => `${t('cashier.table')} ${((o.table as { table_number: number })?.table_number) || '-'}` },
+    { key: 'customer_name', header: t('cashier.customer'), render: (o: Record<string, unknown>) => (o.customer_name as string) || t('cashier.guest') },
+    { key: 'items', header: t('cashier.items'), render: (o: Record<string, unknown>) => (o.items as Array<{ quantity: number; menu_item: { name: string } }>)?.map(i => `${i.quantity}x ${i.menu_item?.name}`).join(', ') || '-' },
+    { key: 'total_amount', header: t('cashier.total'), render: (o: Record<string, unknown>) => <span className="font-bold">{formatCurrency(Number(o.total_amount))}</span> },
+    { key: 'status', header: t('cashier.status'), render: (o: Record<string, unknown>) => <StatusBadge status={o.status as string} mapping={{ open: 'info', preparing: 'warning', served: 'success', paid: 'default' }} /> },
     { key: 'actions', header: '', render: (o: Record<string, unknown>) => (o.status as string) !== 'paid' ? (
       <Button size="sm" onClick={() => markAsPaid(o.id as string)}>
         <DollarSign className="h-3 w-3 mr-1" />{t('cashier.markAsPaid')}

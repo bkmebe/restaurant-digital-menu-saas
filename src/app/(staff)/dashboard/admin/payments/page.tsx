@@ -66,10 +66,10 @@ export default function AdminPaymentsPage() {
   const editConfig = configs.find(c => c.id === editId)
 
   const columns: Column[] = [
-    { key: 'label', header: 'Label', render: (c: Record<string, unknown>) => <span className="font-medium">{c.label as string}</span> },
-    { key: 'provider', header: 'Provider', render: (c: Record<string, unknown>) => <StatusBadge status={c.provider as string} mapping={{ telebirr: 'info', cbe_birr: 'success', bank: 'default', qr: 'warning' }} /> },
-    { key: 'account_name', header: 'Account Name' },
-    { key: 'account_number', header: 'Account #', render: (c: Record<string, unknown>) => (
+    { key: 'label', header: t('admin.label'), render: (c: Record<string, unknown>) => <span className="font-medium">{c.label as string}</span> },
+    { key: 'provider', header: t('admin.provider'), render: (c: Record<string, unknown>) => <StatusBadge status={c.provider as string} mapping={{ telebirr: 'info', cbe_birr: 'success', bank: 'default', qr: 'warning' }} /> },
+    { key: 'account_name', header: t('admin.accountName') },
+    { key: 'account_number', header: t('admin.accountNumber'), render: (c: Record<string, unknown>) => (
       <div className="flex items-center gap-2">
         <span className="font-mono text-sm">
           {showNumbers.has(c.id as string) ? c.account_number as string : `****${(c.account_number as string).slice(-4)}`}
@@ -79,8 +79,8 @@ export default function AdminPaymentsPage() {
         </Button>
       </div>
     )},
-    { key: 'is_active', header: 'Active', render: (c: Record<string, unknown>) => (c.is_active as boolean) ? <StatusBadge status="Active" mapping={{ Active: 'success' }} /> : <StatusBadge status="Inactive" mapping={{ Inactive: 'destructive' }} /> },
-    { key: 'actions', header: 'Actions', render: (c: Record<string, unknown>) => (
+    { key: 'is_active', header: t('admin.active'), render: (c: Record<string, unknown>) => (c.is_active as boolean) ? <StatusBadge status="Active" mapping={{ Active: 'success' }} /> : <StatusBadge status="Inactive" mapping={{ Inactive: 'destructive' }} /> },
+    { key: 'actions', header: t('common.actions'), render: (c: Record<string, unknown>) => (
       <div className="flex gap-2">
         <Button variant="ghost" size="icon" onClick={() => { setEditId(c.id as string); setShowForm(true) }}><Pencil className="h-4 w-4" /></Button>
         <Button variant="ghost" size="icon" onClick={() => setDeleteId(c.id as string)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
@@ -98,7 +98,7 @@ export default function AdminPaymentsPage() {
       {(showForm || editId) && (
         <Card>
           <CardContent className="p-4">
-            <h2 className="font-semibold mb-4">{editId ? 'Edit Payment Method' : 'Add Payment Method'}</h2>
+            <h2 className="font-semibold mb-4">{editId ? t('admin.payment.editTitle') : t('admin.payment.addTitle')}</h2>
             <PaymentSettingsForm
               onSubmit={editId ? handleUpdate : handleCreate}
               defaultValues={editConfig ? {
@@ -121,8 +121,8 @@ export default function AdminPaymentsPage() {
 
       <ConfirmDialog
         open={!!deleteId}
-        title="Delete Payment Method"
-        message="Are you sure you want to remove this payment method?"
+        title={t('admin.deletePaymentTitle')}
+        message={t('admin.payment.deleteConfirm')}
         variant="destructive"
         onConfirm={handleDelete}
         onCancel={() => setDeleteId(null)}

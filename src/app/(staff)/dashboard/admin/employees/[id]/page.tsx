@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useLanguage } from '@/hooks/use-language'
 import { Employee } from '@/types/database'
 import { EmployeeForm } from '@/components/admin/employee-form'
 import { EmployeeFormData } from '@/types/employee'
 import { LoadingSpinner } from '@/components/shared/loading-spinner'
 
 export default function EditEmployeePage() {
+  const { t } = useLanguage()
   const router = useRouter()
   const params = useParams()
   const [employee, setEmployee] = useState<Employee | null>(null)
@@ -38,7 +40,7 @@ export default function EditEmployeePage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6">Edit Employee</h1>
+      <h1 className="text-2xl font-bold mb-6">{t('admin.employee.editTitle')}</h1>
       <EmployeeForm
         onSubmit={handleSubmit}
         defaultValues={employee ? {

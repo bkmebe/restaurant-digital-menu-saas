@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
+import { useLanguage } from '@/hooks/use-language'
 import { useSuppliers } from '@/hooks/use-inventory'
 import { DataTable, Column } from '@/components/ui/data-table'
 import { Button } from '@/components/ui/button'
@@ -12,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Plus } from 'lucide-react'
 
 export default function SuppliersPage() {
+  const { t } = useLanguage()
   const { profile } = useAuth()
   const { suppliers, refetch } = useSuppliers(profile?.restaurant_id)
   const [showForm, setShowForm] = useState(false)
@@ -30,27 +32,27 @@ export default function SuppliersPage() {
   }
 
   const columns: Column[] = [
-    { key: 'name', header: 'Name' },
-    { key: 'contact_person', header: 'Contact' },
-    { key: 'phone', header: 'Phone' },
-    { key: 'payment_terms', header: 'Terms' },
+    { key: 'name', header: t('inventory.supplierName') },
+    { key: 'contact_person', header: t('inventory.contact') },
+    { key: 'phone', header: t('inventory.supplierPhone') },
+    { key: 'payment_terms', header: t('inventory.terms') },
   ]
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Suppliers</h1>
-        <Button onClick={() => setShowForm(true)}><Plus className="h-4 w-4 mr-2" />Add Supplier</Button>
+        <h1 className="text-2xl font-bold">{t('inventory.suppliers')}</h1>
+        <Button onClick={() => setShowForm(true)}><Plus className="h-4 w-4 mr-2" />{t('inventory.editSupplier')}</Button>
       </div>
 
       {showForm && (
         <Card>
           <CardContent className="p-4 space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Name</Label><Input value={name} onChange={e => setName(e.target.value)} /></div>
-              <div className="space-y-2"><Label>Phone</Label><Input value={phone} onChange={e => setPhone(e.target.value)} /></div>
+              <div className="space-y-2"><Label>{t('inventory.supplierName')}</Label><Input value={name} onChange={e => setName(e.target.value)} /></div>
+              <div className="space-y-2"><Label>{t('inventory.supplierPhone')}</Label><Input value={phone} onChange={e => setPhone(e.target.value)} /></div>
             </div>
-            <Button onClick={handleCreate} disabled={saving || !name}>Save Supplier</Button>
+            <Button onClick={handleCreate} disabled={saving || !name}>{t('inventory.saveSupplier')}</Button>
           </CardContent>
         </Card>
       )}

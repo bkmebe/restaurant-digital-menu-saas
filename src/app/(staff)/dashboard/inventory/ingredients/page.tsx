@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
+import { useLanguage } from '@/hooks/use-language'
 import { useIngredients } from '@/hooks/use-inventory'
 import { DataTable, Column } from '@/components/ui/data-table'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,7 @@ import { Select } from '@/components/ui/select'
 import { Plus } from 'lucide-react'
 
 export default function IngredientsPage() {
+  const { t } = useLanguage()
   const { profile } = useAuth()
   const { ingredients, refetch } = useIngredients(profile?.restaurant_id)
   const [showForm, setShowForm] = useState(false)
@@ -33,16 +35,16 @@ export default function IngredientsPage() {
   }
 
   const columns: Column[] = [
-    { key: 'name', header: 'Name' },
-    { key: 'category', header: 'Category' },
-    { key: 'unit', header: 'Unit', render: (item) => (item.unit as { symbol: string })?.symbol || '-' },
+    { key: 'name', header: t('inventory.nameEnglish') },
+    { key: 'category', header: t('inventory.category') },
+    { key: 'unit', header: t('common.unit'), render: (item: Record<string, unknown>) => (item.unit as { symbol: string })?.symbol || '-' },
   ]
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Ingredients</h1>
-        <Button onClick={() => setShowForm(true)}><Plus className="h-4 w-4 mr-2" />Add Ingredient</Button>
+        <h1 className="text-2xl font-bold">{t('inventory.ingredients')}</h1>
+        <Button onClick={() => setShowForm(true)}><Plus className="h-4 w-4 mr-2" />{t('inventory.addIngredient')}</Button>
       </div>
 
       {showForm && (
@@ -50,30 +52,30 @@ export default function IngredientsPage() {
           <CardContent className="p-4 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Name (English)</Label>
+                <Label>{t('inventory.nameEnglish')}</Label>
                 <Input value={name} onChange={e => setName(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Name (Amharic)</Label>
+                <Label>{t('inventory.nameAmharic')}</Label>
                 <Input value={nameAm} onChange={e => setNameAm(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Name (Oromo)</Label>
+                <Label>{t('inventory.nameOromo')}</Label>
                 <Input value={nameOm} onChange={e => setNameOm(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Category</Label>
+                <Label>{t('inventory.category')}</Label>
                 <Select value={category} onChange={e => setCategory(e.target.value)} options={[
-                  { value: 'produce', label: 'Produce' },
-                  { value: 'meat', label: 'Meat' },
-                  { value: 'dairy', label: 'Dairy' },
-                  { value: 'dry', label: 'Dry Goods' },
-                  { value: 'beverage', label: 'Beverage' },
-                  { value: 'other', label: 'Other' },
-                ]} placeholder="Select category" />
+                  { value: 'produce', label: t('inventory.produce') },
+                  { value: 'meat', label: t('inventory.meat') },
+                  { value: 'dairy', label: t('inventory.dairy') },
+                  { value: 'dry', label: t('inventory.dryGoods') },
+                  { value: 'beverage', label: t('inventory.beverage') },
+                  { value: 'other', label: t('inventory.other') },
+                ]} placeholder={t('inventory.selectCategory')} />
               </div>
             </div>
-            <Button onClick={handleCreate} disabled={saving || !name}>Save Ingredient</Button>
+            <Button onClick={handleCreate} disabled={saving || !name}>{t('inventory.saveIngredient')}</Button>
           </CardContent>
         </Card>
       )}

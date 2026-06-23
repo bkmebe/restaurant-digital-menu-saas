@@ -44,12 +44,12 @@ export default function AdminEmployeesPage() {
   }
 
   const columns: Column[] = [
-    { key: 'full_name', header: 'Name', render: (e: Record<string, unknown>) => <span className="font-medium">{e.full_name as string}</span> },
-    { key: 'phone', header: 'Phone', render: (e: Record<string, unknown>) => formatPhone(e.phone as string) },
-    { key: 'role', header: 'Role', render: (e: Record<string, unknown>) => <StatusBadge status={e.role as string} mapping={{ waiter: 'info', cashier: 'warning', manager: 'default', kitchen_staff: 'success', inventory_manager: 'secondary' }} /> },
-    { key: 'salary', header: 'Salary', render: (e: Record<string, unknown>) => formatCurrency(Number(e.salary)) },
-    { key: 'digital_employee_id', header: 'Emp ID' },
-    { key: 'national_id_verified', header: 'NID', render: (e: Record<string, unknown>) => (e.national_id_verified as boolean) ? <StatusBadge status="Verified" mapping={{ Verified: 'success' }} /> : <StatusBadge status="Pending" mapping={{ Pending: 'warning' }} /> },
+    { key: 'full_name', header: t('admin.employee.name'), render: (e: Record<string, unknown>) => <span className="font-medium">{e.full_name as string}</span> },
+    { key: 'phone', header: t('admin.employee.phone'), render: (e: Record<string, unknown>) => formatPhone(e.phone as string) },
+    { key: 'role', header: t('admin.employee.role'), render: (e: Record<string, unknown>) => <StatusBadge status={e.role as string} mapping={{ waiter: 'info', cashier: 'warning', manager: 'default', kitchen_staff: 'success', inventory_manager: 'secondary' }} /> },
+    { key: 'salary', header: t('admin.employee.salary'), render: (e: Record<string, unknown>) => formatCurrency(Number(e.salary)) },
+    { key: 'digital_employee_id', header: t('admin.employee.empId') },
+    { key: 'national_id_verified', header: t('admin.employee.nid'), render: (e: Record<string, unknown>) => (e.national_id_verified as boolean) ? <StatusBadge status="Verified" mapping={{ Verified: 'success' }} /> : <StatusBadge status="Pending" mapping={{ Pending: 'warning' }} /> },
     { key: 'actions', header: 'Actions', render: (e: Record<string, unknown>) => (
       <div className="flex gap-2">
         <Link href={`/dashboard/admin/employees/${e.id as string}`}>
@@ -75,10 +75,10 @@ export default function AdminEmployeesPage() {
 
       <ConfirmDialog
         open={!!deactivateId}
-        title="Deactivate Employee"
-        message="This employee will no longer be able to access the system."
+        title={t('admin.employee.deactivate')}
+        message={t('admin.employee.deactivateConfirm')}
         variant="destructive"
-        confirmLabel="Deactivate"
+        confirmLabel={t('admin.employee.deactivateLabel')}
         onConfirm={handleDeactivate}
         onCancel={() => setDeactivateId(null)}
       />

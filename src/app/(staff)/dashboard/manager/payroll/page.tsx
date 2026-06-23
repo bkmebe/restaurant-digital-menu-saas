@@ -76,14 +76,14 @@ export default function PayrollPage() {
   }), { totalSalary: 0, totalBonuses: 0, totalDeductions: 0, totalNetPay: 0, paidCount: 0 })
 
   const columns: Column[] = [
-    { key: 'employee', header: 'Employee', render: (p: Record<string, unknown>) => (p.employee as Employee)?.full_name || '-' },
-    { key: 'salary', header: 'Salary', render: (p: Record<string, unknown>) => formatCurrency(Number(p.salary)) },
-    { key: 'bonuses', header: 'Bonuses', render: (p: Record<string, unknown>) => formatCurrency(Number(p.bonuses)) },
-    { key: 'deductions', header: 'Deductions', render: (p: Record<string, unknown>) => formatCurrency(Number(p.deductions)) },
-    { key: 'net_pay', header: 'Net Pay', render: (p: Record<string, unknown>) => <span className="font-bold">{formatCurrency(Number(p.net_pay))}</span> },
-    { key: 'status', header: 'Status', render: (p: Record<string, unknown>) => <StatusBadge status={p.status as string} mapping={{ pending: 'warning', paid: 'success', cancelled: 'destructive' }} /> },
+    { key: 'employee', header: t('payroll.employee'), render: (p: Record<string, unknown>) => (p.employee as Employee)?.full_name || '-' },
+    { key: 'salary', header: t('payroll.salary'), render: (p: Record<string, unknown>) => formatCurrency(Number(p.salary)) },
+    { key: 'bonuses', header: t('payroll.bonuses'), render: (p: Record<string, unknown>) => formatCurrency(Number(p.bonuses)) },
+    { key: 'deductions', header: t('payroll.deductions'), render: (p: Record<string, unknown>) => formatCurrency(Number(p.deductions)) },
+    { key: 'net_pay', header: t('payroll.netPay'), render: (p: Record<string, unknown>) => <span className="font-bold">{formatCurrency(Number(p.net_pay))}</span> },
+    { key: 'status', header: t('payroll.status'), render: (p: Record<string, unknown>) => <StatusBadge status={p.status as string} mapping={{ pending: 'warning', paid: 'success', cancelled: 'destructive' }} /> },
     { key: 'actions', header: '', render: (p: Record<string, unknown>) => (p.status as string) !== 'paid' ? (
-      <Button size="sm" variant="outline" onClick={() => markPaid(p.id as string)}>Mark Paid</Button>
+      <Button size="sm" variant="outline" onClick={() => markPaid(p.id as string)}>{t('payroll.markPaid')}</Button>
     ) : null },
   ]
 
@@ -103,15 +103,15 @@ export default function PayrollPage() {
           options={Array.from({ length: 5 }, (_, i) => ({ value: String(2024 + i), label: String(2024 + i) }))}
         />
         <Button onClick={processPayroll} disabled={processing}>
-          {processing ? 'Processing...' : 'Process Payroll'}
+          {processing ? t('payroll.processing') : t('payroll.process')}
         </Button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <Card><CardHeader><CardTitle className="text-sm">Total Salary</CardTitle></CardHeader><CardContent><p className="text-xl font-bold">{formatCurrency(summary.totalSalary)}</p></CardContent></Card>
-        <Card><CardHeader><CardTitle className="text-sm">Bonuses</CardTitle></CardHeader><CardContent><p className="text-xl font-bold">{formatCurrency(summary.totalBonuses)}</p></CardContent></Card>
-        <Card><CardHeader><CardTitle className="text-sm">Deductions</CardTitle></CardHeader><CardContent><p className="text-xl font-bold">{formatCurrency(summary.totalDeductions)}</p></CardContent></Card>
-        <Card><CardHeader><CardTitle className="text-sm">Net Pay</CardTitle></CardHeader><CardContent><p className="text-xl font-bold">{formatCurrency(summary.totalNetPay)}</p></CardContent></Card>
+        <Card><CardHeader><CardTitle className="text-sm">{t('payroll.totalSalary')}</CardTitle></CardHeader><CardContent><p className="text-xl font-bold">{formatCurrency(summary.totalSalary)}</p></CardContent></Card>
+        <Card><CardHeader><CardTitle className="text-sm">{t('payroll.totalBonuses')}</CardTitle></CardHeader><CardContent><p className="text-xl font-bold">{formatCurrency(summary.totalBonuses)}</p></CardContent></Card>
+        <Card><CardHeader><CardTitle className="text-sm">{t('payroll.totalDeductions')}</CardTitle></CardHeader><CardContent><p className="text-xl font-bold">{formatCurrency(summary.totalDeductions)}</p></CardContent></Card>
+        <Card><CardHeader><CardTitle className="text-sm">{t('payroll.totalNetPay')}</CardTitle></CardHeader><CardContent><p className="text-xl font-bold">{formatCurrency(summary.totalNetPay)}</p></CardContent></Card>
       </div>
 
       <DataTable columns={columns} data={payrolls as unknown as Record<string, unknown>[]} loading={loading} />

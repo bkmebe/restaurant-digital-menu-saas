@@ -17,7 +17,7 @@ interface CategoryFormProps {
 export function CategoryForm({ onSubmit, defaultValues, loading }: CategoryFormProps) {
   const { register, handleSubmit, formState: { errors } } = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
-    defaultValues: { name: '', name_am: '', name_om: '', icon: '📋', sort_order: 0, is_active: true, ...defaultValues },
+    defaultValues: { name: '', name_am: '', name_om: '', icon: '', sort_order: 0, is_active: true, ...defaultValues },
   })
 
   return (

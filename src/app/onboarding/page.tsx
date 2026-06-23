@@ -17,15 +17,6 @@ import { StepIndicator } from '@/components/onboarding/step-indicator'
 import type { Plan } from '@/components/onboarding/plan-step'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 
-const STEPS = [
-  { id: 0, label: 'Welcome' },
-  { id: 1, label: 'Plan' },
-  { id: 2, label: 'Restaurant' },
-  { id: 3, label: 'Tables' },
-  { id: 4, label: 'Menu' },
-  { id: 5, label: 'Go Live' },
-]
-
 interface OnboardingData {
   step: number
   completed: boolean
@@ -38,6 +29,14 @@ interface OnboardingData {
 export default function OnboardingPage() {
   const { t } = useLanguage()
   const router = useRouter()
+  const STEPS = [
+    { id: 0, label: t('onboarding.steps.welcome') },
+    { id: 1, label: t('onboarding.steps.plan') },
+    { id: 2, label: t('onboarding.steps.restaurant') },
+    { id: 3, label: t('onboarding.steps.tables') },
+    { id: 4, label: t('onboarding.steps.menu') },
+    { id: 5, label: t('onboarding.steps.goLive') },
+  ]
   const [currentStep, setCurrentStep] = useState(0)
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<OnboardingData | null>(null)
@@ -161,8 +160,8 @@ export default function OnboardingPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
       <div className="text-center space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">Set Up Your Restaurant</h1>
-        <p className="text-muted-foreground">Complete the following steps to go live</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('onboarding.setupTitle')}</h1>
+        <p className="text-muted-foreground">{t('onboarding.setupDesc')}</p>
       </div>
 
       <StepIndicator steps={STEPS} currentStep={currentStep} />
@@ -176,16 +175,16 @@ export default function OnboardingPage() {
       {currentStep > 0 && currentStep < 5 && (
         <div className="flex justify-between">
           <Button variant="outline" onClick={handleBack}>
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back
+            <ArrowLeft className="h-4 w-4 mr-2" /> {t('onboarding.back')}
           </Button>
           {currentStep === 2 && (
             <Button onClick={handleNext}>
-              Skip <ArrowRight className="h-4 w-4 ml-2" />
+              {t('onboarding.skip')} <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           )}
           {currentStep === 4 && categories.length === 0 && (
             <Button onClick={handleNext}>
-              Skip <ArrowRight className="h-4 w-4 ml-2" />
+              {t('onboarding.skip')} <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           )}
         </div>

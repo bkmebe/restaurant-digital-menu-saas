@@ -101,10 +101,10 @@ export default function ReportsPage() {
   const totalStaff = staffPerf.length
 
   const summaryCards = [
-    { title: 'Total Revenue (30d)', value: formatCurrency(totalRevenue), icon: DollarSign, color: 'from-emerald-500/20 to-emerald-500/5', iconBg: 'bg-emerald-500/15 text-emerald-600' },
-    { title: 'Orders Processed', value: String(totalOrders), icon: ShoppingCart, color: 'from-blue-500/20 to-blue-500/5', iconBg: 'bg-blue-500/15 text-blue-600' },
-    { title: 'Avg Order Value', value: formatCurrency(avgOrderValue), icon: TrendingUp, color: 'from-violet-500/20 to-violet-500/5', iconBg: 'bg-violet-500/15 text-violet-600' },
-    { title: 'Active Staff', value: String(totalStaff), icon: Users, color: 'from-amber-500/20 to-amber-500/5', iconBg: 'bg-amber-500/15 text-amber-600' },
+    { title: t('reports.totalRevenue'), value: formatCurrency(totalRevenue), icon: DollarSign, color: 'from-emerald-500/20 to-emerald-500/5', iconBg: 'bg-emerald-500/15 text-emerald-600' },
+    { title: t('reports.ordersProcessed'), value: String(totalOrders), icon: ShoppingCart, color: 'from-blue-500/20 to-blue-500/5', iconBg: 'bg-blue-500/15 text-blue-600' },
+    { title: t('reports.avgOrderValue'), value: formatCurrency(avgOrderValue), icon: TrendingUp, color: 'from-violet-500/20 to-violet-500/5', iconBg: 'bg-violet-500/15 text-violet-600' },
+    { title: t('reports.activeStaff'), value: String(totalStaff), icon: Users, color: 'from-amber-500/20 to-amber-500/5', iconBg: 'bg-amber-500/15 text-amber-600' },
   ]
 
   const chartData = [...dailySales].reverse()
@@ -114,11 +114,11 @@ export default function ReportsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <BarChart3 className="h-6 w-6" />
-          Reports
+          {t('reports.title')}
         </h1>
         <Button variant="outline" size="sm" onClick={refreshData} disabled={refreshing} className="gap-2">
           <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-          {refreshing ? 'Refreshing...' : 'Refresh data'}
+          {refreshing ? t('reports.refreshing') : t('reports.refresh')}
         </Button>
       </div>
 
@@ -144,12 +144,12 @@ export default function ReportsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <TrendingUp className="h-5 w-5 text-emerald-500" />
-            Daily Sales (Last 30 Days)
+            {t('reports.dailySales')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {chartData.length === 0 ? (
-            <EmptyState icon={<BarChart3 className="h-8 w-8" />} title="No sales data yet" />
+            <EmptyState icon={<BarChart3 className="h-8 w-8" />} title={t('reports.noSalesData')} />
           ) : (
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
@@ -178,12 +178,12 @@ export default function ReportsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Star className="h-5 w-5 text-amber-500" />
-              Top Menu Items
+              {t('reports.topItems')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {menuPerf.length === 0 ? (
-              <EmptyState icon={<Star className="h-8 w-8" />} title="No menu data yet" />
+              <EmptyState icon={<Star className="h-8 w-8" />} title={t('reports.noMenuData')} />
             ) : (
               <div className="space-y-1">
                 {menuPerf.slice(0, 10).map((item, i) => (
@@ -198,7 +198,7 @@ export default function ReportsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0 text-muted-foreground">
-                      <span>{item.total_quantity} sold</span>
+                      <span>{t('reports.ordersHandled', { count: item.total_quantity })}</span>
                       <span className="w-20 text-right font-medium text-foreground">{formatCurrency(item.total_revenue)}</span>
                     </div>
                   </div>
@@ -212,12 +212,12 @@ export default function ReportsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Users className="h-5 w-5 text-blue-500" />
-              Staff Performance
+              {t('reports.staffPerformance')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {staffPerf.length === 0 ? (
-              <EmptyState icon={<Users className="h-8 w-8" />} title="No staff data yet" />
+              <EmptyState icon={<Users className="h-8 w-8" />} title={t('reports.noStaffData')} />
             ) : (
               <div className="space-y-1">
                 {staffPerf.map((staff) => (
@@ -232,7 +232,7 @@ export default function ReportsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0 text-muted-foreground">
-                      <span>{staff.orders_handled} orders</span>
+                      <span>{t('reports.ordersHandled', { count: staff.orders_handled })}</span>
                       <span className="w-20 text-right font-medium text-foreground">{formatCurrency(staff.revenue_generated)}</span>
                     </div>
                   </div>
@@ -247,12 +247,12 @@ export default function ReportsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Table2 className="h-5 w-5 text-purple-500" />
-            Table Utilization
+            {t('reports.tableUtilization')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {tableUtil.length === 0 ? (
-            <EmptyState icon={<Table2 className="h-8 w-8" />} title="No table data yet" />
+            <EmptyState icon={<Table2 className="h-8 w-8" />} title={t('reports.noTableData')} />
           ) : (
             <div className="space-y-1">
               {tableUtil.map((table) => (
@@ -261,13 +261,13 @@ export default function ReportsPage() {
                     <span className="flex h-7 w-7 items-center justify-center rounded-md bg-muted text-xs font-medium">
                       {table.table_number}
                     </span>
-                    <span className="font-medium">Table {table.table_number}</span>
-                    <span className="text-xs text-muted-foreground">Capacity: {table.capacity}</span>
+                    <span className="font-medium">{t('table.number', { number: table.table_number })}</span>
+                    <span className="text-xs text-muted-foreground">{t('reports.capacity', { count: table.capacity })}</span>
                   </div>
                   <div className="flex items-center gap-4 text-muted-foreground">
-                    <span>{table.total_orders} orders</span>
-                    <span>{table.active_days} active days</span>
-                    <span className="font-medium text-foreground">{table.avg_dining_minutes} min avg</span>
+                    <span>{t('reports.ordersHandled', { count: table.total_orders })}</span>
+                    <span>{t('reports.activeDays', { count: table.active_days })}</span>
+                    <span className="font-medium text-foreground">{t('reports.avgDining', { count: table.avg_dining_minutes })}</span>
                   </div>
                 </div>
               ))}

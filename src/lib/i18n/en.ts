@@ -671,7 +671,62 @@ const en = {
   'form.saving': 'Saving...',
   'form.saveItem': 'Save Item',
   'form.saveCategory': 'Save Category',
-  'form.icon': 'Icon (emoji)',
+  'form.icon': 'Icon',
+  'form.name': 'Name',
+  'form.status': 'Status',
+  'form.unavailable': 'Unavailable',
+  'form.actions': 'Actions',
+  'form.label': 'Label',
+  'form.provider': 'Provider',
+  'form.accountName': 'Account Name',
+  'form.accountNumber': 'Account #',
+
+  // Admin Employees
+  'admin.employee.name': 'Name',
+  'admin.employee.phone': 'Phone',
+  'admin.employee.role': 'Role',
+  'admin.employee.salary': 'Salary',
+  'admin.employee.empId': 'Emp ID',
+  'admin.employee.nid': 'NID',
+  'admin.employee.verified': 'Verified',
+  'admin.employee.pending': 'Pending',
+  'admin.employee.deactivate': 'Deactivate Employee',
+  'admin.employee.deactivateConfirm': 'This employee will no longer be able to access the system.',
+  'admin.employee.deactivateLabel': 'Deactivate',
+  'admin.employee.addTitle': 'Add Employee',
+  'admin.employee.editTitle': 'Edit Employee',
+
+  // Admin Tables
+  'admin.table.exists': 'Table number {number} already exists. Please use a different number.',
+  'admin.table.failedCreate': 'Failed to create table',
+  'admin.table.number': 'Table #',
+  'admin.table.capacity': 'Capacity',
+  'admin.table.waiter': 'Waiter',
+  'admin.table.qr': 'QR',
+  'admin.table.generate': 'Generate',
+  'admin.table.newTitle': 'New Table',
+  'admin.table.deleteConfirm': 'Are you sure you want to delete this table?',
+
+  // Admin Payments
+  'admin.payment.editTitle': 'Edit Payment Method',
+  'admin.payment.addTitle': 'Add Payment Method',
+  'admin.payment.deleteConfirm': 'Are you sure you want to remove this payment method?',
+
+  // Admin Branches
+  'admin.branch.add': 'Add Branch',
+  'admin.branch.create': 'Create',
+  'admin.branch.namePlaceholder': 'Branch name',
+  'admin.branch.addressPlaceholder': 'Address',
+  'admin.branch.phonePlaceholder': 'Phone',
+  'admin.branch.emailPlaceholder': 'Email',
+  'admin.branch.inactive': 'Inactive',
+  'admin.branch.created': 'Created {date}',
+
+  // Admin Menu
+  'admin.menu.deleteTitle': 'Delete Menu Item',
+  'admin.menu.deleteConfirm': 'Are you sure you want to delete this item? This action cannot be undone.',
+  'admin.menu.addTitle': 'Add Menu Item',
+  'admin.menu.editTitle': 'Edit Menu Item',
 
   // Validation
   'validation.required': 'This field is required',
