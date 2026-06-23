@@ -4,6 +4,7 @@ import './globals.css'
 import { LanguageProvider } from '@/hooks/use-language'
 import { ThemeProvider } from '@/hooks/use-theme'
 import { AuthProvider } from '@/hooks/use-auth'
+import { GlobalControls } from '@/components/shared/global-controls'
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/constants'
 
 const inter = Inter({
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <LanguageProvider>
             <AuthProvider>
               {children}
+              <GlobalControls />
             </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>
