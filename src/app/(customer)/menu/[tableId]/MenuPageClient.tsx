@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MenuItem, Category, PaymentConfig } from '@/types/database'
-import { LanguageSwitcher } from '@/components/customer/language-switcher'
 import { SearchBar } from '@/components/customer/search-bar'
 import { CategoryFilter } from '@/components/customer/category-filter'
 import { MenuGrid } from '@/components/customer/menu-grid'
@@ -106,7 +105,6 @@ export default function MenuPageClient({ table }: { table: TableData }) {
             <h1 className="text-2xl font-bold tracking-tight">{restaurantName || APP_NAME}</h1>
             <p className="text-sm text-muted-foreground">{t('table.number', { number: tableId.slice(0, 8).toUpperCase() })}</p>
           </div>
-          <LanguageSwitcher />
         </header>
 
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
