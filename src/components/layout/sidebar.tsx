@@ -6,23 +6,10 @@ import { useAuth } from '@/hooks/use-auth'
 import { cn } from '@/lib/utils/cn'
 import { Role } from '@/types/common'
 import {
-  LayoutDashboard,
-  UtensilsCrossed,
-  Users,
-  Table2,
-  Wallet,
-  ClipboardList,
-  BarChart3,
-  UserCircle,
-  LogOut,
-  Menu,
-  X,
-  Receipt,
-  ChefHat,
-  Package,
-  Building2,
-  CreditCard,
-  Tag,
+  LayoutDashboard, UtensilsCrossed, Users, Table2, Wallet,
+  ClipboardList, BarChart3, UserCircle, LogOut, Menu, X,
+  Receipt, ChefHat, Package, Building2, CreditCard, Tag,
+  ChevronRight,
 } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -52,9 +39,7 @@ const allNavItems: NavItem[] = [
   { label: 'Audit Logs', href: '/dashboard/admin/audit-logs', icon: <ClipboardList className="h-4 w-4" />, roles: ['admin'] },
 ]
 
-interface SidebarProps {
-  role: Role
-}
+interface SidebarProps { role: Role }
 
 export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname()
@@ -66,86 +51,97 @@ export function Sidebar({ role }: SidebarProps) {
 
   return (
     <>
+      {/* Mobile hamburger button */}
       <Button
         variant="ghost"
-        size="icon"
-        className="fixed left-4 top-4 z-50 h-10 w-10 rounded-xl border border-border/70 bg-card/90 shadow-sm backdrop-blur lg:hidden"
+        size="icon-sm"
+        className="fixed left-4 top-4 z-50 rounded-xl border border-border/60 bg-background/90 shadow-sm backdrop-blur-md lg:hidden"
         onClick={() => setOpen(true)}
+        aria-label="Open navigation menu"
       >
         <Menu className="h-5 w-5" />
       </Button>
 
+      {/* Sidebar panel */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-border/70 bg-card/85 backdrop-blur-xl transition-transform duration-300 ease-out lg:translate-x-0 lg:static lg:z-auto',
-          open ? 'translate-x-0' : '-translate-x-full'
+          'fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border/60 bg-background/80 backdrop-blur-2xl',
+          'transition-transform duration-300 ease-out lg:translate-x-0 lg:static lg:z-auto',
+          open ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         )}
       >
-        <div className="flex items-center justify-between border-b border-border/70 px-5 py-4">
-          <Link href="/dashboard" className="group flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/12 text-sm font-semibold text-primary">
+        {/* Header / Brand */}
+        <div className="flex items-center justify-between border-b border-border/50 px-4 py-4">
+          <Link href="/dashboard" className="group flex items-center gap-3" onClick={() => setOpen(false)}>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-bold text-primary ring-1 ring-primary/20">
               R
             </span>
-            <span className="leading-tight">
+            <div className="leading-tight">
               <span className="block text-sm font-semibold tracking-tight">RestaurantOS</span>
-              <span className="block text-xs text-muted-foreground">Hospitality Control</span>
-            </span>
+              <span className="block text-[11px] text-muted-foreground/70 font-medium">Management Console</span>
+            </div>
           </Link>
-          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg lg:hidden" onClick={() => setOpen(false)}>
-            <X className="h-5 w-5" />
+          <Button variant="ghost" size="icon-sm" className="rounded-lg lg:hidden" onClick={() => setOpen(false)} aria-label="Close navigation menu">
+            <X className="h-4 w-4" />
           </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 py-4">
-          <nav className="space-y-1.5">
+        {/* Navigation */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 scrollbar-thin">
+          <div className="space-y-1">
             {items.map((item) => {
-              const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
+              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-                    active
-                      ? 'bg-primary/12 text-primary ring-1 ring-primary/20'
-                      : 'text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                    'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                    isActive
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
                   )}
                 >
-                  <span
-                    className={cn(
-                      'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-                      active ? 'bg-primary/15 text-primary' : 'bg-muted/70 text-muted-foreground group-hover:text-foreground'
-                    )}
-                  >
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-primary" />
+                  )}
+                  <span className={cn(
+                    'flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors',
+                    isActive
+                      ? 'bg-primary/15 text-primary'
+                      : 'bg-transparent text-muted-foreground group-hover:text-foreground'
+                  )}>
                     {item.icon}
                   </span>
                   <span className="truncate">{item.label}</span>
+                  {isActive && (
+                    <ChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 text-primary/60" />
+                  )}
                 </Link>
               )
             })}
-          </nav>
+          </div>
         </div>
 
-        <div className="border-t border-border/70 p-3">
+        {/* Logout */}
+        <div className="border-t border-border/50 p-3">
           <button
-            onClick={async () => {
-              await logout()
-              router.push('/login')
-            }}
-            className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
+            onClick={async () => { await logout(); router.push('/login') }}
+            className="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/70">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-transparent text-muted-foreground/70 group-hover:text-foreground">
               <LogOut className="h-4 w-4" />
             </span>
-            Logout
+            <span>Logout</span>
           </button>
         </div>
       </aside>
 
+      {/* Mobile overlay */}
       {open && (
         <div
-          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-[1px] lg:hidden"
+          className="fixed inset-0 z-30 bg-black/30 backdrop-blur-sm lg:hidden animate-fade-in"
           onClick={() => setOpen(false)}
         />
       )}

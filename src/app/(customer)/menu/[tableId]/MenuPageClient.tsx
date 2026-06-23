@@ -26,7 +26,7 @@ interface TableData {
 export default function MenuPageClient({ table }: { table: TableData }) {
   const router = useRouter()
   const tableId = table.id
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
 
   const [restaurantId, setRestaurantId] = useState<string | null>(table.restaurant_id)
   const [items, setItems] = useState<MenuItem[]>([])
@@ -72,24 +72,39 @@ export default function MenuPageClient({ table }: { table: TableData }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-4 max-w-4xl mx-auto space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-40" />)}
+      <div className="min-h-screen bg-background p-4 max-w-4xl mx-auto space-y-4 animate-fade-in">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-48" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <Skeleton className="h-8 w-32 rounded-lg" />
+        </div>
+        <Skeleton className="h-11 w-full rounded-xl" />
+        <Skeleton className="h-9 w-64 rounded-full" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-xl border bg-card overflow-hidden">
+              <Skeleton className="aspect-[4/3] rounded-none" />
+              <div className="p-4 space-y-3">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-9 w-full rounded-lg" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto p-4 space-y-6">
-        <header className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">{restaurantName || APP_NAME}</h1>
-            <p className="text-sm text-muted-foreground">Table #{tableId.slice(0, 8)}</p>
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+      <div className="max-w-4xl mx-auto p-4 space-y-6 animate-fade-in">
+        <header className="flex items-center justify-between pt-2">
+          <div className="space-y-0.5">
+            <h1 className="text-2xl font-bold tracking-tight">{restaurantName || APP_NAME}</h1>
+            <p className="text-sm text-muted-foreground">{t('table.number', { number: tableId.slice(0, 8).toUpperCase() })}</p>
           </div>
           <LanguageSwitcher />
         </header>
@@ -102,13 +117,21 @@ export default function MenuPageClient({ table }: { table: TableData }) {
           onSelect={setSelectedCategory}
         />
 
-        <MenuGrid items={filteredItems} loading={false} />
+        <div className="animate-slide-up">
+          <MenuGrid items={filteredItems} loading={false} />
+        </div>
 
-        <section className="border-t pt-6 space-y-4">
+        {categories.length > 0 && items.length > 0 && (
+          <div className="text-center text-xs text-muted-foreground pb-2">
+            {filteredItems.length} {filteredItems.length === 1 ? 'item' : 'items'}
+          </div>
+        )}
+
+        <section className="border-t border-border/50 pt-6 space-y-4">
           <ServiceRequestButtons tableId={tableId} restaurantId={restaurantId || ''} />
         </section>
 
-        <section className="border-t pt-6">
+        <section className="border-t border-border/50 pt-6 pb-20">
           <PaymentMethodsDisplay configs={paymentConfigs} />
         </section>
       </div>

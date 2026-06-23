@@ -17,6 +17,22 @@ const en = {
   'menu.price': 'Price',
   'menu.addToOrder': 'Add to Order',
   'menu.noItems': 'No menu items found',
+  'menu.added': 'Added to order',
+
+  // Cart
+  'cart.title': 'Your Order',
+  'cart.empty': 'Your cart is empty',
+  'cart.total': 'Total',
+  'cart.checkout': 'Place Order',
+  'cart.placeOrder': 'Place Order',
+  'cart.customerName': 'Your Name',
+  'cart.specialInstructions': 'Special Instructions',
+  'cart.orderPlaced': 'Order Placed!',
+  'cart.orderPlacedDesc': 'Your order has been sent to the kitchen.',
+  'cart.trackOrder': 'Track Order',
+  'cart.backToMenu': 'Back to Menu',
+  'cart.itemAdded': 'Item added to cart',
+  'cart.itemRemoved': 'Item removed from cart',
 
   // Service Requests
   'service.requestWaiter': 'Request Waiter',
@@ -47,6 +63,17 @@ const en = {
   'auth.mfaCode': 'Authentication Code',
   'auth.mfaVerify': 'Verify',
   'auth.invalidCredentials': 'Invalid credentials',
+  'auth.forgotPassword': 'Forgot password?',
+  'auth.resetPassword': 'Reset Password',
+  'auth.newPassword': 'New Password',
+  'auth.confirmPassword': 'Confirm Password',
+  'auth.sendResetLink': 'Send Reset Link',
+  'auth.updatePassword': 'Update Password',
+  'auth.rememberPassword': 'Remember your password?',
+  'auth.signIn': 'Sign in',
+  'auth.createAccount': 'Create Account',
+  'auth.dontHaveAccount': 'Don\'t have an account?',
+  'auth.alreadyHaveAccount': 'Already have an account?',
 
   // Dashboard
   'dashboard.title': 'Dashboard',
@@ -56,6 +83,13 @@ const en = {
   'dashboard.revenue': 'Revenue',
   'dashboard.today': 'Today',
   'dashboard.thisMonth': 'This Month',
+  'dashboard.overview': 'Overview',
+  'dashboard.quickActions': 'Quick Actions',
+  'dashboard.recentOrders': 'Recent Orders',
+  'dashboard.totalRevenue': 'Total Revenue',
+  'dashboard.activeOrders': 'Active Orders',
+  'dashboard.occupiedTables': 'Occupied Tables',
+  'dashboard.viewAll': 'View All',
 
   // Waiter
   'waiter.assignedTables': 'My Tables',
@@ -103,6 +137,53 @@ const en = {
   'admin.payrollManagement': 'Payroll Management',
   'admin.processPayroll': 'Process Payroll',
 
+  // Branches
+  'branch.title': 'Branches',
+  'branch.addBranch': 'Add Branch',
+
+  // Inventory
+  'inventory.title': 'Inventory',
+  'inventory.ingredients': 'Ingredients',
+  'inventory.suppliers': 'Suppliers',
+  'inventory.purchases': 'Purchases',
+  'inventory.wastage': 'Wastage',
+
+  // Kitchen
+  'kitchen.title': 'Kitchen Display',
+  'kitchen.newOrders': 'New Orders',
+  'kitchen.inProgress': 'In Progress',
+  'kitchen.ready': 'Ready',
+  'kitchen.startPreparing': 'Start Preparing',
+  'kitchen.markReady': 'Mark as Ready',
+
+  // Onboarding
+  'onboarding.welcome': 'Welcome to RestaurantOS',
+  'onboarding.welcomeDesc': 'Let\'s get your restaurant set up in minutes.',
+  'onboarding.restaurant': 'Restaurant Info',
+  'onboarding.menu': 'Add Menu Items',
+  'onboarding.tables': 'Set Up Tables',
+  'onboarding.complete': 'Complete Setup',
+  'onboarding.next': 'Next Step',
+  'onboarding.prev': 'Previous Step',
+  'onboarding.finish': 'Go to Dashboard',
+
+  // Order Tracking
+  'order.title': 'Order Status',
+  'order.pending': 'Pending',
+  'order.accepted': 'Accepted',
+  'order.preparing': 'Preparing',
+  'order.ready': 'Ready',
+  'order.delivered': 'Delivered',
+  'order.completed': 'Completed',
+  'order.cancelled': 'Cancelled',
+  'order.estimatedTime': 'Estimated time',
+
+  // Table
+  'table.number': 'Table {number}',
+  'table.occupied': 'Occupied',
+  'table.available': 'Available',
+  'table.reserved': 'Reserved',
+
   // Common
   'common.save': 'Save',
   'common.cancel': 'Cancel',
@@ -117,6 +198,8 @@ const en = {
   'common.success': 'Success!',
   'common.confirm': 'Confirm',
   'common.back': 'Back',
+  'common.next': 'Next',
+  'common.finish': 'Finish',
   'common.noData': 'No data available',
   'common.status': 'Status',
   'common.actions': 'Actions',
@@ -126,6 +209,42 @@ const en = {
   'common.role': 'Role',
   'common.salary': 'Salary',
   'common.language': 'Language',
+  'common.id': 'ID',
+  'common.type': 'Type',
+  'common.details': 'Details',
+  'common.description': 'Description',
+  'common.amount': 'Amount',
+  'common.date': 'Date',
+  'common.quantity': 'Quantity',
+  'common.unit': 'Unit',
+  'common.total': 'Total',
+  'common.subtotal': 'Subtotal',
+  'common.yes': 'Yes',
+  'common.no': 'No',
+  'common.close': 'Close',
+  'common.retry': 'Retry',
+  'common.print': 'Print',
+  'common.download': 'Download',
+  'common.export': 'Export',
+  'common.refresh': 'Refresh',
+  'common.more': 'More',
+  'common.less': 'Less',
+
+  // Validation
+  'validation.required': 'This field is required',
+  'validation.invalidEmail': 'Please enter a valid email',
+  'validation.minLength': 'Minimum {min} characters required',
+  'validation.passwordMatch': 'Passwords do not match',
+
+  // Errors
+  'error.notFound': 'Page not found',
+  'error.notFoundDesc': 'The page you\'re looking for doesn\'t exist.',
+  'error.serverError': 'Something went wrong',
+  'error.serverErrorDesc': 'Please try again later.',
+  'error.unauthorized': 'Unauthorized',
+  'error.unauthorizedDesc': 'You don\'t have permission to access this page.',
+  'error.tableNotFound': 'Table Not Found',
+  'error.tableNotFoundDesc': 'This QR code is no longer valid. Please ask your waiter for a new one.',
 
   // Language names
   'lang.en': 'English',

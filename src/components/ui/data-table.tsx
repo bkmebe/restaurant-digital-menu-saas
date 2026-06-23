@@ -20,10 +20,14 @@ interface DataTableProps {
 export function DataTable({ columns, data, loading, onRowClick }: DataTableProps) {
   if (loading) {
     return (
-      <div className="rounded-md border">
-        <div className="p-4 space-y-3">
+      <div className="rounded-lg border overflow-hidden">
+        <div className="divide-y divide-border/50">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-8 bg-muted animate-pulse rounded" />
+            <div key={i} className="flex items-center gap-4 p-4">
+              {columns.map((col) => (
+                <div key={col.key} className="h-5 bg-gradient-to-r from-muted via-muted/80 to-muted bg-[length:200%_100%] animate-skeleton rounded flex-1" />
+              ))}
+            </div>
           ))}
         </div>
       </div>
@@ -32,40 +36,45 @@ export function DataTable({ columns, data, loading, onRowClick }: DataTableProps
 
   if (data.length === 0) {
     return (
-      <div className="rounded-md border p-8 text-center text-muted-foreground">
-        No data available
+      <div className="rounded-lg border border-dashed p-12 text-center">
+        <p className="text-sm text-muted-foreground">No data available</p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-md border overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b bg-muted/50">
-            {columns.map((col) => (
-              <th key={col.key} className={cn('px-4 py-3 text-left font-medium', col.className)}>
-                {col.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item, index) => (
-            <tr
-              key={(item.id as string) || index}
-              className={cn('border-b last:border-0 hover:bg-muted/30 transition-colors', onRowClick && 'cursor-pointer')}
-              onClick={() => onRowClick?.(item)}
-            >
+    <div className="rounded-lg border overflow-hidden bg-card shadow-sm">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b bg-muted/30">
               {columns.map((col) => (
-                <td key={col.key} className={cn('px-4 py-3', col.className)}>
-                  {col.render ? col.render(item) : String(item[col.key] ?? '')}
-                </td>
+                <th key={col.key} className={cn('px-4 py-3.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider', col.className)}>
+                  {col.header}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-border/50">
+            {data.map((item, index) => (
+              <tr
+                key={(item.id as string) || index}
+                className={cn(
+                  'transition-colors duration-150',
+                  onRowClick ? 'cursor-pointer hover:bg-muted/40' : 'hover:bg-muted/20'
+                )}
+                onClick={() => onRowClick?.(item)}
+              >
+                {columns.map((col) => (
+                  <td key={col.key} className={cn('px-4 py-3.5 text-sm', col.className)}>
+                    {col.render ? col.render(item) : String(item[col.key] ?? '')}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

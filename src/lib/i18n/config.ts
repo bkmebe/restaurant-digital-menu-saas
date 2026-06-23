@@ -15,7 +15,12 @@ export function getDictionary(locale: LanguageCode): Record<string, string> {
   return dictionaries[locale] || dictionaries.en
 }
 
-export function t(key: string, locale: LanguageCode = 'en'): string {
-  const dict = getDictionary(locale)
-  return dict[key] || dictionaries.en[key] || key
+export function t(key: string, locale: LanguageCode = 'en', params?: Record<string, string | number>): string {
+  let value = getDictionary(locale)[key] || dictionaries.en[key] || key
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      value = value.replace(`{${k}}`, String(v))
+    }
+  }
+  return value
 }

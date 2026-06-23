@@ -1,12 +1,16 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import { LanguageProvider } from '@/hooks/use-language'
 import { AuthProvider } from '@/hooks/use-auth'
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/constants'
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
+const inter = Inter({
+  variable: '--font-inter',
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  preload: true,
+})
 
 export const metadata: Metadata = {
   title: { default: APP_NAME, template: `%s | ${APP_NAME}` },
@@ -19,9 +23,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-          <meta name="theme-color" content="#000000" />
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        />
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <meta name="theme-color" content="#0a0a0f" />
+      </head>
+      <body className={`${inter.variable} font-sans antialiased`}>
         <LanguageProvider>
           <AuthProvider>
             {children}

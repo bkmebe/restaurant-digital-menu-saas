@@ -17,12 +17,14 @@ export function CategoryFilter({ categories, selectedCategory, onSelect }: Categ
   const getDisplayName = (cat: Category) =>
     locale === 'am' ? cat.name_am : locale === 'om' ? cat.name_om : cat.name
 
+  if (categories.length === 0) return null
+
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none -mx-1 px-1">
       <Button
         variant={selectedCategory === null ? 'default' : 'outline'}
         size="sm"
-        className="shrink-0"
+        className="shrink-0 rounded-full text-xs font-medium"
         onClick={() => onSelect(null)}
       >
         {t('menu.all')}
@@ -32,10 +34,14 @@ export function CategoryFilter({ categories, selectedCategory, onSelect }: Categ
           key={cat.id}
           variant={selectedCategory === cat.id ? 'default' : 'outline'}
           size="sm"
-          className="shrink-0"
+          className={cn(
+            "shrink-0 rounded-full text-xs font-medium",
+            selectedCategory === cat.id ? '' : 'hover:bg-muted/80'
+          )}
           onClick={() => onSelect(cat.id)}
         >
-          {cat.icon} {getDisplayName(cat)}
+          {cat.icon && <span className="mr-1">{cat.icon}</span>}
+          {getDisplayName(cat)}
         </Button>
       ))}
     </div>
