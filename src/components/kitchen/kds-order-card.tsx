@@ -88,7 +88,7 @@ export function KDSOrderCard({ order, onAccept, onUpdateStatus }: KDSOrderCardPr
                   <span className="font-medium text-sm">{getItemName(item)} x{item.quantity}</span>
                   {item.special_requests && <p className="text-xs text-muted-foreground italic">{item.special_requests}</p>}
                 </div>
-                <Button size="sm" variant="outline" onClick={() => onUpdateStatus(order.id, item.id, 'preparing')}>
+                <Button data-testid="kds-item-start" size="sm" variant="outline" onClick={() => onUpdateStatus(order.id, item.id, 'preparing')}>
                   <CookingPot className="h-3 w-3 mr-1" /> Start
                 </Button>
               </div>
@@ -106,7 +106,7 @@ export function KDSOrderCard({ order, onAccept, onUpdateStatus }: KDSOrderCardPr
                   <span className="font-medium text-sm">{getItemName(item)} x{item.quantity}</span>
                   {item.prep_started_at && <ElapsedTimer startTime={item.prep_started_at} />}
                 </div>
-                <Button size="sm" variant="outline" onClick={() => onUpdateStatus(order.id, item.id, 'ready')}>
+                <Button data-testid="kds-item-ready" size="sm" variant="outline" onClick={() => onUpdateStatus(order.id, item.id, 'ready')}>
                   <Check className="h-3 w-3 mr-1" /> Done
                 </Button>
               </div>
@@ -132,7 +132,7 @@ export function KDSOrderCard({ order, onAccept, onUpdateStatus }: KDSOrderCardPr
         )}
 
         {order.status === 'pending' && (
-          <Button className="w-full" onClick={() => onAccept(order.id)}>
+          <Button data-testid="kds-accept-order" className="w-full" onClick={() => onAccept(order.id)}>
             <ChefHat className="h-4 w-4 mr-2" /> Accept Order
           </Button>
         )}

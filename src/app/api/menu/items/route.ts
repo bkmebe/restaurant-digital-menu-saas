@@ -1,29 +1,29 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireAuth, requireRole } from '@/lib/utils/auth-guard'
+import { requireTenant, requireRole } from '@/lib/utils/tenant'
 
 export async function GET() {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
   const supabase = await createServerSupabaseClient()
   const { data, error } = await supabase
     .from('menu_items')
     .select('*')
-    .eq('restaurant_id', auth.profile.restaurant_id)
+    .eq('restaurant_id', tenant.restaurantId)
     .order('sort_order')
 
   if (error) {
-    return NextResponse.json({ error: { code: 'DB_ERROR', message: error.message } }, { status: 500 })
+    return NextResponse.json({ error: { code: 'DB_ERROR', message: 'Database error occurred' } }, { status: 500 })
   }
   return NextResponse.json({ data })
 }
 
 export async function POST(request: Request) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(auth, 'admin')
+  const roleError = requireRole(tenant, 'admin')
   if (roleError) return roleError
 
   const supabase = await createServerSupabaseClient()
@@ -31,21 +31,21 @@ export async function POST(request: Request) {
 
   const { data, error } = await supabase
     .from('menu_items')
-    .insert({ ...body, restaurant_id: auth.profile.restaurant_id })
+    .insert({ ...body, restaurant_id: tenant.restaurantId })
     .select()
     .single()
 
   if (error) {
-    return NextResponse.json({ error: { code: 'CREATE_ERROR', message: error.message } }, { status: 400 })
+    return NextResponse.json({ error: { code: 'CREATE_ERROR', message: 'Failed to create record' } }, { status: 400 })
   }
   return NextResponse.json({ data, message: 'Menu item created' }, { status: 201 })
 }
 
 export async function PUT(request: Request) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(auth, 'admin')
+  const roleError = requireRole(tenant, 'admin')
   if (roleError) return roleError
 
   const { searchParams } = new URL(request.url)
@@ -70,20 +70,21 @@ export async function PUT(request: Request) {
     .from('menu_items')
     .update(updateData)
     .eq('id', id)
+    .eq('restaurant_id', tenant.restaurantId)
     .select()
     .single()
 
   if (error) {
-    return NextResponse.json({ error: { code: 'UPDATE_ERROR', message: error.message } }, { status: 400 })
+    return NextResponse.json({ error: { code: 'UPDATE_ERROR', message: 'Failed to update record' } }, { status: 400 })
   }
   return NextResponse.json({ data, message: 'Menu item updated' })
 }
 
 export async function DELETE(request: Request) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(auth, 'admin')
+  const roleError = requireRole(tenant, 'admin')
   if (roleError) return roleError
 
   const { searchParams } = new URL(request.url)
@@ -101,10 +102,10 @@ export async function DELETE(request: Request) {
   }
 
   const supabase = await createServerSupabaseClient()
-  const { error } = await supabase.from('menu_items').delete().eq('id', id)
+  const { error } = await supabase.from('menu_items').delete().eq('id', id).eq('restaurant_id', tenant.restaurantId)
 
   if (error) {
-    return NextResponse.json({ error: { code: 'DELETE_ERROR', message: error.message } }, { status: 400 })
+    return NextResponse.json({ error: { code: 'DELETE_ERROR', message: 'Failed to delete record' } }, { status: 400 })
   }
   return NextResponse.json({ message: 'Menu item deleted' })
 }

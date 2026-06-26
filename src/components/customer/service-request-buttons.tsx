@@ -43,6 +43,7 @@ export function ServiceRequestButtons({ tableId, restaurantId }: ServiceRequestB
   return (
     <div className="flex gap-3">
       <Button
+        data-testid="request-waiter"
         variant="outline"
         className="flex-1 gap-2"
         onClick={() => handleRequest('waiter')}
@@ -52,6 +53,7 @@ export function ServiceRequestButtons({ tableId, restaurantId }: ServiceRequestB
         {t('service.requestWaiter')}
       </Button>
       <Button
+        data-testid="request-bill"
         variant="secondary"
         className="flex-1 gap-2"
         onClick={() => handleRequest('bill')}

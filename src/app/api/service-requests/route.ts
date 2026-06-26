@@ -1,9 +1,24 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { requireTenant } from '@/lib/utils/tenant'
 
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient()
-  const body = await request.json()
+
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) {
+    return NextResponse.json(
+      { error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
+      { status: 401 }
+    )
+  }
+
+  let body: any
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: { code: 'VALIDATION', message: 'Invalid JSON body' } }, { status: 400 })
+  }
 
   const { table_id, type, notes } = body
   if (!table_id || !type) {
@@ -23,6 +38,6 @@ export async function POST(request: Request) {
     notes,
   }).select().single()
 
-  if (error) return NextResponse.json({ error: { code: 'CREATE_ERROR', message: error.message } }, { status: 400 })
+  if (error) return NextResponse.json({ error: { code: 'CREATE_ERROR', message: 'Failed to create record' } }, { status: 400 })
   return NextResponse.json({ data, message: 'Request sent' }, { status: 201 })
 }

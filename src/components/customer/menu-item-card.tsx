@@ -19,7 +19,7 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
   const displayDescription = locale === 'am' ? item.description_am : locale === 'om' ? item.description_om : item.description
 
   return (
-    <Card className={cn(
+    <Card data-testid="menu-item" className={cn(
       "overflow-hidden group transition-all duration-300",
       "hover:shadow-lg hover:-translate-y-0.5",
       "border-border/50"
@@ -46,7 +46,7 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
               <p className="text-sm text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{displayDescription}</p>
             )}
           </div>
-          <Badge variant="secondary" className="shrink-0 mt-0.5 font-mono text-xs">
+          <Badge data-testid="menu-item-price" variant="secondary" className="shrink-0 mt-0.5 font-mono text-xs">
             {formatCurrency(Number(item.price))}
           </Badge>
         </div>

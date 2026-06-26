@@ -46,7 +46,7 @@ export default function CashierDashboardPage() {
     { key: 'total_amount', header: t('cashier.total'), render: (o: Record<string, unknown>) => <span className="font-bold">{formatCurrency(Number(o.total_amount))}</span> },
     { key: 'status', header: t('cashier.status'), render: (o: Record<string, unknown>) => <StatusBadge status={o.status as string} mapping={{ open: 'info', preparing: 'warning', served: 'success', paid: 'default' }} /> },
     { key: 'actions', header: '', render: (o: Record<string, unknown>) => (o.status as string) !== 'paid' ? (
-      <Button size="sm" onClick={() => markAsPaid(o.id as string)}>
+      <Button data-testid="mark-as-paid" size="sm" onClick={() => markAsPaid(o.id as string)}>
         <DollarSign className="h-3 w-3 mr-1" />{t('cashier.markAsPaid')}
       </Button>
     ) : null },
@@ -55,7 +55,9 @@ export default function CashierDashboardPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">{t('nav.cashier')} {t('dashboard.title')}</h1>
-      <DataTable columns={columns} data={orders as unknown as Record<string, unknown>[]} loading={loading} />
+      <div data-testid="cashier-orders-table">
+        <DataTable columns={columns} data={orders as unknown as Record<string, unknown>[]} loading={loading} />
+      </div>
     </div>
   )
 }

@@ -12,6 +12,20 @@ vi.mock('@/lib/supabase/server', () => ({
   }),
 }))
 
+vi.mock('@/lib/supabase/admin', () => ({
+  createAdminSupabaseClient: vi.fn().mockReturnValue({
+    auth: {
+      admin: {
+        createUser: vi.fn().mockResolvedValue({
+          data: { user: { id: 'auth-user-id' } },
+          error: null,
+        }),
+        deleteUser: vi.fn().mockResolvedValue({ data: null, error: null }),
+      },
+    },
+  }),
+}))
+
 function queryChain(returnData: unknown = null) {
   return {
     select: vi.fn().mockReturnThis(),

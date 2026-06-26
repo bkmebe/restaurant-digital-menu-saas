@@ -1,17 +1,27 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { initializePayment } from '@/lib/payments/chapa'
-import { requireAuth, requireRole } from '@/lib/utils/auth-guard'
+import { requireTenant, requireRole } from '@/lib/utils/tenant'
 
 export async function POST(request: Request) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(auth, 'cashier')
+  const roleError = requireRole(tenant, 'cashier')
   if (roleError) return roleError
 
   const supabase = await createServerSupabaseClient()
-  const { order_id, amount, email, phone, name } = await request.json()
+  let order_id: string, amount: number, email: string | undefined, phone: string | undefined, name: string | undefined
+  try {
+    const body = await request.json()
+    order_id = body.order_id
+    amount = body.amount
+    email = body.email
+    phone = body.phone
+    name = body.name
+  } catch {
+    return NextResponse.json({ error: { code: 'VALIDATION', message: 'Invalid JSON body' } }, { status: 400 })
+  }
 
   const txRef = `RMD-${order_id.slice(0, 8)}-${Date.now()}`
 
@@ -25,7 +35,7 @@ export async function POST(request: Request) {
   }).select().single()
 
   if (error) {
-    return NextResponse.json({ error: { code: 'PAYMENT_ERROR', message: error.message } }, { status: 400 })
+    return NextResponse.json({ error: { code: 'PAYMENT_ERROR', message: 'Payment processing failed' } }, { status: 400 })
   }
 
   try {
@@ -51,7 +61,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ data: { checkout_url: result.data.checkout_url, tx_ref: txRef } })
     }
 
-    return NextResponse.json({ error: { code: 'PROVIDER_ERROR', message: result.message } }, { status: 400 })
+    return NextResponse.json({ error: { code: 'PROVIDER_ERROR', message: 'Payment provider error' } }, { status: 400 })
   } catch (err) {
     return NextResponse.json({ error: { code: 'PROVIDER_ERROR', message: 'Payment initialization failed' } }, { status: 500 })
   }

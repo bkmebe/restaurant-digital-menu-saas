@@ -14,6 +14,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }))
 
 function queryChain(returnData: unknown = null) {
+  const resolveValue = { data: returnData, error: null }
   return {
     select: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
@@ -26,9 +27,10 @@ function queryChain(returnData: unknown = null) {
     lte: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis(),
-    single: vi.fn().mockResolvedValue({ data: returnData, error: null }),
-    maybeSingle: vi.fn().mockResolvedValue({ data: returnData, error: null }),
+    single: vi.fn().mockResolvedValue(resolveValue),
+    maybeSingle: vi.fn().mockResolvedValue(resolveValue),
     csv: vi.fn().mockResolvedValue({ data: '', error: null }),
+    then: vi.fn().mockImplementation((resolve: any) => resolve(resolveValue)),
   }
 }
 
@@ -98,17 +100,18 @@ describe('SQL Injection Prevention', () => {
       expect(response.status).toBe(200)
     })
 
-    it('should use parameterized SQL (no string interpolation)', async () => {
+    it('should use parameterized Supabase queries (no exec_sql RPC)', async () => {
       setupAuth('admin')
-      mockRpc.mockResolvedValue({ data: [{ revenue: 15000, orders: 45 }], error: null })
-
       const validUUID = '123e4567-e89b-12d3-a456-426614174000'
-      await callAiQuery(validUUID, 'today sales')
+      const response = await callAiQuery(validUUID, 'today sales')
+      expect(response.status).toBe(200)
 
-      const rpcCall = mockRpc.mock.calls[0]
-      const sqlText = rpcCall[1]?.query_text as string
-      expect(sqlText).not.toContain(validUUID)
-      expect(sqlText).toContain('$1::uuid')
+      const body = await response.json()
+      expect(body).toHaveProperty('answer')
+      expect(body).toHaveProperty('data')
+
+      // exec_sql RPC has been replaced with direct Supabase query builder
+      expect(mockRpc).not.toHaveBeenCalled()
     })
   })
 
@@ -147,7 +150,11 @@ describe('SQL Injection Prevention', () => {
         if (table === 'profiles') return profileChain('waiter-id', 'waiter', 'rest-1')
         if (table === 'tables') return tableQuery
         if (table === 'menu_items') {
-          return { ...queryChain(), select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), single: vi.fn().mockResolvedValue({ data: { price: 250 }, error: null }) }
+          const chain = queryChain()
+          chain.in = vi.fn().mockReturnValue({
+            then: (resolve: any) => resolve({ data: [{ id: 'item-1', price: 250 }], error: null })
+          })
+          return chain
         }
         if (table === 'orders') {
           return { ...queryChain(), insert: vi.fn().mockReturnThis(), select: vi.fn().mockReturnThis(), single: orderSingle, update: vi.fn().mockReturnValue({ eq: updateEq }), eq: vi.fn().mockReturnThis() }

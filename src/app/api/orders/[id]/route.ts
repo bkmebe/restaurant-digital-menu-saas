@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireAuth, requireRole } from '@/lib/utils/auth-guard'
+import { requireTenant, requireRole } from '@/lib/utils/tenant'
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(auth, 'waiter')
+  const roleError = requireRole(tenant, 'waiter')
   if (roleError) return roleError
 
   const { id } = await params
@@ -32,7 +32,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   }
 
   const { data, error } = await supabase.from('orders').update(updateData).eq('id', id).select().single()
-  if (error) return NextResponse.json({ error: { code: 'UPDATE_ERROR', message: error.message } }, { status: 400 })
+  if (error) return NextResponse.json({ error: { code: 'UPDATE_ERROR', message: 'Failed to update record' } }, { status: 400 })
 
   return NextResponse.json({ data, message: `Order ${status}` })
 }

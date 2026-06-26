@@ -34,3 +34,11 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# test artifacts
+playwright-report/
+test-results/
+playwright-results.json
+
+# supabase temp files
+supabase/.temp/

@@ -4,6 +4,8 @@ import './globals.css'
 import { LanguageProvider } from '@/hooks/use-language'
 import { ThemeProvider } from '@/hooks/use-theme'
 import { AuthProvider } from '@/hooks/use-auth'
+import { OfflineProvider } from '@/hooks/use-offline'
+import { OfflineBanner } from '@/components/offline/offline-banner'
 import { SiteHeader } from '@/components/layout/site-header'
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/constants'
 
@@ -33,13 +35,36 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    reg.addEventListener('updatefound', function() {
+                      var installingWorker = reg.installing;
+                      installingWorker.addEventListener('statechange', function() {
+                        if (installingWorker.state === 'activated') {
+                          window.location.reload();
+                        }
+                      });
+                    });
+                  });
+                });
+              }
+            `,
+          }}
+        />
       </head>
       <body className={`${inter.variable} ${notoSansEthiopic.variable} font-sans antialiased`}>
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
-              <SiteHeader />
-              <main>{children}</main>
+              <OfflineProvider>
+                <SiteHeader />
+                <main>{children}</main>
+                <OfflineBanner />
+              </OfflineProvider>
             </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>

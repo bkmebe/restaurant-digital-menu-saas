@@ -155,8 +155,8 @@ describe('Menu Integration', () => {
         if (table === 'menu_items') {
           return {
             delete: vi.fn().mockReturnThis(),
-            eq: vi.fn().mockResolvedValue({ error: null }),
-            select: vi.fn(),
+            eq: vi.fn().mockReturnThis(),
+            select: vi.fn().mockReturnThis(),
             single: vi.fn(),
           }
         }

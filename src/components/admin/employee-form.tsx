@@ -18,7 +18,7 @@ interface EmployeeFormProps {
 export function EmployeeForm({ onSubmit, defaultValues, loading }: EmployeeFormProps) {
   const { register, handleSubmit, formState: { errors } } = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeSchema),
-    defaultValues: { full_name: '', phone: '+251', email: '', password: '', role: 'waiter', national_id: '', salary: 0, hire_date: '', ...defaultValues },
+    defaultValues: { full_name: '', phone: '+251', email: '', password: '', role: 'waiter', national_id: '', fayda_number: '', salary: 0, hire_date: '', ...defaultValues },
   })
 
   return (
@@ -28,7 +28,7 @@ export function EmployeeForm({ onSubmit, defaultValues, loading }: EmployeeFormP
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email (used for login)</Label>
-            <Input id="email" type="email" {...register('email')} />
+            <Input id="email" type="email" data-testid="employee-email-input" {...register('email')} />
             {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
           </div>
           <div className="space-y-2">
@@ -44,12 +44,12 @@ export function EmployeeForm({ onSubmit, defaultValues, loading }: EmployeeFormP
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="full_name">Full Name</Label>
-            <Input id="full_name" {...register('full_name')} />
+            <Input id="full_name" data-testid="employee-name-input" {...register('full_name')} />
             {errors.full_name && <p className="text-xs text-destructive">{errors.full_name.message}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Phone (+251XXXXXXXXX)</Label>
-            <Input id="phone" {...register('phone')} placeholder="+251911234567" />
+            <Input id="phone" data-testid="employee-phone-input" {...register('phone')} placeholder="+251911234567" />
             {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
           </div>
           <div className="space-y-2">
@@ -67,12 +67,16 @@ export function EmployeeForm({ onSubmit, defaultValues, loading }: EmployeeFormP
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="national_id">National ID (Fayda)</Label>
+            <Label htmlFor="fayda_number">Fayda Number</Label>
+            <Input id="fayda_number" {...register('fayda_number')} placeholder="Optional" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="national_id">National ID</Label>
             <Input id="national_id" {...register('national_id')} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="salary">Monthly Salary (ETB)</Label>
-            <Input id="salary" type="number" step="0.01" {...register('salary', { valueAsNumber: true })} />
+            <Input id="salary" type="number" step="0.01" data-testid="employee-salary-input" {...register('salary', { valueAsNumber: true })} />
             {errors.salary && <p className="text-xs text-destructive">{errors.salary.message}</p>}
           </div>
           <div className="space-y-2">
@@ -83,7 +87,7 @@ export function EmployeeForm({ onSubmit, defaultValues, loading }: EmployeeFormP
         </div>
       </div>
 
-      <Button type="submit" disabled={loading}>
+      <Button type="submit" data-testid="employee-submit" disabled={loading}>
         {loading ? 'Saving...' : 'Save Employee'}
       </Button>
     </form>

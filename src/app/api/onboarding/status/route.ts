@@ -1,19 +1,19 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireAuth } from '@/lib/utils/auth-guard'
+import { requireTenant } from '@/lib/utils/tenant'
 
 export async function GET() {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
   const supabase = await createServerSupabaseClient()
-  const organizationId = auth.profile.organization_id
+  const organizationId = tenant.organizationId
 
   const [orgResult, restaurantResult, tablesResult, categoriesResult, plansResult] = await Promise.all([
     supabase.from('organizations').select('onboarding_step, setup_completed').eq('id', organizationId).single(),
-    supabase.from('restaurants').select('*').eq('id', auth.profile.restaurant_id).single(),
-    supabase.from('tables').select('id').eq('restaurant_id', auth.profile.restaurant_id),
-    supabase.from('categories').select('id').eq('restaurant_id', auth.profile.restaurant_id),
+    supabase.from('restaurants').select('*').eq('id', tenant.restaurantId).single(),
+    supabase.from('tables').select('id').eq('restaurant_id', tenant.restaurantId),
+    supabase.from('categories').select('id').eq('restaurant_id', tenant.restaurantId),
     supabase.from('subscription_plans').select('*').eq('is_active', true).order('price_monthly'),
   ])
 

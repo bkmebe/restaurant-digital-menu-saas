@@ -89,7 +89,7 @@ export default function OrderTrackingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div data-testid="order-status-page" className="min-h-screen bg-background">
       <div className="max-w-lg mx-auto p-4 space-y-6">
         <div className="flex items-center gap-3">
           <Link href={`/menu/${order.table_id}`}>

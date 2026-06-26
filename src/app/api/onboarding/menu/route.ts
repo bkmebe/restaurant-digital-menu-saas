@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireAuth } from '@/lib/utils/auth-guard'
+import { requireTenant } from '@/lib/utils/tenant'
 
 export async function POST(request: Request) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
   try {
     const { categories } = await request.json()
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     }
 
     const supabase = await createServerSupabaseClient()
-    const restaurantId = auth.profile.restaurant_id
+    const restaurantId = tenant.restaurantId
 
     const createdCategories: Array<{ id: string; name: string }> = []
 
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     await supabase
       .from('organizations')
       .update({ onboarding_step: 5 })
-      .eq('id', auth.profile.organization_id)
+      .eq('id', tenant.organizationId)
 
     return NextResponse.json({ data: { categories: createdCategories } })
   } catch {

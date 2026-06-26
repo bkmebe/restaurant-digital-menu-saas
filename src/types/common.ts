@@ -1,4 +1,4 @@
-export type Role = 'admin' | 'manager' | 'cashier' | 'waiter' | 'kitchen_staff' | 'inventory_manager'
+export type Role = 'system_admin' | 'owner' | 'admin' | 'manager' | 'cashier' | 'waiter' | 'kitchen_staff' | 'inventory_manager'
 
 export type TableStatus = 'available' | 'occupied' | 'cleaning'
 

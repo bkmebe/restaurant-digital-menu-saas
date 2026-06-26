@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { hasPermission } from '@/lib/utils/permissions'
+import { hasPermission, enforceReadOnly } from '@/lib/utils/permissions'
 import type { Role } from '@/types/common'
 
 interface AuthUser {
@@ -66,10 +66,44 @@ export function requireRole(result: AuthResult, requiredRole: Role): NextRespons
   return null
 }
 
+export function requireMutate(result: AuthResult): NextResponse | null {
+  if (enforceReadOnly(result.profile.role)) {
+    return NextResponse.json(
+      { error: { code: 'READ_ONLY', message: 'Owner accounts have read-only access' } },
+      { status: 403 }
+    )
+  }
+  return null
+}
+
 export async function requireAdmin(): Promise<AuthResult | NextResponse> {
   const result = await requireAuth()
   if (result instanceof NextResponse) return result
   const roleError = requireRole(result, 'admin')
+  if (roleError) return roleError
+  return result
+}
+
+export async function requireAdminOrOwner(): Promise<AuthResult | NextResponse> {
+  const result = await requireAuth()
+  if (result instanceof NextResponse) return result
+  const roleError = requireRole(result, 'admin')
+  if (roleError) return roleError
+  return result
+}
+
+export async function requireOwner(): Promise<AuthResult | NextResponse> {
+  const result = await requireAuth()
+  if (result instanceof NextResponse) return result
+  const roleError = requireRole(result, 'owner')
+  if (roleError) return roleError
+  return result
+}
+
+export async function requireSystemAdmin(): Promise<AuthResult | NextResponse> {
+  const result = await requireAuth()
+  if (result instanceof NextResponse) return result
+  const roleError = requireRole(result, 'system_admin')
   if (roleError) return roleError
   return result
 }

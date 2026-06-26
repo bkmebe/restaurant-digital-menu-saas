@@ -42,7 +42,7 @@ export default function MFAPage() {
           <CardTitle>{t('auth.mfaCode')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleVerify} className="space-y-4">
+          <form onSubmit={handleVerify} className="space-y-4" data-testid="mfa-form">
             <div className="space-y-2">
               <Label htmlFor="code">{t('auth.mfaCode')}</Label>
               <Input
@@ -52,10 +52,11 @@ export default function MFAPage() {
                 placeholder="000000"
                 maxLength={6}
                 required
+                data-testid="mfa-code-input"
               />
             </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading}>
+            {error && <p className="text-sm text-destructive" data-testid="mfa-error">{error}</p>}
+            <Button type="submit" className="w-full" disabled={loading} data-testid="mfa-verify-button">
               {t('auth.mfaVerify')}
             </Button>
           </form>

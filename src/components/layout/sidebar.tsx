@@ -10,7 +10,8 @@ import {
   LayoutDashboard, UtensilsCrossed, Users, Table2, Wallet,
   ClipboardList, BarChart3, UserCircle, LogOut, Menu, X,
   Receipt, ChefHat, Package, Building2, CreditCard, Tag,
-  ChevronRight,
+  ChevronRight, Crown, Clock, CalendarDays, FileSpreadsheet,
+  DollarSign, Printer, HardDrive, TrendingUp, Award, Shield, Activity,
 } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -23,21 +24,37 @@ interface NavItem {
 }
 
 const allNavItems: NavItem[] = [
-  { key: 'sidebar.dashboard', href: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'waiter', 'kitchen_staff', 'inventory_manager'] },
-  { key: 'sidebar.menu', href: '/dashboard/admin/menu', icon: <UtensilsCrossed className="h-4 w-4" />, roles: ['admin'] },
-  { key: 'sidebar.categories', href: '/dashboard/admin/categories', icon: <Tag className="h-4 w-4" />, roles: ['admin'] },
-  { key: 'sidebar.employees', href: '/dashboard/admin/employees', icon: <Users className="h-4 w-4" />, roles: ['admin'] },
-  { key: 'sidebar.tables', href: '/dashboard/admin/tables', icon: <Table2 className="h-4 w-4" />, roles: ['admin'] },
-  { key: 'sidebar.payments', href: '/dashboard/admin/payments', icon: <Wallet className="h-4 w-4" />, roles: ['admin'] },
-  { key: 'sidebar.payroll', href: '/dashboard/manager/payroll', icon: <ClipboardList className="h-4 w-4" />, roles: ['admin', 'manager'] },
-  { key: 'sidebar.reports', href: '/dashboard/manager/reports', icon: <BarChart3 className="h-4 w-4" />, roles: ['admin', 'manager'] },
-  { key: 'sidebar.kds', href: '/dashboard/kitchen', icon: <ChefHat className="h-4 w-4" />, roles: ['admin', 'manager', 'kitchen_staff'] },
-  { key: 'sidebar.inventory', href: '/dashboard/inventory', icon: <Package className="h-4 w-4" />, roles: ['admin', 'manager', 'inventory_manager'] },
-  { key: 'sidebar.branches', href: '/dashboard/admin/branches', icon: <Building2 className="h-4 w-4" />, roles: ['admin'] },
-  { key: 'sidebar.subscriptions', href: '/dashboard/admin/subscriptions', icon: <CreditCard className="h-4 w-4" />, roles: ['admin'] },
+  { key: 'sidebar.dashboard', href: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'waiter', 'kitchen_staff', 'inventory_manager', 'owner', 'system_admin'] },
+  { key: 'sidebar.menu', href: '/dashboard/admin/menu', icon: <UtensilsCrossed className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
+  { key: 'sidebar.categories', href: '/dashboard/admin/categories', icon: <Tag className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
+  { key: 'sidebar.employees', href: '/dashboard/admin/employees', icon: <Users className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
+  { key: 'sidebar.tables', href: '/dashboard/admin/tables', icon: <Table2 className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
+  { key: 'sidebar.tableAssignment', href: '/dashboard/tables/assign', icon: <UserCircle className="h-4 w-4" />, roles: ['admin', 'manager', 'system_admin'] },
+  { key: 'sidebar.payments', href: '/dashboard/admin/payments', icon: <Wallet className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
+  { key: 'sidebar.payroll', href: '/dashboard/manager/payroll', icon: <ClipboardList className="h-4 w-4" />, roles: ['admin', 'manager', 'owner', 'system_admin'] },
+  { key: 'sidebar.reports', href: '/dashboard/manager/reports', icon: <BarChart3 className="h-4 w-4" />, roles: ['admin', 'manager', 'owner', 'system_admin'] },
+  { key: 'sidebar.orgReports', href: '/dashboard/org/reports', icon: <Activity className="h-4 w-4" />, roles: ['admin', 'manager', 'owner', 'system_admin'] },
+  { key: 'sidebar.kds', href: '/dashboard/kitchen', icon: <ChefHat className="h-4 w-4" />, roles: ['admin', 'manager', 'kitchen_staff', 'system_admin'] },
+  { key: 'sidebar.inventory', href: '/dashboard/inventory', icon: <Package className="h-4 w-4" />, roles: ['admin', 'manager', 'inventory_manager', 'owner', 'system_admin'] },
+  { key: 'sidebar.crossBranchInventory', href: '/dashboard/inventory/cross-branch', icon: <Building2 className="h-4 w-4" />, roles: ['admin', 'manager', 'inventory_manager', 'owner', 'system_admin'] },
+  { key: 'sidebar.branches', href: '/dashboard/admin/branches', icon: <Building2 className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
+  { key: 'sidebar.subscriptions', href: '/dashboard/admin/subscriptions', icon: <CreditCard className="h-4 w-4" />, roles: ['admin', 'owner', 'system_admin'] },
   { key: 'sidebar.waiter', href: '/dashboard/waiter', icon: <UserCircle className="h-4 w-4" />, roles: ['waiter'] },
   { key: 'sidebar.cashier', href: '/dashboard/cashier', icon: <Receipt className="h-4 w-4" />, roles: ['cashier'] },
-  { key: 'sidebar.auditLogs', href: '/dashboard/admin/audit-logs', icon: <ClipboardList className="h-4 w-4" />, roles: ['admin'] },
+  { key: 'sidebar.auditLogs', href: '/dashboard/admin/audit-logs', icon: <ClipboardList className="h-4 w-4" />, roles: ['admin', 'owner', 'system_admin'] },
+  { key: 'sidebar.owner', href: '/dashboard/owner', icon: <Crown className="h-4 w-4" />, roles: ['owner'] },
+  { key: 'sidebar.attendance', href: '/dashboard/attendance', icon: <Clock className="h-4 w-4" />, roles: ['admin', 'manager', 'owner', 'system_admin'] },
+  { key: 'sidebar.shifts', href: '/dashboard/shifts', icon: <CalendarDays className="h-4 w-4" />, roles: ['admin', 'manager', 'system_admin'] },
+  { key: 'sidebar.eod', href: '/dashboard/eod', icon: <FileSpreadsheet className="h-4 w-4" />, roles: ['admin', 'cashier', 'waiter', 'inventory_manager', 'manager', 'system_admin'] },
+  { key: 'sidebar.tips', href: '/dashboard/tips', icon: <DollarSign className="h-4 w-4" />, roles: ['admin', 'manager', 'waiter', 'system_admin'] },
+  { key: 'sidebar.receipts', href: '/dashboard/receipts', icon: <Printer className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'system_admin'] },
+  { key: 'sidebar.forecasts', href: '/dashboard/forecasts', icon: <TrendingUp className="h-4 w-4" />, roles: ['admin', 'inventory_manager', 'system_admin'] },
+  { key: 'sidebar.reservations', href: '/dashboard/reservations', icon: <CalendarDays className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'waiter', 'system_admin'] },
+  { key: 'sidebar.customers', href: '/dashboard/customers', icon: <Users className="h-4 w-4" />, roles: ['admin', 'manager', 'system_admin'] },
+  { key: 'sidebar.loyalty', href: '/dashboard/loyalty', icon: <Award className="h-4 w-4" />, roles: ['admin', 'manager', 'system_admin'] },
+  { key: 'sidebar.backups', href: '/dashboard/backups', icon: <HardDrive className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
+  { key: 'sidebar.fayda', href: '/dashboard/fayda', icon: <Shield className="h-4 w-4" />, roles: ['admin', 'manager', 'system_admin'] },
+  { key: 'sidebar.paymentVerification', href: '/dashboard/payments/verify', icon: <Shield className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'system_admin'] },
 ]
 
 interface SidebarProps { role: Role }
@@ -66,6 +83,7 @@ export function Sidebar({ role }: SidebarProps) {
 
       {/* Sidebar panel */}
       <aside
+        data-testid="sidebar"
         className={cn(
           'fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border/60 bg-background/80 backdrop-blur-2xl',
           'transition-transform duration-300 ease-out lg:translate-x-0 lg:static lg:z-auto',
@@ -129,6 +147,7 @@ export function Sidebar({ role }: SidebarProps) {
         {/* Logout */}
         <div className="border-t border-border/50 p-3">
           <button
+            data-testid="logout-button"
             onClick={async () => { await logout(); router.push('/login') }}
             className="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
           >

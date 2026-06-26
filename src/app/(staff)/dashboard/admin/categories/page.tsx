@@ -62,7 +62,7 @@ export default function CategoriesPage() {
   const editCategory = categories.find(c => c.id === editId)
 
   return (
-    <div className="space-y-6">
+    <div data-testid="categories-page" className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t('admin.categories')}</h1>
         <Button onClick={() => { setShowForm(true); setEditId(null) }}>

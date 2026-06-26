@@ -32,6 +32,7 @@ export function CategoryFilter({ categories, selectedCategory, onSelect }: Categ
       {categories.map((cat) => (
         <Button
           key={cat.id}
+          data-testid="category"
           variant={selectedCategory === cat.id ? 'default' : 'outline'}
           size="sm"
           className={cn(

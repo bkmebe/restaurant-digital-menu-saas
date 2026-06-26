@@ -37,17 +37,17 @@ export default function ResetPasswordPage() {
           <p className="text-sm text-muted-foreground mt-1">Set a new password</p>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" data-testid="reset-password-form">
             <div className="space-y-2">
               <Label htmlFor="password">New Password</Label>
-              <Input id="password" type="password" required minLength={10} value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 10 characters" />
+              <Input id="password" type="password" required minLength={10} value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 10 characters" data-testid="reset-password-new" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirm">Confirm Password</Label>
-              <Input id="confirm" type="password" required value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Repeat your password" />
+              <Input id="confirm" type="password" required value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Repeat your password" data-testid="reset-password-confirm" />
             </div>
-            {error && <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading}>
+            {error && <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md" data-testid="reset-password-error">{error}</p>}
+            <Button type="submit" className="w-full" disabled={loading} data-testid="reset-password-submit">
               {loading ? 'Updating...' : 'Update password'}
             </Button>
           </form>

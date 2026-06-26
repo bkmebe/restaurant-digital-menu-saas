@@ -67,7 +67,7 @@ export default function AdminEmployeesPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t('admin.employeeManagement')}</h1>
         <Link href="/dashboard/admin/employees/new">
-          <Button><Plus className="h-4 w-4 mr-2" />{t('admin.addEmployee')}</Button>
+          <Button data-testid="add-employee"><Plus className="h-4 w-4 mr-2" />{t('admin.addEmployee')}</Button>
         </Link>
       </div>
 

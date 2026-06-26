@@ -87,8 +87,12 @@ describe('Payroll Integration', () => {
   }
 
   describe('POST /api/payroll', () => {
-    it('should allow manager to create payroll', async () => {
-      setupProfileProfile('manager', TEST_MANAGER_ID)
+    it('should allow admin to create payroll', async () => {
+      setupProfileProfile('admin', TEST_ADMIN_ID)
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: TEST_ADMIN_ID, email: 'admin@test.com' } },
+        error: null,
+      })
 
       const payrollInsert = vi.fn().mockReturnThis()
       const payrollSingle = vi.fn().mockResolvedValue({
@@ -110,7 +114,7 @@ describe('Payroll Integration', () => {
         if (table === 'profiles') {
           const chain = queryChain()
           chain.single.mockResolvedValue({
-            data: { id: TEST_MANAGER_ID, role: 'manager', restaurant_id: TEST_RESTAURANT_A },
+            data: { id: TEST_ADMIN_ID, role: 'admin', restaurant_id: TEST_RESTAURANT_A },
             error: null,
           })
           return chain
@@ -198,7 +202,11 @@ describe('Payroll Integration', () => {
       expect(response.status).toBe(403)
     })
 
-    it('should calculate net pay correctly', async () => {
+    it('should calculate net pay for admin', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: TEST_ADMIN_ID, email: 'admin@test.com' } },
+        error: null,
+      })
       let capturedBody: Record<string, unknown> = {}
       const payrollInsert = vi.fn().mockImplementation((body: Record<string, unknown>) => {
         capturedBody = body
@@ -209,7 +217,7 @@ describe('Payroll Integration', () => {
         if (table === 'profiles') {
           const chain = queryChain()
           chain.single.mockResolvedValue({
-            data: { id: TEST_MANAGER_ID, role: 'manager', restaurant_id: TEST_RESTAURANT_A },
+            data: { id: TEST_ADMIN_ID, role: 'admin', restaurant_id: TEST_RESTAURANT_A },
             error: null,
           })
           return chain
@@ -234,7 +242,11 @@ describe('Payroll Integration', () => {
       expect(capturedBody.net_pay).toBe(10500)
     })
 
-    it('should handle zero bonuses and deductions', async () => {
+    it('should handle zero bonuses and deductions for admin', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: TEST_ADMIN_ID, email: 'admin@test.com' } },
+        error: null,
+      })
       let capturedBody: Record<string, unknown> = {}
       const payrollInsert = vi.fn().mockImplementation((body: Record<string, unknown>) => {
         capturedBody = body
@@ -245,7 +257,7 @@ describe('Payroll Integration', () => {
         if (table === 'profiles') {
           const chain = queryChain()
           chain.single.mockResolvedValue({
-            data: { id: TEST_MANAGER_ID, role: 'manager', restaurant_id: TEST_RESTAURANT_A },
+            data: { id: TEST_ADMIN_ID, role: 'admin', restaurant_id: TEST_RESTAURANT_A },
             error: null,
           })
           return chain

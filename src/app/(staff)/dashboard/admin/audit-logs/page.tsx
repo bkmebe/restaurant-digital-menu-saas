@@ -36,7 +36,7 @@ export default function AuditLogsPage() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div data-testid="audit-logs-page" className="space-y-6">
       <h1 className="text-2xl font-bold">{t('audit.title')}</h1>
       <DataTable columns={columns} data={logs as unknown as Record<string, unknown>[]} loading={loading} />
     </div>

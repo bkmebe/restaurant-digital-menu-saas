@@ -17,7 +17,7 @@ export interface Profile {
   id: string
   restaurant_id: string
   organization_id: string | null
-  role: 'admin' | 'manager' | 'cashier' | 'waiter'
+  role: 'system_admin' | 'owner' | 'admin' | 'manager' | 'cashier' | 'waiter' | 'kitchen_staff' | 'inventory_manager'
   phone: string
   full_name: string
   avatar_url: string | null
@@ -76,7 +76,7 @@ export interface Employee {
   full_name: string
   phone: string
   email: string
-  role: 'waiter' | 'cashier' | 'manager'
+  role: 'system_admin' | 'owner' | 'admin' | 'manager' | 'cashier' | 'waiter' | 'kitchen_staff' | 'inventory_manager'
   national_id: string | null
   national_id_verified: boolean
   digital_employee_id: string

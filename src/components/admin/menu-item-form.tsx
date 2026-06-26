@@ -34,7 +34,7 @@ export function MenuItemForm({ categories, onSubmit, defaultValues, loading }: M
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="name">Name (English)</Label>
-          <Input id="name" {...register('name')} />
+          <Input id="name" data-testid="menu-item-name-input" {...register('name')} />
           {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
         </div>
         <div className="space-y-2">
@@ -67,7 +67,7 @@ export function MenuItemForm({ categories, onSubmit, defaultValues, loading }: M
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="price">Price (ETB)</Label>
-          <Input id="price" type="number" step="0.01" {...register('price', { valueAsNumber: true })} />
+          <Input id="price" type="number" step="0.01" data-testid="menu-item-price-input" {...register('price', { valueAsNumber: true })} />
           {errors.price && <p className="text-xs text-destructive">{errors.price.message}</p>}
         </div>
         <div className="space-y-2">
@@ -107,7 +107,7 @@ export function MenuItemForm({ categories, onSubmit, defaultValues, loading }: M
         />
       </div>
 
-      <Button type="submit" disabled={loading}>
+      <Button type="submit" data-testid="menu-item-submit" disabled={loading}>
         {loading ? 'Saving...' : 'Save Item'}
       </Button>
     </form>

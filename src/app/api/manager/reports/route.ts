@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireAuth, requireRole } from '@/lib/utils/auth-guard'
+import { requireTenant, requireRole } from '@/lib/utils/tenant'
 
 export async function GET() {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(auth, 'manager')
+  const roleError = requireRole(tenant, 'manager')
   if (roleError) return roleError
 
   const supabase = await createServerSupabaseClient()
-  const restaurantId = auth.profile.restaurant_id
+  const restaurantId = tenant.restaurantId
 
   const [dailySales, menuPerformance, staffPerformance, tableUtilization] = await Promise.all([
     supabase.from('mv_daily_sales').select('*').eq('restaurant_id', restaurantId).order('date', { ascending: false }).limit(30),

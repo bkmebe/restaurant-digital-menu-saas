@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireAuth } from '@/lib/utils/auth-guard'
+import { requireTenant } from '@/lib/utils/tenant'
 
 export async function POST(request: Request) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
   try {
     const { tables } = await request.json()
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     }
 
     const supabase = await createServerSupabaseClient()
-    const restaurantId = auth.profile.restaurant_id
+    const restaurantId = tenant.restaurantId
 
     const tableRows = tables.map((t: { tableNumber: number; capacity: number }) => ({
       restaurant_id: restaurantId,
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
     if (error) {
       return NextResponse.json(
-        { error: { code: 'DB_ERROR', message: error.message } },
+        { error: { code: 'DB_ERROR', message: 'Database error occurred' } },
         { status: 500 }
       )
     }
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     await supabase
       .from('organizations')
       .update({ onboarding_step: 4 })
-      .eq('id', auth.profile.organization_id)
+      .eq('id', tenant.organizationId)
 
     return NextResponse.json({ data })
   } catch {

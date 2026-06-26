@@ -3,8 +3,9 @@ export interface EmployeeFormData {
   phone: string
   email: string
   password?: string
-  role: 'waiter' | 'cashier' | 'manager' | 'kitchen_staff' | 'inventory_manager'
+  role: 'waiter' | 'cashier' | 'manager' | 'kitchen_staff' | 'inventory_manager' | 'owner' | 'admin'
   national_id: string
+  fayda_number?: string
   salary: number
   hire_date: string
 }

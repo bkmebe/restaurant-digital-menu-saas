@@ -134,7 +134,7 @@ describe('Validators', () => {
       const result = employeeSchema.safeParse({
         full_name: 'Abebe Kebede',
         phone: '+251911234567',
-        email: 'abebe@restaurant.com',
+        email: 'abebe@example.com',
         role: 'waiter',
         national_id: 'AB123456',
         salary: 5000,

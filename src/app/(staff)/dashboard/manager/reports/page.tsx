@@ -110,13 +110,13 @@ export default function ReportsPage() {
   const chartData = [...dailySales].reverse()
 
   return (
-    <div className="space-y-8">
+    <div data-testid="reports-page" className="space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <BarChart3 className="h-6 w-6" />
           {t('reports.title')}
         </h1>
-        <Button variant="outline" size="sm" onClick={refreshData} disabled={refreshing} className="gap-2">
+        <Button data-testid="refresh-reports" variant="outline" size="sm" onClick={refreshData} disabled={refreshing} className="gap-2">
           <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
           {refreshing ? t('reports.refreshing') : t('reports.refresh')}
         </Button>

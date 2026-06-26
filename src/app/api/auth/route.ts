@@ -7,12 +7,19 @@ export async function POST(request: Request) {
   if (rateLimitError) return rateLimitError
 
   const supabase = await createServerSupabaseClient()
-  const { email, password } = await request.json()
+  let email: string, password: string
+  try {
+    const body = await request.json()
+    email = body.email
+    password = body.password
+  } catch {
+    return NextResponse.json({ error: { code: 'VALIDATION', message: 'Invalid JSON body' } }, { status: 400 })
+  }
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
-    return NextResponse.json({ error: { code: 'AUTH_ERROR', message: error.message } }, { status: 401 })
+    return NextResponse.json({ error: { code: 'AUTH_ERROR', message: 'Authentication failed' } }, { status: 401 })
   }
 
   return NextResponse.json({ data: { user: data.user, session: data.session } })

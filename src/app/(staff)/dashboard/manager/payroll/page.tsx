@@ -88,7 +88,7 @@ export default function PayrollPage() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div data-testid="payroll-page" className="space-y-6">
       <h1 className="text-2xl font-bold">{t('admin.payrollManagement')}</h1>
 
       <div className="flex items-center gap-4 flex-wrap">

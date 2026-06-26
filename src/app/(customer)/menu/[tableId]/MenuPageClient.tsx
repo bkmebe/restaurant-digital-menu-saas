@@ -102,7 +102,7 @@ export default function MenuPageClient({ table }: { table: TableData }) {
       <div className="max-w-4xl mx-auto p-4 space-y-6 animate-fade-in">
         <header className="flex items-center justify-between pt-2">
           <div className="space-y-0.5">
-            <h1 className="text-2xl font-bold tracking-tight">{restaurantName || APP_NAME}</h1>
+            <h1 className="text-2xl font-bold tracking-tight" data-testid="menu-page-title">{restaurantName || APP_NAME}</h1>
             <p className="text-sm text-muted-foreground">{t('table.number', { number: tableId.slice(0, 8).toUpperCase() })}</p>
           </div>
         </header>

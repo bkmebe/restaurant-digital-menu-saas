@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
     if (authError) {
       return NextResponse.json(
-        { error: { code: 'AUTH_ERROR', message: authError.message } },
+        { error: { code: 'AUTH_ERROR', message: 'Authentication failed' } },
         { status: 400 }
       )
     }
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     if (setupError) {
       await adminClient.auth.admin.deleteUser(authData.user.id)
       return NextResponse.json(
-        { error: { code: 'SETUP_ERROR', message: setupError.message } },
+        { error: { code: 'SETUP_ERROR', message: 'Failed to set up account' } },
         { status: 500 }
       )
     }
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
       },
     })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Registration failed'
+    const message = 'Registration failed'
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message } },
       { status: 500 }

@@ -13,15 +13,21 @@ export async function POST(request: Request) {
 
   const supabase = await createServerSupabaseClient()
 
+  let event: any
+  try {
+    event = JSON.parse(body)
+  } catch {
+    return NextResponse.json({ error: { code: 'VALIDATION', message: 'Invalid JSON body' } }, { status: 400 })
+  }
+
   // Log webhook event after verification
   await supabase.from('payment_webhook_events').insert({
     provider: 'chapa',
-    raw_body: JSON.parse(body),
+    raw_body: event,
     headers: Object.fromEntries(request.headers),
     signature,
   })
 
-  const event = JSON.parse(body)
   const txRef = event.tx_ref
 
   if (event.event === 'charge.completed' || event.event === 'charge.success') {

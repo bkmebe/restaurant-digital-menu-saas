@@ -47,8 +47,9 @@ export const employeeSchema = z.object({
   phone: z.string().regex(/^\+251\d{9}$/, 'Invalid Ethiopian phone number'),
   email: z.string().email('Invalid email'),
   password: z.string().min(6, 'Password must be at least 6 characters').optional().or(z.literal('')),
-  role: z.enum(['waiter', 'cashier', 'manager', 'kitchen_staff', 'inventory_manager']),
+  role: z.enum(['waiter', 'cashier', 'manager', 'kitchen_staff', 'inventory_manager', 'owner', 'admin']),
   national_id: z.string(),
+  fayda_number: z.string().optional(),
   salary: z.number().positive('Salary must be positive'),
   hire_date: z.string().min(1, 'Hire date is required'),
 })

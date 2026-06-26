@@ -51,7 +51,7 @@ export function AddToCartButton({ item }: AddToCartButtonProps) {
 
   return (
     <div className="space-y-2">
-      <Button className="w-full gap-2" onClick={() => setShowForm(!showForm)}>
+      <Button data-testid="add-to-cart" className="w-full gap-2" onClick={() => setShowForm(!showForm)}>
         <ShoppingCart className="h-4 w-4" />
         {t('menu.addToOrder')}
       </Button>

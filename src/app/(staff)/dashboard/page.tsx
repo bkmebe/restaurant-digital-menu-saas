@@ -19,6 +19,8 @@ export default function DashboardRedirect() {
         waiter: '/dashboard/waiter',
         kitchen_staff: '/dashboard/kitchen',
         inventory_manager: '/dashboard/inventory',
+        owner: '/dashboard/owner',
+        system_admin: '/dashboard/admin',
       }
       router.push(paths[role] || '/dashboard/waiter')
     } else {

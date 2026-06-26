@@ -78,7 +78,7 @@ export default function AdminTablesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t('admin.tableManagement')}</h1>
-        <Button onClick={() => setShowForm(true)}><Plus className="h-4 w-4 mr-2" />{t('admin.addTable')}</Button>
+        <Button data-testid="add-table" onClick={() => setShowForm(true)}><Plus className="h-4 w-4 mr-2" />{t('admin.addTable')}</Button>
       </div>
 
       {showForm && (

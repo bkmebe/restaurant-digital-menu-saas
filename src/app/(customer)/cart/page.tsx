@@ -77,7 +77,7 @@ function CartPageContent() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-sm text-center">
-          <CardContent className="p-8 space-y-4">
+          <CardContent data-testid="order-confirmed" className="p-8 space-y-4">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
               <ShoppingBag className="h-8 w-8 text-green-600" />
             </div>
@@ -175,7 +175,7 @@ function CartPageContent() {
 
             {error && <p className="text-sm text-destructive">{error}</p>}
 
-            <Button className="w-full" size="lg" onClick={handleSubmit} disabled={submitting}>
+            <Button data-testid="place-order" className="w-full" size="lg" onClick={handleSubmit} disabled={submitting}>
               {submitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('cart.placingOrder')}</> : t('cart.placeOrderButton', { amount: formatCurrency(subtotal) })}
             </Button>
           </>

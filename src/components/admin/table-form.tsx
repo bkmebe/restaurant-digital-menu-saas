@@ -29,12 +29,12 @@ export function TableForm({ waiters = [], onSubmit, defaultValues, loading, erro
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="table_number">Table Number</Label>
-          <Input id="table_number" type="number" {...register('table_number', { valueAsNumber: true })} />
+          <Input id="table_number" type="number" data-testid="table-number-input" {...register('table_number', { valueAsNumber: true })} />
           {errors.table_number && <p className="text-xs text-destructive">{errors.table_number.message}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="capacity">Capacity</Label>
-          <Input id="capacity" type="number" {...register('capacity', { valueAsNumber: true })} />
+          <Input id="capacity" type="number" data-testid="table-capacity-input" {...register('capacity', { valueAsNumber: true })} />
           {errors.capacity && <p className="text-xs text-destructive">{errors.capacity.message}</p>}
         </div>
         <div className="space-y-2">
@@ -48,7 +48,7 @@ export function TableForm({ waiters = [], onSubmit, defaultValues, loading, erro
         </div>
       </div>
       {error && <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</p>}
-      <Button type="submit" disabled={loading}>
+      <Button type="submit" data-testid="table-submit" disabled={loading}>
         {loading ? 'Saving...' : 'Save Table'}
       </Button>
     </form>

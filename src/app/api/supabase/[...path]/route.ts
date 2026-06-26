@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
+import { requireTenant } from '@/lib/utils/tenant'
 
 const SUPABASE_URL = 'https://siuwuqitzuejlpvsujdy.supabase.co'
 
 async function handleRequest(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
+
   const { path } = await params
   const pathname = path.join('/')
   const url = new URL(pathname, SUPABASE_URL)

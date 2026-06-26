@@ -32,13 +32,13 @@ export default function ForgotPasswordPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted p-4">
         <Card className="w-full max-w-sm">
-          <CardContent className="pt-6 text-center space-y-4">
+          <CardContent className="pt-6 text-center space-y-4" data-testid="forgot-password-sent">
             <h2 className="text-xl font-semibold">Check your email</h2>
             <p className="text-muted-foreground">
               We sent a password reset link to <strong>{email}</strong>
             </p>
             <p className="text-sm text-muted-foreground">
-              <Link href="/login" className="text-primary hover:underline">Back to login</Link>
+              <Link href="/login" className="text-primary hover:underline" data-testid="forgot-password-back-link">Back to login</Link>
             </p>
           </CardContent>
         </Card>
@@ -54,19 +54,19 @@ export default function ForgotPasswordPage() {
           <p className="text-sm text-muted-foreground mt-1">Reset your password</p>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" data-testid="forgot-password-form">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
+              <Input id="email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" data-testid="forgot-password-email" />
             </div>
-            {error && <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading}>
+            {error && <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md" data-testid="forgot-password-error">{error}</p>}
+            <Button type="submit" className="w-full" disabled={loading} data-testid="forgot-password-submit">
               {loading ? 'Sending...' : 'Send reset link'}
             </Button>
           </form>
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Remember your password?{' '}
-            <Link href="/login" className="font-medium text-primary hover:underline">Sign in</Link>
+            <Link href="/login" className="font-medium text-primary hover:underline" data-testid="forgot-password-signin-link">Sign in</Link>
           </p>
         </CardContent>
       </Card>

@@ -21,7 +21,7 @@ export function ServiceRequestCard({ request, onAcknowledge, onResolve }: Servic
   const typeIcon = request.type === 'waiter' ? <Bell className="h-4 w-4" /> : <Clock className="h-4 w-4" />
 
   return (
-    <Card className={`border-l-4 ${request.status === 'pending' ? 'border-l-red-500' : request.status === 'acknowledged' ? 'border-l-yellow-500' : 'border-l-green-500'}`}>
+    <Card data-testid="service-request-card" className={`border-l-4 ${request.status === 'pending' ? 'border-l-red-500' : request.status === 'acknowledged' ? 'border-l-yellow-500' : 'border-l-green-500'}`}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
@@ -46,7 +46,7 @@ export function ServiceRequestCard({ request, onAcknowledge, onResolve }: Servic
           </div>
           <div className="flex gap-2 shrink-0">
             {request.status === 'pending' && onAcknowledge && (
-              <Button size="sm" variant="outline" onClick={() => onAcknowledge(request.id)}>
+              <Button size="sm" variant="outline" data-testid="acknowledge-request" onClick={() => onAcknowledge(request.id)}>
                 <CheckCheck className="h-3 w-3 mr-1" />
                 {t('waiter.acknowledge')}
               </Button>

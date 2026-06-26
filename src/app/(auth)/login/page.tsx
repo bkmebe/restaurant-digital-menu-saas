@@ -41,7 +41,7 @@ export default function LoginPage() {
           <CardTitle>{APP_NAME}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" data-testid="login-form">
             <div className="space-y-2">
               <Label htmlFor="email">{t('auth.email')}</Label>
               <Input
@@ -50,12 +50,13 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                data-testid="login-email"
               />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">{t('auth.password')}</Label>
-                <Link href="/forgot-password" className="text-xs text-muted-foreground hover:text-primary">
+                <Link href="/forgot-password" className="text-xs text-muted-foreground hover:text-primary" data-testid="login-forgot-password">
                   {t('auth.forgotPassword')}
                 </Link>
               </div>
@@ -65,16 +66,17 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                data-testid="login-password"
               />
             </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading}>
+            {error && <p className="text-sm text-destructive" data-testid="login-error">{error}</p>}
+            <Button type="submit" className="w-full" disabled={loading} data-testid="login-button">
               {loading ? t('auth.loggingIn') : t('auth.loginButton')}
             </Button>
           </form>
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {t('auth.dontHaveAccount')}{' '}
-            <Link href="/register" className="font-medium text-primary hover:underline">
+            <Link href="/register" className="font-medium text-primary hover:underline" data-testid="login-register-link">
               {t('auth.createRestaurant')}
             </Link>
           </p>

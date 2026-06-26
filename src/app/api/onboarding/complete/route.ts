@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireAuth } from '@/lib/utils/auth-guard'
+import { requireTenant } from '@/lib/utils/tenant'
 
 export async function POST(request: Request) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
   try {
     const { planId } = await request.json()
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
 
     if (planId) {
       await supabase.from('subscriptions').insert({
-        organization_id: auth.profile.organization_id,
+        organization_id: tenant.organizationId,
         plan_id: planId,
         status: 'active',
         billing_cycle: 'monthly',
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
         onboarding_step: 6,
         setup_completed: true,
       })
-      .eq('id', auth.profile.organization_id)
+      .eq('id', tenant.organizationId)
 
     return NextResponse.json({ data: { completed: true } })
   } catch {

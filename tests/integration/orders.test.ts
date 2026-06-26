@@ -14,6 +14,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }))
 
 function queryChain(returnData: unknown = null) {
+  const resolveValue = { data: returnData, error: null }
   return {
     select: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
@@ -26,9 +27,10 @@ function queryChain(returnData: unknown = null) {
     lte: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis(),
-    single: vi.fn().mockResolvedValue({ data: returnData, error: null }),
-    maybeSingle: vi.fn().mockResolvedValue({ data: returnData, error: null }),
+    single: vi.fn().mockResolvedValue(resolveValue),
+    maybeSingle: vi.fn().mockResolvedValue(resolveValue),
     csv: vi.fn().mockResolvedValue({ data: '', error: null }),
+    then: vi.fn().mockImplementation((resolve: any) => resolve(resolveValue)),
   }
 }
 
@@ -71,8 +73,10 @@ describe('Orders Integration', () => {
           return chain
         }
         if (table === 'menu_items') {
-          const chain = queryChain({ price: 250 })
-          chain.single.mockResolvedValue({ data: { price: 250 }, error: null })
+          const chain = queryChain()
+          chain.in = vi.fn().mockReturnValue({
+            then: (resolve: any) => resolve({ data: [{ id: 'item-1', price: 250 }], error: null })
+          })
           return chain
         }
         if (table === 'orders') {
@@ -131,8 +135,6 @@ describe('Orders Integration', () => {
     })
 
     it('should calculate total correctly from item prices', async () => {
-      let menuCallCount = 0
-
       const updateEq = vi.fn().mockResolvedValue({ error: null })
       const orderUpdate = vi.fn().mockReturnValue({ eq: updateEq })
 
@@ -144,10 +146,16 @@ describe('Orders Integration', () => {
           return chain
         }
         if (table === 'menu_items') {
-          menuCallCount++
-          const price = menuCallCount === 1 ? 250 : 150
           const chain = queryChain()
-          chain.single.mockResolvedValue({ data: { price }, error: null })
+          chain.in = vi.fn().mockReturnValue({
+            then: (resolve: any) => resolve({
+              data: [
+                { id: 'item-1', price: 250 },
+                { id: 'item-2', price: 150 },
+              ],
+              error: null,
+            }),
+          })
           return chain
         }
         if (table === 'orders') {

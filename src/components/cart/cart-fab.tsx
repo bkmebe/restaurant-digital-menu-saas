@@ -19,13 +19,14 @@ export function CartFAB({ onClick }: CartFABProps) {
 
   return (
     <Button
+      data-testid="cart-button"
       className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 shadow-lg gap-3 h-12 px-6 rounded-full"
       size="lg"
       onClick={onClick}
     >
       <ShoppingCart className="h-5 w-5" />
       <span className="font-semibold">{t('cart.viewCart', { count: itemCount })}</span>
-      <Badge variant="secondary" className="ml-1">{formatCurrency(subtotal)}</Badge>
+      <Badge data-testid="cart-badge" variant="secondary" className="ml-1">{formatCurrency(subtotal)}</Badge>
     </Button>
   )
 }

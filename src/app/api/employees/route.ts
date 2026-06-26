@@ -1,43 +1,43 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { createAdminSupabaseClient } from '@/lib/supabase/admin'
-import { requireAuth, requireRole } from '@/lib/utils/auth-guard'
+import { requireTenant, requireRole } from '@/lib/utils/tenant'
 
 export async function GET() {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(auth, 'manager')
+  const roleError = requireRole(tenant, 'manager')
   if (roleError) return roleError
 
   const supabase = await createServerSupabaseClient()
   const { data, error } = await supabase
     .from('employees')
     .select('*')
-    .eq('restaurant_id', auth.profile.restaurant_id)
+    .eq('restaurant_id', tenant.restaurantId)
     .order('full_name')
 
   if (error) {
-    return NextResponse.json({ error: { code: 'DB_ERROR', message: error.message } }, { status: 500 })
+    return NextResponse.json({ error: { code: 'DB_ERROR', message: 'Database error occurred' } }, { status: 500 })
   }
   return NextResponse.json({ data })
 }
 
 export async function POST(request: Request) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(auth, 'admin')
+  const roleError = requireRole(tenant, 'admin')
   if (roleError) return roleError
 
   const body = await request.json()
-  const { email, password, full_name, phone, role, national_id, salary, hire_date } = body
+  const { email, password, full_name, phone, role, national_id, fayda_number, salary, hire_date } = body
 
   const supabase = await createServerSupabaseClient()
   const adminClient = createAdminSupabaseClient()
 
-  const restaurantId = auth.profile.restaurant_id
-  const organizationId = auth.profile.organization_id
+  const restaurantId = tenant.restaurantId
+  const organizationId = tenant.organizationId
   const restaurantCode = restaurantId?.slice(0, 4).toUpperCase() || 'XXXX'
   const digitalEmployeeId = `RMD-${restaurantCode}-${new Date().getFullYear()}-${Date.now().toString(36).toUpperCase()}`
 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
   })
 
   if (createError) {
-    return NextResponse.json({ error: { code: 'AUTH_CREATE_ERROR', message: createError.message } }, { status: 400 })
+    return NextResponse.json({ error: { code: 'AUTH_CREATE_ERROR', message: 'Failed to create user' } }, { status: 400 })
   }
 
   const userId = authUser.user.id
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
   if (profileError) {
     // Rollback: delete the auth user
     await adminClient.auth.admin.deleteUser(userId)
-    return NextResponse.json({ error: { code: 'PROFILE_ERROR', message: profileError.message } }, { status: 400 })
+    return NextResponse.json({ error: { code: 'PROFILE_ERROR', message: 'Profile operation failed' } }, { status: 400 })
   }
 
   // Create employee record
@@ -79,6 +79,7 @@ export async function POST(request: Request) {
     email,
     role,
     national_id,
+    fayda_number: fayda_number || null,
     salary,
     hire_date,
     digital_employee_id: digitalEmployeeId,
@@ -86,17 +87,17 @@ export async function POST(request: Request) {
 
   if (empError) {
     await adminClient.auth.admin.deleteUser(userId)
-    return NextResponse.json({ error: { code: 'EMPLOYEE_ERROR', message: empError.message } }, { status: 400 })
+    return NextResponse.json({ error: { code: 'EMPLOYEE_ERROR', message: 'Employee operation failed' } }, { status: 400 })
   }
 
   return NextResponse.json({ data: employee, message: 'Employee created with login account' }, { status: 201 })
 }
 
 export async function PUT(request: Request) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(auth, 'admin')
+  const roleError = requireRole(tenant, 'admin')
   if (roleError) return roleError
 
   const { searchParams } = new URL(request.url)
@@ -121,20 +122,21 @@ export async function PUT(request: Request) {
     .from('employees')
     .update(updateData)
     .eq('id', id)
+    .eq('restaurant_id', tenant.restaurantId)
     .select()
     .single()
 
   if (error) {
-    return NextResponse.json({ error: { code: 'UPDATE_ERROR', message: error.message } }, { status: 400 })
+    return NextResponse.json({ error: { code: 'UPDATE_ERROR', message: 'Failed to update record' } }, { status: 400 })
   }
   return NextResponse.json({ data, message: 'Employee updated' })
 }
 
 export async function DELETE(request: Request) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(auth, 'admin')
+  const roleError = requireRole(tenant, 'admin')
   if (roleError) return roleError
 
   const { searchParams } = new URL(request.url)
@@ -152,10 +154,10 @@ export async function DELETE(request: Request) {
   }
 
   const supabase = await createServerSupabaseClient()
-  const { error } = await supabase.from('employees').delete().eq('id', id)
+  const { error } = await supabase.from('employees').delete().eq('id', id).eq('restaurant_id', tenant.restaurantId)
 
   if (error) {
-    return NextResponse.json({ error: { code: 'DELETE_ERROR', message: error.message } }, { status: 400 })
+    return NextResponse.json({ error: { code: 'DELETE_ERROR', message: 'Failed to delete record' } }, { status: 400 })
   }
   return NextResponse.json({ message: 'Employee deleted' })
 }

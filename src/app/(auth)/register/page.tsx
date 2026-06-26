@@ -80,7 +80,7 @@ export default function RegisterPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" data-testid="register-form">
             <div className="space-y-2">
               <Label htmlFor="restaurantName">Restaurant Name</Label>
               <Input
@@ -89,6 +89,7 @@ export default function RegisterPage() {
                 onChange={handleChange('restaurantName')}
                 placeholder="e.g. Buna Cafe"
                 required
+                data-testid="register-restaurant-name"
               />
             </div>
 
@@ -100,6 +101,7 @@ export default function RegisterPage() {
                 onChange={handleChange('fullName')}
                 placeholder="e.g. Abebe Kebede"
                 required
+                data-testid="register-full-name"
               />
             </div>
 
@@ -112,6 +114,7 @@ export default function RegisterPage() {
                 onChange={handleChange('email')}
                 placeholder="you@example.com"
                 required
+                data-testid="register-email"
               />
             </div>
 
@@ -123,6 +126,7 @@ export default function RegisterPage() {
                 value={formData.phone}
                 onChange={handleChange('phone')}
                 placeholder="+251 9XX XXX XXX"
+                data-testid="register-phone"
               />
             </div>
 
@@ -136,15 +140,16 @@ export default function RegisterPage() {
                 placeholder="Min. 10 chars, upper+lower+number+special"
                 minLength={10}
                 required
+                data-testid="register-password"
               />
               <p className="text-xs text-muted-foreground">At least 10 characters with uppercase, lowercase, number, and special character</p>
             </div>
 
             {error && (
-              <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</p>
+              <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md" data-testid="register-error">{error}</p>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading} size="lg">
+            <Button type="submit" className="w-full" disabled={loading} size="lg" data-testid="register-submit">
               {loading ? (
                 <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Creating your restaurant...</>
               ) : (
@@ -155,7 +160,7 @@ export default function RegisterPage() {
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link href="/login" className="font-medium text-primary hover:underline">
+            <Link href="/login" className="font-medium text-primary hover:underline" data-testid="register-signin-link">
               Sign in
             </Link>
           </p>

@@ -1,33 +1,33 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireAuth, requireRole } from '@/lib/utils/auth-guard'
+import { requireTenant, requireRole } from '@/lib/utils/tenant'
 
 export async function GET() {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(auth, 'manager')
+  const roleError = requireRole(tenant, 'manager')
   if (roleError) return roleError
 
   const supabase = await createServerSupabaseClient()
   const { data, error } = await supabase
     .from('payrolls')
     .select('*')
-    .eq('restaurant_id', auth.profile.restaurant_id)
+    .eq('restaurant_id', tenant.restaurantId)
     .order('year', { ascending: false })
     .order('month', { ascending: false })
 
   if (error) {
-    return NextResponse.json({ error: { code: 'DB_ERROR', message: error.message } }, { status: 500 })
+    return NextResponse.json({ error: { code: 'DB_ERROR', message: 'Database error occurred' } }, { status: 500 })
   }
   return NextResponse.json({ data })
 }
 
 export async function POST(request: Request) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(auth, 'admin')
+  const roleError = requireRole(tenant, 'admin')
   if (roleError) return roleError
 
   const supabase = await createServerSupabaseClient()
@@ -47,15 +47,15 @@ export async function POST(request: Request) {
     net_pay: netPay,
   }).select().single()
 
-  if (error) return NextResponse.json({ error: { code: 'CREATE_ERROR', message: error.message } }, { status: 400 })
+  if (error) return NextResponse.json({ error: { code: 'CREATE_ERROR', message: 'Failed to create record' } }, { status: 400 })
   return NextResponse.json({ data, message: 'Payroll entry created' }, { status: 201 })
 }
 
 export async function PUT(request: Request) {
-  const auth = await requireAuth()
-  if (auth instanceof NextResponse) return auth
+  const tenant = await requireTenant()
+  if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(auth, 'admin')
+  const roleError = requireRole(tenant, 'admin')
   if (roleError) return roleError
 
   const { searchParams } = new URL(request.url)
@@ -91,11 +91,12 @@ export async function PUT(request: Request) {
       ...(salary !== undefined || bonuses !== undefined || deductions !== undefined ? { net_pay: netPay } : {}),
     })
     .eq('id', id)
+    .eq('restaurant_id', tenant.restaurantId)
     .select()
     .single()
 
   if (error) {
-    return NextResponse.json({ error: { code: 'UPDATE_ERROR', message: error.message } }, { status: 400 })
+    return NextResponse.json({ error: { code: 'UPDATE_ERROR', message: 'Failed to update record' } }, { status: 400 })
   }
   return NextResponse.json({ data, message: 'Payroll entry updated' })
 }

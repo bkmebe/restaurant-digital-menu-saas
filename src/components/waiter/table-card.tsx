@@ -17,6 +17,7 @@ export function TableCard({ table, onClick }: TableCardProps) {
 
   return (
     <Card
+      data-testid="table-card"
       className="cursor-pointer hover:shadow-md transition-shadow"
       onClick={() => onClick?.(table)}
     >
