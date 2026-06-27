@@ -13,14 +13,14 @@ export default function DashboardRedirect() {
     if (loading) return
     if (role) {
       const paths: Record<string, string> = {
+        system_admin: '/dashboard/system-admin',
+        owner: '/dashboard/owner',
         admin: '/dashboard/admin',
+        inventory_manager: '/dashboard/head-manager',
         manager: '/dashboard/manager',
         cashier: '/dashboard/cashier',
         waiter: '/dashboard/waiter',
         kitchen_staff: '/dashboard/kitchen',
-        inventory_manager: '/dashboard/inventory',
-        owner: '/dashboard/owner',
-        system_admin: '/dashboard/admin',
       }
       router.push(paths[role] || '/dashboard/waiter')
     } else {

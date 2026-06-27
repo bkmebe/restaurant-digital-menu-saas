@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireTenant, requireRole } from '@/lib/utils/tenant'
+import { requireTenant, requireRole, requireMutate } from '@/lib/utils/tenant'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const tenant = await requireTenant()
@@ -36,6 +36,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
   const roleError = requireRole(tenant, 'waiter')
   if (roleError) return roleError
+
+  const mutateError = requireMutate(tenant)
+  if (mutateError) return mutateError
 
   const supabase = await createServerSupabaseClient()
   const restaurantId = tenant.restaurantId
@@ -75,6 +78,9 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
   const roleError = requireRole(tenant, 'admin')
   if (roleError) return roleError
+
+  const mutateError = requireMutate(tenant)
+  if (mutateError) return mutateError
 
   const supabase = await createServerSupabaseClient()
   const restaurantId = tenant.restaurantId

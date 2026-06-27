@@ -12,6 +12,7 @@ import {
   Receipt, ChefHat, Package, Building2, CreditCard, Tag,
   ChevronRight, Crown, Clock, CalendarDays, FileSpreadsheet,
   DollarSign, Printer, HardDrive, TrendingUp, Award, Shield, Activity,
+  Settings, Wrench, Server, Download, ShoppingCart, Truck,
 } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -20,42 +21,114 @@ interface NavItem {
   key: string
   href: string
   icon: React.ReactNode
-  roles: Role[]
 }
 
-const allNavItems: NavItem[] = [
-  { key: 'sidebar.dashboard', href: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'waiter', 'kitchen_staff', 'inventory_manager', 'owner', 'system_admin'] },
-  { key: 'sidebar.menu', href: '/dashboard/admin/menu', icon: <UtensilsCrossed className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
-  { key: 'sidebar.categories', href: '/dashboard/admin/categories', icon: <Tag className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
-  { key: 'sidebar.employees', href: '/dashboard/admin/employees', icon: <Users className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
-  { key: 'sidebar.tables', href: '/dashboard/admin/tables', icon: <Table2 className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
-  { key: 'sidebar.tableAssignment', href: '/dashboard/tables/assign', icon: <UserCircle className="h-4 w-4" />, roles: ['admin', 'manager', 'system_admin'] },
-  { key: 'sidebar.payments', href: '/dashboard/admin/payments', icon: <Wallet className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
-  { key: 'sidebar.payroll', href: '/dashboard/manager/payroll', icon: <ClipboardList className="h-4 w-4" />, roles: ['admin', 'manager', 'owner', 'system_admin'] },
-  { key: 'sidebar.reports', href: '/dashboard/manager/reports', icon: <BarChart3 className="h-4 w-4" />, roles: ['admin', 'manager', 'owner', 'system_admin'] },
-  { key: 'sidebar.orgReports', href: '/dashboard/org/reports', icon: <Activity className="h-4 w-4" />, roles: ['admin', 'manager', 'owner', 'system_admin'] },
-  { key: 'sidebar.kds', href: '/dashboard/kitchen', icon: <ChefHat className="h-4 w-4" />, roles: ['admin', 'manager', 'kitchen_staff', 'system_admin'] },
-  { key: 'sidebar.inventory', href: '/dashboard/inventory', icon: <Package className="h-4 w-4" />, roles: ['admin', 'manager', 'inventory_manager', 'owner', 'system_admin'] },
-  { key: 'sidebar.crossBranchInventory', href: '/dashboard/inventory/cross-branch', icon: <Building2 className="h-4 w-4" />, roles: ['admin', 'manager', 'inventory_manager', 'owner', 'system_admin'] },
-  { key: 'sidebar.branches', href: '/dashboard/admin/branches', icon: <Building2 className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
-  { key: 'sidebar.subscriptions', href: '/dashboard/admin/subscriptions', icon: <CreditCard className="h-4 w-4" />, roles: ['admin', 'owner', 'system_admin'] },
-  { key: 'sidebar.waiter', href: '/dashboard/waiter', icon: <UserCircle className="h-4 w-4" />, roles: ['waiter'] },
-  { key: 'sidebar.cashier', href: '/dashboard/cashier', icon: <Receipt className="h-4 w-4" />, roles: ['cashier'] },
-  { key: 'sidebar.auditLogs', href: '/dashboard/admin/audit-logs', icon: <ClipboardList className="h-4 w-4" />, roles: ['admin', 'owner', 'system_admin'] },
-  { key: 'sidebar.owner', href: '/dashboard/owner', icon: <Crown className="h-4 w-4" />, roles: ['owner'] },
-  { key: 'sidebar.attendance', href: '/dashboard/attendance', icon: <Clock className="h-4 w-4" />, roles: ['admin', 'manager', 'owner', 'system_admin'] },
-  { key: 'sidebar.shifts', href: '/dashboard/shifts', icon: <CalendarDays className="h-4 w-4" />, roles: ['admin', 'manager', 'system_admin'] },
-  { key: 'sidebar.eod', href: '/dashboard/eod', icon: <FileSpreadsheet className="h-4 w-4" />, roles: ['admin', 'cashier', 'waiter', 'inventory_manager', 'manager', 'system_admin'] },
-  { key: 'sidebar.tips', href: '/dashboard/tips', icon: <DollarSign className="h-4 w-4" />, roles: ['admin', 'manager', 'waiter', 'system_admin'] },
-  { key: 'sidebar.receipts', href: '/dashboard/receipts', icon: <Printer className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'system_admin'] },
-  { key: 'sidebar.forecasts', href: '/dashboard/forecasts', icon: <TrendingUp className="h-4 w-4" />, roles: ['admin', 'inventory_manager', 'system_admin'] },
-  { key: 'sidebar.reservations', href: '/dashboard/reservations', icon: <CalendarDays className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'waiter', 'system_admin'] },
-  { key: 'sidebar.customers', href: '/dashboard/customers', icon: <Users className="h-4 w-4" />, roles: ['admin', 'manager', 'system_admin'] },
-  { key: 'sidebar.loyalty', href: '/dashboard/loyalty', icon: <Award className="h-4 w-4" />, roles: ['admin', 'manager', 'system_admin'] },
-  { key: 'sidebar.backups', href: '/dashboard/backups', icon: <HardDrive className="h-4 w-4" />, roles: ['admin', 'system_admin'] },
-  { key: 'sidebar.fayda', href: '/dashboard/fayda', icon: <Shield className="h-4 w-4" />, roles: ['admin', 'manager', 'system_admin'] },
-  { key: 'sidebar.paymentVerification', href: '/dashboard/payments/verify', icon: <Shield className="h-4 w-4" />, roles: ['admin', 'manager', 'cashier', 'system_admin'] },
+const systemAdminNav: NavItem[] = [
+  { key: 'sidebar.dashboard', href: '/dashboard/system-admin', icon: <LayoutDashboard className="h-4 w-4" /> },
+  { key: 'sidebar.restaurants', href: '/dashboard/admin/branches', icon: <Building2 className="h-4 w-4" /> },
+  { key: 'sidebar.pricing', href: '/dashboard/admin/subscriptions', icon: <Tag className="h-4 w-4" /> },
+  { key: 'sidebar.systemReports', href: '/dashboard/org/reports', icon: <BarChart3 className="h-4 w-4" /> },
+  { key: 'sidebar.logs', href: '/dashboard/admin/audit-logs', icon: <ClipboardList className="h-4 w-4" /> },
+  { key: 'sidebar.settings', href: '/dashboard/admin', icon: <Settings className="h-4 w-4" /> },
 ]
+
+const ownerNav: NavItem[] = [
+  { key: 'sidebar.dashboard', href: '/dashboard/owner', icon: <LayoutDashboard className="h-4 w-4" /> },
+  { key: 'sidebar.orders', href: '/dashboard/orders', icon: <ShoppingCart className="h-4 w-4" /> },
+  { key: 'sidebar.employees', href: '/dashboard/admin/employees', icon: <Users className="h-4 w-4" /> },
+  { key: 'sidebar.tables', href: '/dashboard/admin/tables', icon: <Table2 className="h-4 w-4" /> },
+  { key: 'sidebar.branches', href: '/dashboard/admin/branches', icon: <Building2 className="h-4 w-4" /> },
+  { key: 'sidebar.revenue', href: '/dashboard/owner', icon: <TrendingUp className="h-4 w-4" /> },
+  { key: 'sidebar.reports', href: '/dashboard/manager/reports', icon: <BarChart3 className="h-4 w-4" /> },
+  { key: 'sidebar.expenses', href: '/dashboard/expenses', icon: <Wallet className="h-4 w-4" /> },
+  { key: 'sidebar.payroll', href: '/dashboard/manager/payroll', icon: <ClipboardList className="h-4 w-4" /> },
+  { key: 'sidebar.inventory', href: '/dashboard/inventory', icon: <Package className="h-4 w-4" /> },
+  { key: 'sidebar.downloads', href: '/dashboard/receipts', icon: <Download className="h-4 w-4" /> },
+]
+
+const headManagerNav: NavItem[] = [
+  { key: 'sidebar.dashboard', href: '/dashboard/head-manager', icon: <LayoutDashboard className="h-4 w-4" /> },
+  { key: 'sidebar.employees', href: '/dashboard/admin/employees', icon: <Users className="h-4 w-4" /> },
+  { key: 'sidebar.tables', href: '/dashboard/admin/tables', icon: <Table2 className="h-4 w-4" /> },
+  { key: 'sidebar.inventory', href: '/dashboard/inventory', icon: <Package className="h-4 w-4" /> },
+  { key: 'sidebar.ingredients', href: '/dashboard/inventory/ingredients', icon: <Package className="h-4 w-4" /> },
+  { key: 'sidebar.suppliers', href: '/dashboard/inventory/suppliers', icon: <Truck className="h-4 w-4" /> },
+  { key: 'sidebar.purchases', href: '/dashboard/inventory/purchases', icon: <ShoppingCart className="h-4 w-4" /> },
+  { key: 'sidebar.expenses', href: '/dashboard/expenses', icon: <Wallet className="h-4 w-4" /> },
+  { key: 'sidebar.payments', href: '/dashboard/admin/payments', icon: <CreditCard className="h-4 w-4" /> },
+  { key: 'sidebar.payroll', href: '/dashboard/manager/payroll', icon: <ClipboardList className="h-4 w-4" /> },
+  { key: 'sidebar.eod', href: '/dashboard/eod', icon: <FileSpreadsheet className="h-4 w-4" /> },
+  { key: 'sidebar.pushReports', href: '/dashboard/manager/reports', icon: <Printer className="h-4 w-4" /> },
+  { key: 'sidebar.reports', href: '/dashboard/manager/reports', icon: <BarChart3 className="h-4 w-4" /> },
+]
+
+const managerNav: NavItem[] = [
+  { key: 'sidebar.dashboard', href: '/dashboard/manager', icon: <LayoutDashboard className="h-4 w-4" /> },
+  { key: 'sidebar.employees', href: '/dashboard/admin/employees', icon: <Users className="h-4 w-4" /> },
+  { key: 'sidebar.tables', href: '/dashboard/admin/tables', icon: <Table2 className="h-4 w-4" /> },
+  { key: 'sidebar.attendance', href: '/dashboard/attendance', icon: <Clock className="h-4 w-4" /> },
+  { key: 'sidebar.shifts', href: '/dashboard/shifts', icon: <CalendarDays className="h-4 w-4" /> },
+  { key: 'sidebar.reservations', href: '/dashboard/reservations', icon: <CalendarDays className="h-4 w-4" /> },
+]
+
+const adminNav: NavItem[] = [
+  { key: 'sidebar.dashboard', href: '/dashboard/admin', icon: <LayoutDashboard className="h-4 w-4" /> },
+  { key: 'sidebar.menu', href: '/dashboard/admin/menu', icon: <UtensilsCrossed className="h-4 w-4" /> },
+  { key: 'sidebar.categories', href: '/dashboard/admin/categories', icon: <Tag className="h-4 w-4" /> },
+  { key: 'sidebar.employees', href: '/dashboard/admin/employees', icon: <Users className="h-4 w-4" /> },
+  { key: 'sidebar.tables', href: '/dashboard/admin/tables', icon: <Table2 className="h-4 w-4" /> },
+  { key: 'sidebar.tableAssignment', href: '/dashboard/tables/assign', icon: <UserCircle className="h-4 w-4" /> },
+  { key: 'sidebar.payments', href: '/dashboard/admin/payments', icon: <Wallet className="h-4 w-4" /> },
+  { key: 'sidebar.payroll', href: '/dashboard/manager/payroll', icon: <ClipboardList className="h-4 w-4" /> },
+  { key: 'sidebar.reports', href: '/dashboard/manager/reports', icon: <BarChart3 className="h-4 w-4" /> },
+  { key: 'sidebar.orgReports', href: '/dashboard/org/reports', icon: <Activity className="h-4 w-4" /> },
+  { key: 'sidebar.kds', href: '/dashboard/kitchen', icon: <ChefHat className="h-4 w-4" /> },
+  { key: 'sidebar.inventory', href: '/dashboard/inventory', icon: <Package className="h-4 w-4" /> },
+  { key: 'sidebar.crossBranchInventory', href: '/dashboard/inventory/cross-branch', icon: <Building2 className="h-4 w-4" /> },
+  { key: 'sidebar.branches', href: '/dashboard/admin/branches', icon: <Building2 className="h-4 w-4" /> },
+  { key: 'sidebar.subscriptions', href: '/dashboard/admin/subscriptions', icon: <CreditCard className="h-4 w-4" /> },
+  { key: 'sidebar.auditLogs', href: '/dashboard/admin/audit-logs', icon: <ClipboardList className="h-4 w-4" /> },
+  { key: 'sidebar.attendance', href: '/dashboard/attendance', icon: <Clock className="h-4 w-4" /> },
+  { key: 'sidebar.shifts', href: '/dashboard/shifts', icon: <CalendarDays className="h-4 w-4" /> },
+  { key: 'sidebar.eod', href: '/dashboard/eod', icon: <FileSpreadsheet className="h-4 w-4" /> },
+  { key: 'sidebar.tips', href: '/dashboard/tips', icon: <DollarSign className="h-4 w-4" /> },
+  { key: 'sidebar.receipts', href: '/dashboard/receipts', icon: <Printer className="h-4 w-4" /> },
+  { key: 'sidebar.forecasts', href: '/dashboard/forecasts', icon: <TrendingUp className="h-4 w-4" /> },
+  { key: 'sidebar.reservations', href: '/dashboard/reservations', icon: <CalendarDays className="h-4 w-4" /> },
+  { key: 'sidebar.customers', href: '/dashboard/customers', icon: <Users className="h-4 w-4" /> },
+  { key: 'sidebar.loyalty', href: '/dashboard/loyalty', icon: <Award className="h-4 w-4" /> },
+  { key: 'sidebar.backups', href: '/dashboard/backups', icon: <HardDrive className="h-4 w-4" /> },
+  { key: 'sidebar.fayda', href: '/dashboard/fayda', icon: <Shield className="h-4 w-4" /> },
+  { key: 'sidebar.paymentVerification', href: '/dashboard/payments/verify', icon: <Shield className="h-4 w-4" /> },
+]
+
+const cashierNav: NavItem[] = [
+  { key: 'sidebar.dashboard', href: '/dashboard/cashier', icon: <LayoutDashboard className="h-4 w-4" /> },
+  { key: 'sidebar.receipts', href: '/dashboard/receipts', icon: <Printer className="h-4 w-4" /> },
+  { key: 'sidebar.eod', href: '/dashboard/eod', icon: <FileSpreadsheet className="h-4 w-4" /> },
+  { key: 'sidebar.reservations', href: '/dashboard/reservations', icon: <CalendarDays className="h-4 w-4" /> },
+]
+
+const waiterNav: NavItem[] = [
+  { key: 'sidebar.dashboard', href: '/dashboard/waiter', icon: <LayoutDashboard className="h-4 w-4" /> },
+  { key: 'sidebar.tips', href: '/dashboard/tips', icon: <DollarSign className="h-4 w-4" /> },
+  { key: 'sidebar.reservations', href: '/dashboard/reservations', icon: <CalendarDays className="h-4 w-4" /> },
+]
+
+const kitchenNav: NavItem[] = [
+  { key: 'sidebar.dashboard', href: '/dashboard/kitchen', icon: <LayoutDashboard className="h-4 w-4" /> },
+]
+
+const navMap: Record<Role, NavItem[]> = {
+  system_admin: systemAdminNav,
+  owner: ownerNav,
+  admin: adminNav,
+  inventory_manager: headManagerNav,
+  manager: managerNav,
+  cashier: cashierNav,
+  waiter: waiterNav,
+  kitchen_staff: kitchenNav,
+}
 
 interface SidebarProps { role: Role }
 
@@ -66,11 +139,10 @@ export function Sidebar({ role }: SidebarProps) {
   const [open, setOpen] = useState(false)
   const { t } = useLanguage()
 
-  const items = allNavItems.filter((item) => item.roles.includes(role))
+  const items = navMap[role] || []
 
   return (
     <>
-      {/* Mobile hamburger button */}
       <Button
         variant="ghost"
         size="icon-sm"
@@ -81,7 +153,6 @@ export function Sidebar({ role }: SidebarProps) {
         <Menu className="h-5 w-5" />
       </Button>
 
-      {/* Sidebar panel */}
       <aside
         data-testid="sidebar"
         className={cn(
@@ -90,7 +161,6 @@ export function Sidebar({ role }: SidebarProps) {
           open ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         )}
       >
-        {/* Header / Brand */}
         <div className="flex items-center justify-between border-b border-border/50 px-4 py-4">
           <Link href="/dashboard" className="group flex items-center gap-3" onClick={() => setOpen(false)}>
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-bold text-primary ring-1 ring-primary/20">
@@ -106,7 +176,6 @@ export function Sidebar({ role }: SidebarProps) {
           </Button>
         </div>
 
-        {/* Navigation */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 scrollbar-thin">
           <div className="space-y-1">
             {items.map((item) => {
@@ -144,7 +213,6 @@ export function Sidebar({ role }: SidebarProps) {
           </div>
         </div>
 
-        {/* Logout */}
         <div className="border-t border-border/50 p-3">
           <button
             data-testid="logout-button"
@@ -159,7 +227,6 @@ export function Sidebar({ role }: SidebarProps) {
         </div>
       </aside>
 
-      {/* Mobile overlay */}
       {open && (
         <div
           className="fixed inset-0 z-30 bg-black/30 backdrop-blur-sm lg:hidden animate-fade-in"

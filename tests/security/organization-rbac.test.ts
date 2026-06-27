@@ -136,10 +136,9 @@ describe('Organization API RBAC', () => {
         expect(res.status).not.toBe(403)
       })
 
-      it('should allow system_admin to access', async () => {
+      it('should block system_admin from accessing (business data isolation)', async () => {
         const res = await callApiAs('system_admin', getter)
-        expect(res.status).not.toBe(401)
-        expect(res.status).not.toBe(403)
+        expect(res.status).toBe(403)
       })
 
       it('should block admin from accessing', async () => {

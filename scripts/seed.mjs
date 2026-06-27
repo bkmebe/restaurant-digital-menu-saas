@@ -169,6 +169,7 @@ async function seed() {
     { id: 'e0000001-0000-0000-0000-000000000004', restaurant_id: REST_ID, full_name: 'Chaltu Ayana', phone: '+251911111104', email: 'chaltu@bunacafe.com', role: 'waiter', salary: 6000, hire_date: '2024-03-01', digital_employee_id: 'RMD-BUNA-2024-0004', is_active: true },
     { id: 'e0000001-0000-0000-0000-000000000005', restaurant_id: REST_ID, full_name: 'Dawit Eshetu', phone: '+251911111105', email: 'dawit@bunacafe.com', role: 'cashier', salary: 8000, hire_date: '2024-03-15', digital_employee_id: 'RMD-BUNA-2024-0005', is_active: true },
     { id: 'e0000001-0000-0000-0000-000000000006', restaurant_id: REST_ID, full_name: 'Eleni Mesfin', phone: '+251911111106', email: 'eleni@bunacafe.com', role: 'manager', salary: 15000, hire_date: '2024-04-01', digital_employee_id: 'RMD-BUNA-2024-0006', is_active: true },
+    { id: 'e0000001-0000-0000-0000-000000000007', restaurant_id: REST_ID, full_name: 'Fikru Lemma', phone: '+251911111107', email: 'fikru@bunacafe.com', role: 'inventory_manager', salary: 20000, hire_date: '2024-04-15', digital_employee_id: 'RMD-BUNA-2024-0007', is_active: true },
   ])
 
   // 8. Subscription
@@ -200,7 +201,7 @@ async function seed() {
   console.log('   • 1 Organization + 1 Restaurant + 1 Branch')
   console.log('   • 4 Categories with 16 Menu Items')
   console.log('   • 10 Tables')
-  console.log('   • 6 Employees')
+  console.log('   • 7 Employees')
   console.log('   • 1 Subscription (Growth Plan)')
   console.log('   • 3 Kitchen Stations')
 }

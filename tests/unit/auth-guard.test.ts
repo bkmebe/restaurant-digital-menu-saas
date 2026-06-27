@@ -39,7 +39,12 @@ interface AuthResult {
 type AuthGuardModule = {
   requireAuth: () => Promise<AuthResult | NextResponse>
   requireRole: (result: AuthResult, requiredRole: string) => NextResponse | null
+  requireMutate: (result: AuthResult) => NextResponse | null
   requireAdmin: () => Promise<AuthResult | NextResponse>
+  requireOwner: () => Promise<AuthResult | NextResponse>
+  requireInventoryManager: () => Promise<AuthResult | NextResponse>
+  requireSystemAdmin: () => Promise<AuthResult | NextResponse>
+  requireAdminOrOwner: () => Promise<AuthResult | NextResponse>
 }
 
 describe('Auth Guard', () => {
@@ -146,14 +151,21 @@ describe('Auth Guard', () => {
       expect(result).toBeNull()
     })
 
-    it('should allow admin to access all levels', () => {
+    it('should allow admin to access admin and below', () => {
       const adminResult: AuthResult = {
         ...baseResult,
         profile: { ...baseResult.profile, role: 'admin' },
       }
       expect(authGuard.requireRole(adminResult, 'admin')).toBeNull()
-      expect(authGuard.requireRole(adminResult, 'manager')).toBeNull()
       expect(authGuard.requireRole(adminResult, 'waiter')).toBeNull()
+    })
+
+    it('should block admin from manager routes', () => {
+      const adminResult: AuthResult = {
+        ...baseResult,
+        profile: { ...baseResult.profile, role: 'admin' },
+      }
+      expect(authGuard.requireRole(adminResult, 'manager')).not.toBeNull()
     })
 
     it('should allow manager to access manager and below', () => {
@@ -238,6 +250,161 @@ describe('Auth Guard', () => {
       const result = await authGuard.requireAdmin()
       expect(result).toBeInstanceOf(NextResponse)
       expect((result as NextResponse).status).toBe(401)
+    })
+  })
+
+  describe('requireMutate', () => {
+    const baseResult: AuthResult = {
+      user: { id: 'user-1' },
+      profile: { id: 'user-1', role: 'admin', restaurant_id: 'rest-1' },
+    }
+
+    it('should return null for non-owner roles', () => {
+      expect(authGuard.requireMutate(baseResult)).toBeNull()
+      const mgrResult = { ...baseResult, profile: { ...baseResult.profile, role: 'manager' } }
+      expect(authGuard.requireMutate(mgrResult)).toBeNull()
+      const invResult = { ...baseResult, profile: { ...baseResult.profile, role: 'inventory_manager' } }
+      expect(authGuard.requireMutate(invResult)).toBeNull()
+    })
+
+    it('should return 403 for owner role', async () => {
+      const ownerResult = { ...baseResult, profile: { ...baseResult.profile, role: 'owner', restaurant_id: null } }
+      const result = authGuard.requireMutate(ownerResult)
+      expect(result).toBeInstanceOf(NextResponse)
+      const response = result as NextResponse
+      expect(response.status).toBe(403)
+      const body = await response.json()
+      expect(body.error.code).toBe('READ_ONLY')
+    })
+  })
+
+  describe('requireOwner', () => {
+    it('should return AuthResult for owner users', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-1', email: 'owner@test.com' } },
+        error: null,
+      })
+      mockSingle.mockResolvedValue({
+        data: { id: 'owner-1', role: 'owner', restaurant_id: null },
+        error: null,
+      })
+
+      const result = await authGuard.requireOwner()
+      expect(result).not.toBeInstanceOf(NextResponse)
+      const authResult = result as AuthResult
+      expect(authResult.profile.role).toBe('owner')
+    })
+
+    it('should block non-owner users with 403', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'admin-1' } },
+        error: null,
+      })
+      mockSingle.mockResolvedValue({
+        data: { id: 'admin-1', role: 'admin', restaurant_id: 'rest-1' },
+        error: null,
+      })
+
+      const result = await authGuard.requireOwner()
+      expect(result).toBeInstanceOf(NextResponse)
+      expect((result as NextResponse).status).toBe(403)
+    })
+  })
+
+  describe('requireInventoryManager', () => {
+    it('should return AuthResult for inventory_manager users', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'inv-1', email: 'inv@test.com' } },
+        error: null,
+      })
+      mockSingle.mockResolvedValue({
+        data: { id: 'inv-1', role: 'inventory_manager', restaurant_id: 'rest-1' },
+        error: null,
+      })
+
+      const result = await authGuard.requireInventoryManager()
+      expect(result).not.toBeInstanceOf(NextResponse)
+      const authResult = result as AuthResult
+      expect(authResult.profile.role).toBe('inventory_manager')
+    })
+
+    it('should block non-inventory_manager users with 403', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'waiter-1' } },
+        error: null,
+      })
+      mockSingle.mockResolvedValue({
+        data: { id: 'waiter-1', role: 'waiter', restaurant_id: 'rest-1' },
+        error: null,
+      })
+
+      const result = await authGuard.requireInventoryManager()
+      expect(result).toBeInstanceOf(NextResponse)
+      expect((result as NextResponse).status).toBe(403)
+    })
+  })
+
+  describe('requireSystemAdmin', () => {
+    it('should return AuthResult for system_admin users', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sys-1', email: 'sys@test.com' } },
+        error: null,
+      })
+      mockSingle.mockResolvedValue({
+        data: { id: 'sys-1', role: 'system_admin', restaurant_id: null },
+        error: null,
+      })
+
+      const result = await authGuard.requireSystemAdmin()
+      expect(result).not.toBeInstanceOf(NextResponse)
+      const authResult = result as AuthResult
+      expect(authResult.profile.role).toBe('system_admin')
+    })
+
+    it('should block non-system_admin users with 403', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-1' } },
+        error: null,
+      })
+      mockSingle.mockResolvedValue({
+        data: { id: 'owner-1', role: 'owner', restaurant_id: null },
+        error: null,
+      })
+
+      const result = await authGuard.requireSystemAdmin()
+      expect(result).toBeInstanceOf(NextResponse)
+      expect((result as NextResponse).status).toBe(403)
+    })
+  })
+
+  describe('requireAdminOrOwner', () => {
+    it('should return AuthResult for admin users', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'admin-1', email: 'admin@test.com' } },
+        error: null,
+      })
+      mockSingle.mockResolvedValue({
+        data: { id: 'admin-1', role: 'admin', restaurant_id: 'rest-1' },
+        error: null,
+      })
+
+      const result = await authGuard.requireAdminOrOwner()
+      expect(result).not.toBeInstanceOf(NextResponse)
+    })
+
+    it('should block waiter from admin routes', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'waiter-1' } },
+        error: null,
+      })
+      mockSingle.mockResolvedValue({
+        data: { id: 'waiter-1', role: 'waiter', restaurant_id: 'rest-1' },
+        error: null,
+      })
+
+      const result = await authGuard.requireAdminOrOwner()
+      expect(result).toBeInstanceOf(NextResponse)
+      expect((result as NextResponse).status).toBe(403)
     })
   })
 })

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { createAdminSupabaseClient } from '@/lib/supabase/admin'
-import { requireTenant, requireRole } from '@/lib/utils/tenant'
+import { requireTenant, requireRole, requireMutate } from '@/lib/utils/tenant'
 
 export async function GET() {
   const tenant = await requireTenant()
@@ -29,6 +29,9 @@ export async function POST(request: Request) {
 
   const roleError = requireRole(tenant, 'admin')
   if (roleError) return roleError
+
+  const mutateError = requireMutate(tenant)
+  if (mutateError) return mutateError
 
   const body = await request.json()
   const { email, password, full_name, phone, role, national_id, fayda_number, salary, hire_date } = body
@@ -100,6 +103,9 @@ export async function PUT(request: Request) {
   const roleError = requireRole(tenant, 'admin')
   if (roleError) return roleError
 
+  const mutateError = requireMutate(tenant)
+  if (mutateError) return mutateError
+
   const { searchParams } = new URL(request.url)
   let id = searchParams.get('id')
 
@@ -138,6 +144,9 @@ export async function DELETE(request: Request) {
 
   const roleError = requireRole(tenant, 'admin')
   if (roleError) return roleError
+
+  const mutateError = requireMutate(tenant)
+  if (mutateError) return mutateError
 
   const { searchParams } = new URL(request.url)
   let id = searchParams.get('id')

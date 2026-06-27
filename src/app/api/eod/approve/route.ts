@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   const tenant = await requireTenant()
   if (tenant instanceof NextResponse) return tenant
 
-  const roleError = requireRole(tenant, 'admin')
+  const roleError = requireRole(tenant, 'inventory_manager')
   if (roleError) return roleError
 
   const mutateError = requireMutate(tenant)

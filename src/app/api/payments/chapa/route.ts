@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { initializePayment } from '@/lib/payments/chapa'
-import { requireTenant, requireRole } from '@/lib/utils/tenant'
+import { requireTenant, requireRole, requireMutate } from '@/lib/utils/tenant'
 
 export async function POST(request: Request) {
   const tenant = await requireTenant()
@@ -9,6 +9,9 @@ export async function POST(request: Request) {
 
   const roleError = requireRole(tenant, 'cashier')
   if (roleError) return roleError
+
+  const mutateError = requireMutate(tenant)
+  if (mutateError) return mutateError
 
   const supabase = await createServerSupabaseClient()
   let order_id: string, amount: number, email: string | undefined, phone: string | undefined, name: string | undefined

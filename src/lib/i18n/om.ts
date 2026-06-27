@@ -918,6 +918,19 @@ const om: Record<string, string> = {
   'offline.syncComplete': '{count} gochoota sammuu',
   'offline.syncFailed': '{failed} gochoota sammumaa baate',
 
+  // New Role-specific Sidebar
+  'sidebar.restaurants': 'Raastoorantii',
+  'sidebar.pricing': 'Gatii',
+  'sidebar.logs': 'Galmee',
+  'sidebar.systemReports': 'Gabaasa Sistimii',
+  'sidebar.settings': 'Sajoo',
+  'sidebar.revenue': 'Galii',
+  'sidebar.expenses': 'Baasii',
+  'sidebar.downloads': 'Buufata',
+  'sidebar.ingredients': 'Wantoota',
+  'sidebar.suppliers': 'Dhiyeessitoota',
+  'sidebar.purchases': 'Bittaa',
+
   // Backups
   'backups.title': 'Duplica',
   'backups.createBackup': 'Duplica uumi',

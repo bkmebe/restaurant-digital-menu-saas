@@ -72,7 +72,7 @@ describe('SQL Injection Prevention', () => {
     }
 
     it('should reject non-UUID restaurant_id values', async () => {
-      setupAuth('admin')
+      setupAuth('inventory_manager')
       const response = await callAiQuery("'; DROP TABLE orders; --", 'today sales')
       expect(response.status).toBe(400)
       const body = await response.json()
@@ -80,19 +80,19 @@ describe('SQL Injection Prevention', () => {
     })
 
     it('should reject SQL injection via restaurant_id', async () => {
-      setupAuth('admin')
+      setupAuth('inventory_manager')
       const response = await callAiQuery("' OR '1'='1", 'today sales')
       expect(response.status).toBe(400)
     })
 
     it('should reject empty restaurant_id', async () => {
-      setupAuth('admin')
+      setupAuth('inventory_manager')
       const response = await callAiQuery('', 'today sales')
       expect(response.status).toBe(400)
     })
 
     it('should process valid UUID restaurant_id', async () => {
-      setupAuth('admin')
+      setupAuth('inventory_manager')
       mockRpc.mockResolvedValue({ data: [{ revenue: 15000, orders: 45 }], error: null })
 
       const validUUID = '123e4567-e89b-12d3-a456-426614174000'
@@ -101,7 +101,7 @@ describe('SQL Injection Prevention', () => {
     })
 
     it('should use parameterized Supabase queries (no exec_sql RPC)', async () => {
-      setupAuth('admin')
+      setupAuth('inventory_manager')
       const validUUID = '123e4567-e89b-12d3-a456-426614174000'
       const response = await callAiQuery(validUUID, 'today sales')
       expect(response.status).toBe(200)

@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireAdminTenant } from '@/lib/utils/tenant'
+import { requireAdminTenant, requireMutate } from '@/lib/utils/tenant'
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const tenant = await requireAdminTenant()
   if (tenant instanceof NextResponse) return tenant
+
+  const mutateError = requireMutate(tenant)
+  if (mutateError) return mutateError
 
   const { id } = await params
   const supabase = await createServerSupabaseClient()
@@ -19,6 +22,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const tenant = await requireAdminTenant()
   if (tenant instanceof NextResponse) return tenant
+
+  const mutateError = requireMutate(tenant)
+  if (mutateError) return mutateError
 
   const { id } = await params
   const supabase = await createServerSupabaseClient()

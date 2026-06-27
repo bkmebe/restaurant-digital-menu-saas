@@ -108,8 +108,8 @@ export function useRequireAuth(requiredRole?: Role) {
         setAuthorized(false)
       } else if (requiredRole && profile) {
         const hierarchy: Record<string, number> = {
-          kitchen_staff: 1, waiter: 2, cashier: 3, inventory_manager: 4,
-          manager: 5, admin: 6, owner: 7, system_admin: 8,
+          kitchen_staff: 1, waiter: 2, cashier: 3, admin: 4,
+          manager: 5, inventory_manager: 6, owner: 7, system_admin: 8,
         }
         const userRole = profile.role as string
         setAuthorized((hierarchy[userRole] || 0) >= (hierarchy[requiredRole] || 0))

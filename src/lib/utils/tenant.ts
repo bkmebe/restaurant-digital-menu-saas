@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { ROLE_HIERARCHY } from '@/lib/utils/permissions'
 import type { Role } from '@/types/common'
 
 export interface TenantContext {
@@ -64,18 +65,15 @@ export async function requireTenant(): Promise<TenantContext | NextResponse> {
 }
 
 export function requireRole(tenant: TenantContext, minimumRole: Role): NextResponse | null {
-  const hierarchy: Record<Role, number> = {
-    kitchen_staff: 1,
-    waiter: 2,
-    cashier: 3,
-    inventory_manager: 4,
-    manager: 5,
-    admin: 6,
-    owner: 7,
-    system_admin: 8,
+  // System admin isolation: system_admin can only access system-level (admin+) routes
+  if (tenant.role === 'system_admin' && minimumRole !== 'system_admin' && minimumRole !== 'admin') {
+    return NextResponse.json(
+      { error: { code: 'FORBIDDEN', message: 'Insufficient permissions' } },
+      { status: 403 }
+    )
   }
 
-  if ((hierarchy[tenant.role] ?? 0) < (hierarchy[minimumRole] ?? 0)) {
+  if ((ROLE_HIERARCHY[tenant.role] ?? 0) < (ROLE_HIERARCHY[minimumRole] ?? 0)) {
     return NextResponse.json(
       { error: { code: 'FORBIDDEN', message: 'Insufficient permissions' } },
       { status: 403 }
@@ -108,6 +106,14 @@ export async function requireOwnerTenant(): Promise<TenantContext | NextResponse
   const result = await requireTenant()
   if (result instanceof NextResponse) return result
   const roleError = requireRole(result, 'owner')
+  if (roleError) return roleError
+  return result
+}
+
+export async function requireInventoryManagerTenant(): Promise<TenantContext | NextResponse> {
+  const result = await requireTenant()
+  if (result instanceof NextResponse) return result
+  const roleError = requireRole(result, 'inventory_manager')
   if (roleError) return roleError
   return result
 }

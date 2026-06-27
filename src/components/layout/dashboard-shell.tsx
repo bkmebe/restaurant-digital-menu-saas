@@ -4,7 +4,7 @@ import { Sidebar } from './sidebar'
 import { BranchSelector } from './branch-selector'
 import { Role } from '@/types/common'
 
-const BRANCH_SELECTOR_ROLES: Role[] = ['admin', 'manager', 'owner', 'system_admin']
+const BRANCH_SELECTOR_ROLES: Role[] = ['admin', 'manager', 'inventory_manager', 'owner', 'system_admin']
 
 interface DashboardShellProps {
   children: React.ReactNode

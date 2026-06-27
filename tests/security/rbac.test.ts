@@ -510,14 +510,14 @@ describe('RBAC Security Tests', () => {
       expect(response.status).toBe(403)
     })
 
-    it('should allow admin to delete shifts', async () => {
+    it('should allow inventory_manager to delete shifts', async () => {
       mockGetUser.mockResolvedValue({
-        data: { user: { id: 'admin-id', email: 'admin@test.com' } },
+        data: { user: { id: 'inv-id', email: 'inv@test.com' } },
         error: null,
       })
 
       mockFrom.mockImplementation((table: string) => {
-        if (table === 'profiles') return profileChain('admin-id', 'admin', 'rest-a')
+        if (table === 'profiles') return profileChain('inv-id', 'inventory_manager', 'rest-a')
         return queryChain()
       })
 
@@ -659,7 +659,7 @@ describe('RBAC Security Tests', () => {
       expect(response.status).toBe(403)
     })
 
-    it('should allow admin to approve EOD', async () => {
+    it('should block admin from approving EOD (inventory_manager+)', async () => {
       mockGetUser.mockResolvedValue({
         data: { user: { id: 'admin-id', email: 'admin@test.com' } },
         error: null,
@@ -686,7 +686,7 @@ describe('RBAC Security Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ eod_closing_id: 'eod-1', status: 'approved' }),
       }))
-      expect(response.status).toBe(200)
+      expect(response.status).toBe(403)
     })
 
     it('should block owner from closing EOD (read-only)', async () => {
@@ -709,14 +709,14 @@ describe('RBAC Security Tests', () => {
       expect(response.status).toBe(403)
     })
 
-    it('should block manager from reopening EOD (admin+)', async () => {
+    it('should block cashier from reopening EOD (admin+)', async () => {
       mockGetUser.mockResolvedValue({
-        data: { user: { id: 'manager-id', email: 'manager@test.com' } },
+        data: { user: { id: 'cashier-id', email: 'cashier@test.com' } },
         error: null,
       })
 
       mockFrom.mockImplementation((table: string) => {
-        if (table === 'profiles') return profileChain('manager-id', 'manager', 'rest-a')
+        if (table === 'profiles') return profileChain('cashier-id', 'cashier', 'rest-a')
         return queryChain()
       })
 
@@ -1320,9 +1320,9 @@ describe('RBAC Security Tests', () => {
       expect(response.status).toBe(200)
     })
 
-    it('should allow staff to POST coupons', async () => {
+    it('should allow inventory_manager to POST coupons', async () => {
       mockGetUser.mockResolvedValue({
-        data: { user: { id: 'admin-id', email: 'admin@test.com' } },
+        data: { user: { id: 'inv-id', email: 'inv@test.com' } },
         error: null,
       })
 
@@ -1330,7 +1330,7 @@ describe('RBAC Security Tests', () => {
       const selectMock = vi.fn().mockReturnValue({ single: singleMock })
 
       mockFrom.mockImplementation((table: string) => {
-        if (table === 'profiles') return profileChain('admin-id', 'admin', 'rest-a')
+        if (table === 'profiles') return profileChain('inv-id', 'inventory_manager', 'rest-a')
         if (table === 'coupons') return { ...queryChain(), insert: vi.fn().mockReturnValue({ select: selectMock }) }
         return queryChain({ data: [], error: null })
       })
@@ -1407,6 +1407,728 @@ describe('RBAC Security Tests', () => {
       const ownerAnalyticsRoute = await import('@/app/api/owner/analytics/route')
       const response = await ownerAnalyticsRoute.GET()
       expect(response.status).toBe(200)
+    })
+  })
+
+  describe('Role-scoped access control', () => {
+    it('should block owner from mutating inventory (read-only)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'org-uuid')
+        return queryChain()
+      })
+
+      const invRoute = await import('@/app/api/inventory/forecasts/generate/route')
+      const response = await invRoute.POST(new Request('http://localhost:3000/api/inventory/forecasts/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredient_id: 'ing-1', days: 30 }),
+      }))
+      expect(response.status).toBe(403)
+    })
+
+    it('should block owner from mutating payroll (read-only)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'org-uuid')
+        return queryChain()
+      })
+
+      const payrollRoute = await import('@/app/api/payroll/route')
+      const response = await payrollRoute.POST(new Request('http://localhost:3000/api/payroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employee_id: 'emp-1', month: 1, year: 2024, salary: 10000 }),
+      }))
+      expect(response.status).toBe(403)
+    })
+
+    it('should block cashier from processing payroll (admin required)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'cashier-id', email: 'cashier@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('cashier-id', 'cashier', 'rest-a')
+        return queryChain()
+      })
+
+      const payrollRoute = await import('@/app/api/payroll/route')
+      const response = await payrollRoute.POST(new Request('http://localhost:3000/api/payroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employee_id: 'emp-1', month: 1, year: 2024, salary: 10000 }),
+      }))
+      expect(response.status).toBe(403)
+    })
+
+    it('should allow inventory_manager to process payroll (level >= admin)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'inv-id', email: 'inv@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('inv-id', 'inventory_manager', 'rest-a')
+        if (table === 'payrolls') {
+          return { ...queryChain(), insert: vi.fn().mockReturnThis(), select: vi.fn().mockReturnThis(), single: vi.fn().mockResolvedValue({ data: { id: 'payroll-1' }, error: null }) }
+        }
+        return queryChain()
+      })
+
+      const payrollRoute = await import('@/app/api/payroll/route')
+      const response = await payrollRoute.POST(new Request('http://localhost:3000/api/payroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ restaurant_id: 'rest-a', employee_id: 'emp-1', month: 1, year: 2024, salary: 10000 }),
+      }))
+      expect(response.status).toBe(201)
+    })
+
+    it('should allow inventory_manager to approve EOD', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'inv-id', email: 'inv@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('inv-id', 'inventory_manager', 'rest-a')
+        if (table === 'eod_closings') {
+          return {
+            ...queryChain(),
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            single: vi.fn().mockResolvedValue({ data: { id: 'eod-1', restaurant_id: 'rest-a', status: 'closed' }, error: null }),
+            update: vi.fn().mockReturnThis(),
+          }
+        }
+        if (table === 'eod_approvals') return { ...queryChain(), insert: vi.fn().mockResolvedValue({ data: null, error: null }) }
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/eod/approve/route')
+      const response = await route.POST(new Request('http://localhost:3000/api/eod/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eod_closing_id: 'eod-1', status: 'approved' }),
+      }))
+      expect(response.status).toBe(200)
+    })
+
+    it('should block manager from approving EOD (inventory_manager+)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'manager-id', email: 'manager@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('manager-id', 'manager', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/eod/approve/route')
+      const response = await route.POST(new Request('http://localhost:3000/api/eod/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eod_closing_id: 'eod-1', status: 'approved' }),
+      }))
+      expect(response.status).toBe(403)
+    })
+  })
+
+  describe('Owner read-only on admin mutation endpoints', () => {
+    it('should block owner from creating menu items (admin required, read-only)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/menu/items/route')
+      const response = await route.POST(new Request('http://localhost:3000/api/menu/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'New Item', price: 100, category_id: 'cat-1' }),
+      }))
+      expect(response.status).toBe(403)
+    })
+
+    it('should block owner from creating employees (admin required, read-only)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/employees/route')
+      const response = await route.POST(new Request('http://localhost:3000/api/employees', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'New Emp', role: 'waiter' }),
+      }))
+      expect(response.status).toBe(403)
+    })
+
+    it('should block owner from creating branches (admin required, read-only)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/branches/route')
+      const response = await route.POST(new Request('http://localhost:3000/api/branches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'New Branch', location: 'Addis Ababa' }),
+      }))
+      expect(response.status).toBe(403)
+    })
+
+    it('should block owner from creating subscriptions (admin required, read-only)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/subscriptions/route')
+      const response = await route.POST(new Request('http://localhost:3000/api/subscriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan_id: 'plan-1', restaurant_id: 'rest-a' }),
+      }))
+      expect(response.status).toBe(403)
+    })
+  })
+
+  describe('System admin isolation from business data', () => {
+    it('should block system_admin from reading payroll (business data, manager+ route)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sysadmin-id', email: 'sysadmin@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('sysadmin-id', 'system_admin', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/payroll/route')
+      const response = await route.GET()
+      expect(response.status).toBe(403)
+    })
+
+    it('should block system_admin from reading employees (business data, manager+ route)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sysadmin-id', email: 'sysadmin@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('sysadmin-id', 'system_admin', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/employees/route')
+      const response = await route.GET()
+      expect(response.status).toBe(403)
+    })
+
+    it('should block system_admin from reading EOD (business data, cashier+ route)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sysadmin-id', email: 'sysadmin@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('sysadmin-id', 'system_admin', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/eod/current/route')
+      const response = await route.GET()
+      expect(response.status).toBe(403)
+    })
+
+    it('should block system_admin from reading reservations (business data, waiter+ route)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sysadmin-id', email: 'sysadmin@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('sysadmin-id', 'system_admin', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/reservations/route')
+      const response = await route.GET()
+      expect(response.status).toBe(403)
+    })
+
+    it('should block system_admin from reading attendance history (business data, manager+ route)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sysadmin-id', email: 'sysadmin@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('sysadmin-id', 'system_admin', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/attendance/history/route')
+      const response = await route.GET()
+      expect(response.status).toBe(403)
+    })
+
+    it('should block system_admin from reading tips (business data, cashier+ route)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sysadmin-id', email: 'sysadmin@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('sysadmin-id', 'system_admin', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/tips/route')
+      const response = await route.GET()
+      expect(response.status).toBe(403)
+    })
+
+    it('should block system_admin from reading campaigns (business data, waiter+ route)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sysadmin-id', email: 'sysadmin@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('sysadmin-id', 'system_admin', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/campaigns/route')
+      const response = await route.GET()
+      expect(response.status).toBe(403)
+    })
+
+    it('should allow system_admin to read audit logs (system data, admin route)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sysadmin-id', email: 'sysadmin@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('sysadmin-id', 'system_admin', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/admin/audit-logs/route')
+      const response = await route.GET()
+      expect(response.status).not.toBe(403)
+      expect(response.status).not.toBe(401)
+    })
+
+    it('should allow system_admin to read subscriptions (system data, admin route)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sysadmin-id', email: 'sysadmin@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('sysadmin-id', 'system_admin', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/subscriptions/route')
+      const response = await route.GET()
+      expect(response.status).not.toBe(403)
+      expect(response.status).not.toBe(401)
+    })
+  })
+
+  describe('Owner read-only GET access', () => {
+    it('should allow owner to GET employees', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/employees/route')
+      const response = await route.GET()
+      expect(response.status).toBe(200)
+    })
+
+    it('should allow owner to GET branches', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'org-uuid')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/branches/route')
+      const response = await route.GET()
+      expect(response.status).toBe(200)
+    })
+
+    it('should allow owner to GET orders by tableId', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/orders/route')
+      const response = await route.GET(new Request('http://localhost:3000/api/orders?tableId=table-1'))
+      expect(response.status).toBe(200)
+    })
+  })
+
+  describe('Owner read-only mutation additional', () => {
+    it('should block owner from opening EOD (read-only)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/eod/open/route')
+      const response = await route.POST()
+      expect(response.status).toBe(403)
+    })
+
+    it('should block owner from creating shifts (read-only)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/shifts/route')
+      const response = await route.POST(new Request('http://localhost:3000/api/shifts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: 'Morning', shift_date: '2024-01-15', start_time: '09:00', end_time: '17:00' }),
+      }))
+      expect(response.status).toBe(403)
+    })
+
+    it('should block owner from clock operations (read-only)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/attendance/clock/route')
+      const response = await route.POST(new Request('http://localhost:3000/api/attendance/clock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'clock_in' }),
+      }))
+      expect(response.status).toBe(403)
+    })
+
+    it('should block owner from creating reservations (read-only)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/reservations/route')
+      const response = await route.POST(new Request('http://localhost:3000/api/reservations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer_name: 'Test', guest_count: 2, reservation_date: '2026-06-24', reservation_time: '19:00' }),
+      }))
+      expect(response.status).toBe(403)
+    })
+
+    it('should block owner from creating campaigns (read-only)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/campaigns/route')
+      const response = await route.POST(new Request('http://localhost:3000/api/campaigns', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Promo', type: 'discount', value: 10 }),
+      }))
+      expect(response.status).toBe(403)
+    })
+
+    it('should block owner from updating employees (read-only)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'owner-id', email: 'owner@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('owner-id', 'owner', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/employees/route')
+      const response = await route.PUT(new Request('http://localhost:3000/api/employees?id=emp-1', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name: 'Updated' }),
+      }))
+      expect(response.status).toBe(403)
+    })
+  })
+
+  describe('System admin isolation additional', () => {
+    it('should block system_admin from reading branches (business data, manager+ route)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sysadmin-id', email: 'sysadmin@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('sysadmin-id', 'system_admin', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/branches/route')
+      const response = await route.GET()
+      expect(response.status).toBe(403)
+    })
+
+    it('should block system_admin from reading shifts (business data, manager+ route)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sysadmin-id', email: 'sysadmin@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('sysadmin-id', 'system_admin', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/shifts/route')
+      const response = await route.GET(new Request('http://localhost:3000/api/shifts'))
+      expect(response.status).toBe(403)
+    })
+
+    it('should block system_admin from reading customers (business data, waiter+ route)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sysadmin-id', email: 'sysadmin@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('sysadmin-id', 'system_admin', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/customers/route')
+      const response = await route.GET(new Request('http://localhost:3000/api/customers'))
+      expect(response.status).toBe(403)
+    })
+
+    it('should block system_admin from reading attendance current (business data, manager+ route)', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'sysadmin-id', email: 'sysadmin@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('sysadmin-id', 'system_admin', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/attendance/current/route')
+      const response = await route.GET()
+      expect(response.status).toBe(403)
+    })
+  })
+
+  describe('Inventory manager additional flows', () => {
+    it('should allow inventory_manager to GET employees', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'inv-id', email: 'inv@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('inv-id', 'inventory_manager', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/employees/route')
+      const response = await route.GET()
+      expect(response.status).toBe(200)
+    })
+
+    it('should allow inventory_manager to GET branches', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'inv-id', email: 'inv@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('inv-id', 'inventory_manager', 'org-uuid')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/branches/route')
+      const response = await route.GET()
+      expect(response.status).toBe(200)
+    })
+
+    it('should allow inventory_manager to GET EOD current', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'inv-id', email: 'inv@test.com' } },
+        error: null,
+      })
+
+      mockRpc.mockResolvedValue({ data: { total_orders: 0, total_sales: 0 }, error: null })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('inv-id', 'inventory_manager', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/eod/current/route')
+      const response = await route.GET()
+      expect(response.status).toBe(200)
+    })
+
+    it('should allow inventory_manager to GET payroll', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'inv-id', email: 'inv@test.com' } },
+        error: null,
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('inv-id', 'inventory_manager', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/payroll/route')
+      const response = await route.GET()
+      expect(response.status).toBe(200)
+    })
+
+    it('should allow inventory_manager to close EOD', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'inv-id', email: 'inv@test.com' } },
+        error: null,
+      })
+
+      const eodCloseMock = {
+        ...queryChain(),
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn().mockResolvedValue({ data: { id: 'eod-1', status: 'open', restaurant_id: 'rest-a' }, error: null }),
+        update: vi.fn().mockReturnThis(),
+        gte: vi.fn().mockReturnThis(),
+        lt: vi.fn().mockReturnThis(),
+        in: vi.fn().mockReturnThis(),
+      }
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('inv-id', 'inventory_manager', 'rest-a')
+        if (table === 'eod_closings') return eodCloseMock
+        if (table === 'orders') return { ...queryChain(), select: vi.fn().mockReturnThis(), gte: vi.fn().mockReturnThis(), lt: vi.fn().mockReturnThis(), in: vi.fn().mockResolvedValue({ data: [], error: null }) }
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/eod/close/route')
+      const response = await route.POST(new Request('http://localhost:3000/api/eod/close', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: 'Closing day', actual_cash: 1000 }),
+      }))
+      expect(response.status).toBe(200)
+    })
+
+    it('should allow inventory_manager to POST inventory forecasts', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'inv-id', email: 'inv@test.com' } },
+        error: null,
+      })
+
+      mockRpc.mockResolvedValue({ data: { forecast: [] }, error: null })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'profiles') return profileChain('inv-id', 'inventory_manager', 'rest-a')
+        return queryChain()
+      })
+
+      const route = await import('@/app/api/inventory/forecasts/generate/route')
+      const response = await route.POST(new Request('http://localhost:3000/api/inventory/forecasts/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredient_id: 'ing-1', days: 30 }),
+      }))
+      expect(response.status).toBe(201)
     })
   })
 })

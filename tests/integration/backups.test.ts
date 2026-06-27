@@ -26,9 +26,9 @@ vi.mock('@/lib/utils/tenant', () => {
     kitchen_staff: 1,
     waiter: 2,
     cashier: 3,
-    inventory_manager: 4,
+    admin: 4,
     manager: 5,
-    admin: 6,
+    inventory_manager: 6,
     owner: 7,
     system_admin: 8,
   }
@@ -518,9 +518,7 @@ describe('Backups API', () => {
     it.each([
       { role: 'waiter' as Role },
       { role: 'cashier' as Role },
-      { role: 'manager' as Role },
       { role: 'kitchen_staff' as Role },
-      { role: 'inventory_manager' as Role },
     ])('should reject $role from listing backups', async ({ role }) => {
       tenantModule.__setTenant(makeTenant({ role }))
 
@@ -534,6 +532,7 @@ describe('Backups API', () => {
 
     it.each([
       { role: 'owner' as Role },
+      { role: 'inventory_manager' as Role },
     ])('should allow $role to list backups', async ({ role }) => {
       tenantModule.__setTenant(makeTenant({ role }))
 

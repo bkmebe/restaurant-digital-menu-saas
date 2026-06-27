@@ -57,6 +57,14 @@ export async function requireAuth(): Promise<AuthResult | NextResponse> {
 }
 
 export function requireRole(result: AuthResult, requiredRole: Role): NextResponse | null {
+  // System admin isolation: system_admin can only access system-level (admin+) routes
+  if (result.profile.role === 'system_admin' && requiredRole !== 'system_admin' && requiredRole !== 'admin') {
+    return NextResponse.json(
+      { error: { code: 'FORBIDDEN', message: 'Insufficient permissions' } },
+      { status: 403 }
+    )
+  }
+
   if (!hasPermission(result.profile.role, requiredRole)) {
     return NextResponse.json(
       { error: { code: 'FORBIDDEN', message: 'Insufficient permissions' } },
@@ -96,6 +104,14 @@ export async function requireOwner(): Promise<AuthResult | NextResponse> {
   const result = await requireAuth()
   if (result instanceof NextResponse) return result
   const roleError = requireRole(result, 'owner')
+  if (roleError) return roleError
+  return result
+}
+
+export async function requireInventoryManager(): Promise<AuthResult | NextResponse> {
+  const result = await requireAuth()
+  if (result instanceof NextResponse) return result
+  const roleError = requireRole(result, 'inventory_manager')
   if (roleError) return roleError
   return result
 }

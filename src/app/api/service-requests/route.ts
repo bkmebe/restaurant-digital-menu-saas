@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireTenant } from '@/lib/utils/tenant'
+import { requireTenant, requireMutate } from '@/lib/utils/tenant'
 
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient()
@@ -12,6 +12,9 @@ export async function POST(request: Request) {
       { status: 401 }
     )
   }
+
+  const mutateError = requireMutate(tenant)
+  if (mutateError) return mutateError
 
   let body: any
   try {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireTenant, requireRole } from '@/lib/utils/tenant'
+import { requireTenant, requireRole, requireMutate } from '@/lib/utils/tenant'
 
 export async function GET(request: Request) {
   const tenant = await requireTenant()
@@ -49,6 +49,9 @@ export async function POST(request: Request) {
 
   const roleError = requireRole(tenant, 'manager')
   if (roleError) return roleError
+
+  const mutateError = requireMutate(tenant)
+  if (mutateError) return mutateError
 
   const supabase = await createServerSupabaseClient()
   const restaurantId = tenant.restaurantId

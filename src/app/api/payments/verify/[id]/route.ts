@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireTenant, requireRole } from '@/lib/utils/tenant'
+import { requireTenant, requireRole, requireMutate } from '@/lib/utils/tenant'
 
 export async function GET(
   _request: Request,
@@ -38,6 +38,9 @@ export async function PUT(
 
   const roleError = requireRole(tenant, 'cashier')
   if (roleError) return roleError
+
+  const mutateError = requireMutate(tenant)
+  if (mutateError) return mutateError
 
   const { id } = await params
   const supabase = await createServerSupabaseClient()

@@ -44,6 +44,21 @@ const en = {
   'sidebar.openMenu': 'Open navigation menu',
   'sidebar.closeMenu': 'Close navigation menu',
 
+  // New Role-specific Sidebar
+  'sidebar.orders': 'Orders',
+  'sidebar.pushReports': 'Push Reports',
+  'sidebar.restaurants': 'Restaurants',
+  'sidebar.pricing': 'Pricing',
+  'sidebar.logs': 'Logs',
+  'sidebar.systemReports': 'System Reports',
+  'sidebar.settings': 'Settings',
+  'sidebar.revenue': 'Revenue',
+  'sidebar.expenses': 'Expenses',
+  'sidebar.downloads': 'Downloads',
+  'sidebar.ingredients': 'Ingredients',
+  'sidebar.suppliers': 'Suppliers',
+  'sidebar.purchases': 'Purchases',
+
   // Backups
   'backups.title': 'Backups',
   'backups.createBackup': 'Create Backup',

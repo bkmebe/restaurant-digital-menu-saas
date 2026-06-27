@@ -112,12 +112,12 @@ describe('Tenant Isolation', () => {
 
     it('should only return orders for Restaurant A when admin is from Restaurant A', async () => {
       mockGetUser.mockResolvedValue({
-        data: { user: { id: 'admin-a', email: 'admin@restaurant-a.com' } },
+        data: { user: { id: 'inv-manager-a', email: 'inv@restaurant-a.com' } },
         error: null,
       })
 
       mockFrom.mockImplementation((table: string) => {
-        if (table === 'profiles') return profileChain('admin-a', 'admin', RESTAURANT_A)
+        if (table === 'profiles') return profileChain('inv-manager-a', 'inventory_manager', RESTAURANT_A)
         if (table === 'orders' || table === 'mv_daily_sales') {
           return createTrackingQueryBuilder([{ id: 'order-1', restaurant_id: RESTAURANT_A, total_amount: 5000 }], table)
         }
@@ -138,12 +138,12 @@ describe('Tenant Isolation', () => {
 
     it('should block Restaurant B data from Restaurant A API call', async () => {
       mockGetUser.mockResolvedValue({
-        data: { user: { id: 'admin-b', email: 'admin@restaurant-b.com' } },
+        data: { user: { id: 'inv-manager-b', email: 'inv@restaurant-b.com' } },
         error: null,
       })
 
       mockFrom.mockImplementation((table: string) => {
-        if (table === 'profiles') return profileChain('admin-b', 'admin', RESTAURANT_B)
+        if (table === 'profiles') return profileChain('inv-manager-b', 'inventory_manager', RESTAURANT_B)
         if (table === 'menu_items') return createTrackingQueryBuilder(null, table)
         return createTrackingQueryBuilder(null, table)
       })

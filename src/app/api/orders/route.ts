@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { requireTenant } from '@/lib/utils/tenant'
+import { requireTenant, requireMutate } from '@/lib/utils/tenant'
 
 export async function POST(request: Request) {
   let body: Record<string, unknown>
@@ -29,7 +29,11 @@ export async function POST(request: Request) {
   }
 
   const tenant = await requireTenant()
-  const userId = tenant instanceof NextResponse ? null : (tenant as { userId: string }).userId
+  if (tenant instanceof NextResponse) return tenant
+  const userId = tenant.userId
+
+  const mutateError = requireMutate(tenant)
+  if (mutateError) return mutateError
 
   const { data: order, error: orderError } = await supabase.from('orders').insert({
     restaurant_id: table.restaurant_id,

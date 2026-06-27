@@ -918,6 +918,19 @@ const am: Record<string, string> = {
   'offline.syncComplete': '{count} ድርጊቶች ተመሳስለዋል',
   'offline.syncFailed': '{failed} ድርጊቶች መመሳሰል አልቻሉም',
 
+  // New Role-specific Sidebar
+  'sidebar.restaurants': 'ሬስቶራንቶች',
+  'sidebar.pricing': 'ዋጋ አሰጣጥ',
+  'sidebar.logs': 'መዛግብት',
+  'sidebar.systemReports': 'የስርዓት ሪፖርቶች',
+  'sidebar.settings': 'ቅንብሮች',
+  'sidebar.revenue': 'ገቢ',
+  'sidebar.expenses': 'ወጪዎች',
+  'sidebar.downloads': 'ወራጆች',
+  'sidebar.ingredients': 'ጥሬ ዕቃዎች',
+  'sidebar.suppliers': 'አቅራቢዎች',
+  'sidebar.purchases': 'ግዢዎች',
+
   // Backups
   'backups.title': 'ምትኬዎች',
   'backups.createBackup': 'ምትኬ ፍጠር',
